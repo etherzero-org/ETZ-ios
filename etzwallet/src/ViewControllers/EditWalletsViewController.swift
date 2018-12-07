@@ -46,7 +46,7 @@ class EditWalletsViewController : UIViewController {
     private let cellIdentifier = "CellIdentifier"
     private let kvStore: BRReplicatedKVStore
     private var metaData: CurrencyListMetaData
-    private let localCurrencies: [CurrencyDef] = [Currencies.btc, Currencies.eth, Currencies.brd]
+    private let localCurrencies: [CurrencyDef] = [Currencies.btc, Currencies.eth]//, Currencies.brd
     private let tableView = UITableView()
     private let searchBar = UISearchBar()
 

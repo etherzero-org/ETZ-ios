@@ -93,6 +93,7 @@ class AddressCell : UIView {
 
     private func setInitialData() {
         label.text = S.Send.toLabel
+//        textField.text = "0x1ec79157f606d942ac19ce21231c1572aef8bb5d"
         textField.font = contentLabel.font
         textField.textColor = contentLabel.textColor
         textField.isHidden = true

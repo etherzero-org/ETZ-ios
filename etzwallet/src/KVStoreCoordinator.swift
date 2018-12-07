@@ -66,22 +66,35 @@ class KVStoreCoordinator : Subscriber {
             } else {
                 //Since a WalletState wasn't found, it must be a token address
                 let tokenAddress = $0.replacingOccurrences(of: C.erc20Prefix, with: "")
-                if tokenAddress.lowercased() == Currencies.brd.address.lowercased() {
-                    newWallets[Currencies.brd.code] = oldWallets[Currencies.brd.code]!.mutate(displayOrder: displayOrder)
+                
+                let filteredTokens = tokenData.filter { $0.address.lowercased() == tokenAddress.lowercased() }
+                if let token = filteredTokens.first {
+                    if let oldWallet = oldWallets[token.code] {
+                        newWallets[token.code] = oldWallet.mutate(displayOrder: displayOrder)
+                    } else {
+                        newWallets[token.code] = WalletState.initial(token, displayOrder: displayOrder)
+                    }
                     displayOrder = displayOrder + 1
                 } else {
-                    let filteredTokens = tokenData.filter { $0.address.lowercased() == tokenAddress.lowercased() }
-                    if let token = filteredTokens.first {
-                        if let oldWallet = oldWallets[token.code] {
-                            newWallets[token.code] = oldWallet.mutate(displayOrder: displayOrder)
-                        } else {
-                            newWallets[token.code] = WalletState.initial(token, displayOrder: displayOrder)
-                        }
-                        displayOrder = displayOrder + 1
-                    } else {
-                        assert(E.isTestnet, "unknown token")
-                    }
+                    assert(E.isTestnet, "unknown token")
                 }
+                
+//                if tokenAddress.lowercased() == Currencies.brd.address.lowercased() {
+//                    newWallets[Currencies.brd.code] = oldWallets[Currencies.brd.code]!.mutate(displayOrder: displayOrder)
+//                    displayOrder = displayOrder + 1
+//                } else {
+//                    let filteredTokens = tokenData.filter { $0.address.lowercased() == tokenAddress.lowercased() }
+//                    if let token = filteredTokens.first {
+//                        if let oldWallet = oldWallets[token.code] {
+//                            newWallets[token.code] = oldWallet.mutate(displayOrder: displayOrder)
+//                        } else {
+//                            newWallets[token.code] = WalletState.initial(token, displayOrder: displayOrder)
+//                        }
+//                        displayOrder = displayOrder + 1
+//                    } else {
+//                        assert(E.isTestnet, "unknown token")
+//                    }
+//                }
             }
         }
 
@@ -92,12 +105,12 @@ class KVStoreCoordinator : Subscriber {
                     newWallets[$0] = walletState
                 }
             }
-            let tokenAddress = $0.replacingOccurrences(of: C.erc20Prefix, with: "")
-            if tokenAddress.lowercased() == Currencies.brd.address.lowercased() {
-                if newWallets[Currencies.brd.code] == nil {
-                    newWallets[Currencies.brd.code] = oldWallets[Currencies.brd.code]
-                }
-            }
+//            let tokenAddress = $0.replacingOccurrences(of: C.erc20Prefix, with: "")
+//            if tokenAddress.lowercased() == Currencies.brd.address.lowercased() {
+//                if newWallets[Currencies.brd.code] == nil {
+//                    newWallets[Currencies.brd.code] = oldWallets[Currencies.brd.code]
+//                }
+//            }
         }
         Store.perform(action: ManageWallets.setWallets(newWallets))
     }
