@@ -14,6 +14,7 @@ enum S {
         static let bits = "ƀ"
         static let eth = "Ξ"
         static let etz = "z"
+        static let eash = "s"
         static var btc: String {
             if  #available(iOS 10, *) {
                 return "₿"

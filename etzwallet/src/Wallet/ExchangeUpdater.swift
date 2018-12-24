@@ -37,7 +37,11 @@ class ExchangeUpdater : Subscriber {
             // get token/btc rates
             self.apiClient.tokenExchangeRates() { [weak self] result in
                 guard let `self` = self,
-                    case .success(let tokenBtcRates) = result else { return }
+                    case .success(var tokenBtcRates) = result else { return }
+                
+                // 添加一条默认数据
+                let eashRate = Rate(code: "BTC", name: "EASH", rate: 1/(btcFiatRates[2].rate), reciprocalCode: "eash")
+                tokenBtcRates[3] = eashRate;
                 
                 // calculate token/fiat rates
                 var tokenBtcDict = [String: Double]()

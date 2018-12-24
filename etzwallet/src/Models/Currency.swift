@@ -267,6 +267,13 @@ public struct Currencies {
                               symbol: S.Symbols.eth,
                               colors: (UIColor(red:0, green:0.74, blue:1, alpha:1.0), UIColor(red:0.37, green:0.44, blue:0.64, alpha:1.0)),
                               urlSchemes: ["etherzero", "ether"])
+    static let eash = ERC20Token(name: "EASH",
+                                code: "EASH",
+                                symbol: S.Symbols.eth,
+                                colors: (UIColor.fromHex("7613fd"), UIColor.fromHex("6209db")),
+                                address: "0x013b6e279989aa20819a623630fe678c9f43a48f",
+                                abi: ERC20Token.standardAbi,
+                                decimals: 8)
 //    static let brd = ERC20Token(name: "BlockOptions",
 //                                code: "BO",
 //                                symbol: "🍞",
