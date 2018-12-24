@@ -59,7 +59,8 @@ extension BRAPIClient {
     public func getTokenTransferLogs(address: EthAddress, contractAddress: String?, handler: @escaping (APIResult<[EthLogEventJSON]>) -> Void) {
         let accountAddress = address.paddedHexString
         let tokenAddressParam = (contractAddress != nil) ? "&address=\(contractAddress!)" : ""
-        let req = URLRequest(url: testurl("/etzq/api/v1/gettokenLogs?fromBlock=0&toBlock=latest\(tokenAddressParam)&topic0=\(ERC20Token.transferEventSignature)&topic1=\(accountAddress)&topic1_2_opr=or&topic2=\(accountAddress)"))
+        let req = URLRequest(url: testurl("/etzq/api/v1/gettokenLogs?fromBlock=0&toBlock=latest\(tokenAddressParam)&topic0=\(ERC20Token.transferEventSignature)&topic1=\(accountAddress)"))
+//        let req = URLRequest(url: testurl("/etzq/api/v1/gettokenLogs?fromBlock=0&toBlock=latest\(tokenAddressParam)&topic0=\(ERC20Token.transferEventSignature)&topic1=\(accountAddress)&topic1_2_opr=or&topic2=\(accountAddress)"))
 //        let req = URLRequest(url: otherurl("/ethq/\(network)/query?module=logs&action=getLogs&fromBlock=0&toBlock=latest\(tokenAddressParam)&topic0=\(ERC20Token.transferEventSignature)&topic1=\(accountAddress)&topic1_2_opr=or&topic2=\(accountAddress)"))
         send(apiRequest: req, handler: handler)
     }
