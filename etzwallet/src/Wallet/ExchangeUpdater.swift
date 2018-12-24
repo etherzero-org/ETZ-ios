@@ -37,15 +37,28 @@ class ExchangeUpdater : Subscriber {
             // get token/btc rates
             self.apiClient.tokenExchangeRates() { [weak self] result in
                 guard let `self` = self,
-                    case .success(var tokenBtcRates) = result else { return }
-                
+                    case .success(let tokenBtcRates) = result else { return }
                 // 添加一条默认数据
-                let eashRate = Rate(code: "BTC", name: "EASH", rate: 1/(btcFiatRates[2].rate), reciprocalCode: "eash")
-                tokenBtcRates[3] = eashRate;
+                var eashRate = Rate(code: "BTC", name: "EASH", rate: 1/(btcFiatRates[2].rate), reciprocalCode: "eash")
+                btcFiatRates.forEach({ (rate) in
+                    if rate.code == "USD" {
+                        eashRate = Rate(code: "BTC", name: "EASH", rate: 1/(rate.rate), reciprocalCode: "eash")
+                    }
+                })
+//                tokenBtcRates[3] = eashRate;
+                var tokens:[Rate] = tokenBtcRates
+                tokens.removeAll()
+                tokenBtcRates.forEach({(token) in
+                    if token.name == eashRate.name {
+                        tokens.append(eashRate)
+                    } else {
+                        tokens.append(token)
+                    }
+                })
                 
                 // calculate token/fiat rates
                 var tokenBtcDict = [String: Double]()
-                tokenBtcRates.forEach { tokenBtcDict[$0.reciprocalCode] = $0.rate }
+                tokens.forEach { tokenBtcDict[$0.reciprocalCode] = $0.rate }
                 Store.state.currencies.filter({ !$0.matches(Currencies.btc) }).forEach { currency in
                     guard let tokenBtcRate = tokenBtcDict[currency.code.lowercased()] else { return }
                     let fiatRates: [Rate] = btcFiatRates.map { btcFiatRate in
