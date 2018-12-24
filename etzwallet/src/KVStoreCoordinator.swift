@@ -17,24 +17,33 @@ class KVStoreCoordinator : Subscriber {
 
     func setupStoredCurrencyList() {
         //If stored currency list metadata doesn't exist, create a new one
-        guard let currencyMetaData = CurrencyListMetaData(kvStore: kvStore) else {
+        guard CurrencyListMetaData(kvStore: kvStore) != nil else {
             let newCurrencyListMetaData = CurrencyListMetaData()
             newCurrencyListMetaData.enabledCurrencies = CurrencyListMetaData.defaultCurrencies
             set(newCurrencyListMetaData)
-            setInitialDisplayWallets(metaData: newCurrencyListMetaData, tokenData: [])
+            // 这个数据是通过异步获取的，这里直接拿不到 tokenData 数据，所以这里数据初始化会有问题，这行代码暂时需要注释掉
+//            setInitialDisplayWallets(metaData: newCurrencyListMetaData, tokenData: [])
+            setWallets()
             return
         }
-
+        setWallets()
+    }
+    
+    private func setWallets() {
+        guard let currencyMetaData = CurrencyListMetaData(kvStore: kvStore) else {
+            return setupStoredCurrencyList()
+        }
+        
         if currencyMetaData.doesRequireSave == 1 {
             currencyMetaData.doesRequireSave = 0
             set(currencyMetaData)
             try? kvStore.syncKey(tokenListMetaDataKey, completionHandler: {_ in })
         }
-
+        
         StoredTokenData.fetchTokens(callback: { tokenData in
             self.setInitialDisplayWallets(metaData: currencyMetaData, tokenData: tokenData.map { ERC20Token(tokenData: $0) })
         })
-
+        
         Store.subscribe(self, name: .resetDisplayCurrencies, callback: { _ in
             self.resetDisplayCurrencies()
         })
