@@ -277,18 +277,20 @@ extension EthWalletManager: EthereumClient {
         }
         guard syncState.willBeginRequest(.getTransactions, currencies: tokens) else { return print("getLogs skipped") }
         
-        apiClient.getTokenTransferLogs(address: address, contractAddress: contract) { [weak self] result in
-            guard let `self` = self else { return }
-            switch result {
-            case .success(let jsonObjects):
-                completion(jsonObjects) // imports logs json data into core
-                for token in self.tokens {
-                    self.updateTransactions(token)
+        self.tokens.forEach { token in
+            apiClient.getTokenTransferLogs(address: address, contractAddress: token.address) { [weak self] result in
+                guard let `self` = self else { return }
+                switch result {
+                case .success(let jsonObjects):
+                    completion(jsonObjects) // imports logs json data into core
+                    for token in self.tokens {
+                        self.updateTransactions(token)
+                    }
+                    self.syncState.didEndRequest(.getTransactions, currencies: tokens, success: true)
+                case .error(let error):
+                    print("getLogs error: \(error.localizedDescription)")
+                    self.syncState.didEndRequest(.getTransactions, currencies: tokens, success: false)
                 }
-                self.syncState.didEndRequest(.getTransactions, currencies: tokens, success: true)
-            case .error(let error):
-                print("getLogs error: \(error.localizedDescription)")
-                self.syncState.didEndRequest(.getTransactions, currencies: tokens, success: false)
             }
         }
     }

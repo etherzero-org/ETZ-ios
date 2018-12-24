@@ -107,6 +107,7 @@ class TransactionsTableViewController : UITableViewController, Subscriber, Track
         })
         
         Store.subscribe(self, selector: {
+            // 这个回调中拿到交易数据
             guard let oldTransactions = $0[self.currency]?.transactions else { return false }
             guard let newTransactions = $1[self.currency]?.transactions else { return false }
             return oldTransactions != newTransactions },
