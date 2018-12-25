@@ -14,6 +14,14 @@ class KVStoreCoordinator : Subscriber {
         self.kvStore = kvStore
         setupStoredCurrencyList()
     }
+    
+    private func save(metaData:CurrencyListMetaData) {
+        do {
+            let _ = try kvStore.set(metaData)
+        } catch let error {
+            print("error setting wallet info: \(error)")
+        }
+    }
 
     func setupStoredCurrencyList() {
         //If stored currency list metadata doesn't exist, create a new one
@@ -38,6 +46,17 @@ class KVStoreCoordinator : Subscriber {
             currencyMetaData.doesRequireSave = 0
             set(currencyMetaData)
             try? kvStore.syncKey(tokenListMetaDataKey, completionHandler: {_ in })
+        }
+        
+        if !currencyMetaData.enabledCurrencies.contains("0x013b6e279989aa20819a623630fe678c9f43a48f") {
+            let newCurrencyListMetaData = CurrencyListMetaData(kvStore: self.kvStore)!
+            newCurrencyListMetaData.enabledCurrencies = CurrencyListMetaData.defaultCurrencies
+            save(metaData: newCurrencyListMetaData)
+        }
+        
+        if !UserDefaults.standard.bool(forKey: "isAddEash") {
+            currencyMetaData.addTokenAddresses(addresses: [Currencies.eash.address])
+            UserDefaults.standard.set(true, forKey: "isAddEash")
         }
         
         StoredTokenData.fetchTokens(callback: { tokenData in
