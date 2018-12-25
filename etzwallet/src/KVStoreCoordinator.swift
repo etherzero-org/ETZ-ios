@@ -51,13 +51,14 @@ class KVStoreCoordinator : Subscriber {
         if !currencyMetaData.enabledCurrencies.contains("0x013b6e279989aa20819a623630fe678c9f43a48f") {
             let newCurrencyListMetaData = CurrencyListMetaData(kvStore: self.kvStore)!
             newCurrencyListMetaData.enabledCurrencies = CurrencyListMetaData.defaultCurrencies
+            currencyMetaData.enabledCurrencies = CurrencyListMetaData.defaultCurrencies
             save(metaData: newCurrencyListMetaData)
         }
         
-        if !UserDefaults.standard.bool(forKey: "isAddEash") {
-            currencyMetaData.addTokenAddresses(addresses: [Currencies.eash.address])
-            UserDefaults.standard.set(true, forKey: "isAddEash")
-        }
+//        if !UserDefaults.standard.bool(forKey: "isAddEash") {
+//            currencyMetaData.addTokenAddresses(addresses: [Currencies.eash.address])
+//            UserDefaults.standard.set(true, forKey: "isAddEash")
+//        }
         
         StoredTokenData.fetchTokens(callback: { tokenData in
             self.setInitialDisplayWallets(metaData: currencyMetaData, tokenData: tokenData.map { ERC20Token(tokenData: $0) })
