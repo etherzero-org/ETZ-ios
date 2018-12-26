@@ -129,7 +129,7 @@ class HomeScreenViewController : UIViewController, Subscriber, Trackable {
         totalHeader.textAlignment = .left
         total.textAlignment = .left
         total.text = "0"
-        title = ""
+//        title = ""
         
         updateTotalAssets()
     }

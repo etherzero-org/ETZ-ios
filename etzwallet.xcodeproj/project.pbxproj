@@ -14,6 +14,9 @@
 		023809B02103103700B14D6F /* AdvanceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 023809AF2103103700B14D6F /* AdvanceViewController.swift */; };
 		023809B22107224600B14D6F /* GasPriceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 023809B12107224100B14D6F /* GasPriceCell.swift */; };
 		023809B421082A6000B14D6F /* PowerLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 023809B321082A6000B14D6F /* PowerLabel.swift */; };
+		02C41CEC21D22AC700581A0E /* ETZTabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C41CEB21D22AC700581A0E /* ETZTabBarViewController.swift */; };
+		02C41CEE21D22BE900581A0E /* ETZDiscoverViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C41CED21D22BE900581A0E /* ETZDiscoverViewController.swift */; };
+		02C41CF021D22BFD00581A0E /* ETZMineViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C41CEF21D22BFD00581A0E /* ETZMineViewController.swift */; };
 		1B1AFFA01FB7EF7C00E61908 /* BiometricsSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1AFF9E1FB7EF7C00E61908 /* BiometricsSettingsViewController.swift */; };
 		1B1AFFA11FB7EF7C00E61908 /* BiometricsSpendingLimitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1AFF9F1FB7EF7C00E61908 /* BiometricsSpendingLimitViewController.swift */; };
 		22122B721F0B8996000E9AB9 /* BRAPIClient+Events.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22122B711F0B8996000E9AB9 /* BRAPIClient+Events.swift */; };
@@ -608,6 +611,9 @@
 		023809AF2103103700B14D6F /* AdvanceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvanceViewController.swift; sourceTree = "<group>"; };
 		023809B12107224100B14D6F /* GasPriceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GasPriceCell.swift; sourceTree = "<group>"; };
 		023809B321082A6000B14D6F /* PowerLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PowerLabel.swift; sourceTree = "<group>"; };
+		02C41CEB21D22AC700581A0E /* ETZTabBarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ETZTabBarViewController.swift; sourceTree = "<group>"; };
+		02C41CED21D22BE900581A0E /* ETZDiscoverViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ETZDiscoverViewController.swift; sourceTree = "<group>"; };
+		02C41CEF21D22BFD00581A0E /* ETZMineViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ETZMineViewController.swift; sourceTree = "<group>"; };
 		1B1AFF9E1FB7EF7C00E61908 /* BiometricsSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BiometricsSettingsViewController.swift; sourceTree = "<group>"; };
 		1B1AFF9F1FB7EF7C00E61908 /* BiometricsSpendingLimitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BiometricsSpendingLimitViewController.swift; sourceTree = "<group>"; };
 		22122B711F0B8996000E9AB9 /* BRAPIClient+Events.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "BRAPIClient+Events.swift"; sourceTree = "<group>"; };
@@ -2647,6 +2653,7 @@
 				75A2A7931DA5934300A983D8 /* AppDelegate.swift */,
 				CEC7E593200D7C830056F410 /* Sentry.swift */,
 				CE20C8F11DBAF71500C8397A /* ApplicationController.swift */,
+				02C41CEB21D22AC700581A0E /* ETZTabBarViewController.swift */,
 				754AE0BB1DFE8A46007FD001 /* BRCore.swift */,
 				CEE659E61F65A936001FF29D /* RetryTimer.swift */,
 				CE8CD8DC1E2D9EF200785E02 /* Sender.swift */,
@@ -2908,6 +2915,8 @@
 				CE760ED71E55F9E000EFAC2B /* SecurityCenter */,
 				CEBF32EF1DDCD30600348FC6 /* AccountViewController.swift */,
 				CE0822631FCD1BD100EF371D /* HomeScreenViewController.swift */,
+				02C41CED21D22BE900581A0E /* ETZDiscoverViewController.swift */,
+				02C41CEF21D22BFD00581A0E /* ETZMineViewController.swift */,
 				CE274A601FD7C902000A4E62 /* RootNavigationController.swift */,
 				CE3840E71FD590BD00437C31 /* AssetListTableView.swift */,
 				CE20C9061DBC587200C8397A /* StartViewController.swift */,
@@ -3966,6 +3975,7 @@
 				7CBF4B6B2008899100E003AA /* TxAddressCell.swift in Sources */,
 				7C35E717200ADF450064808F /* Transaction.swift in Sources */,
 				CEB909F71E5FE654001804DC /* EnterPhraseCollectionViewController.swift in Sources */,
+				02C41CEE21D22BE900581A0E /* ETZDiscoverViewController.swift in Sources */,
 				CEF3D2DD1E8CBA790070178E /* LAContext+Extensions.swift in Sources */,
 				CECCE5AE1E04AD6300D99448 /* AddressCell.swift in Sources */,
 				CE6BCF5D1EE9E89A0029849C /* CustomTitleView.swift in Sources */,
@@ -3975,6 +3985,7 @@
 				CEAFC8611E5D5B0500E4FD06 /* SegmentedButton.swift in Sources */,
 				7503773D1DF57428005EB8AE /* WalletManager+Auth.swift in Sources */,
 				22A9A9581DF61945000F0016 /* BRWebViewController.swift in Sources */,
+				02C41CF021D22BFD00581A0E /* ETZMineViewController.swift in Sources */,
 				CEC4CF091F0C84AB00E5C82E /* UIViewController+Alerts.swift in Sources */,
 				CE27F9591E2C8EA300F7F7F2 /* Amount.swift in Sources */,
 				CE1280F61EEA855C00D27649 /* Date+Additions.swift in Sources */,
@@ -3991,6 +4002,7 @@
 				CECCE5A91E0378FB00D99448 /* PinPadViewController.swift in Sources */,
 				CEF3D2DB1E8B55C80070178E /* UISlider+Gradient.swift in Sources */,
 				CE65C66A207D41BB000C99C4 /* CurrencyListMetaData.swift in Sources */,
+				02C41CEC21D22AC700581A0E /* ETZTabBarViewController.swift in Sources */,
 				CE4CA7BC1EE3649100373F11 /* BRActivityView.swift in Sources */,
 				7CBABD9C20181D890077CB55 /* NSMutableAttributedString+Additions.swift in Sources */,
 				CEC6AA421DEFC88F00EE5AFD /* ReceiveViewController.swift in Sources */,

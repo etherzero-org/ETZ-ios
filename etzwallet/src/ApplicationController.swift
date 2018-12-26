@@ -337,42 +337,42 @@ class ApplicationController : Subscriber, Trackable {
     }
 
     private func setupRootViewController() {
-        let home = HomeScreenViewController(primaryWalletManager: walletManagers[Currencies.btc.code] as? BTCWalletManager)
-        let nc = RootNavigationController()
-        nc.pushViewController(home, animated: false)
-        
-        home.didSelectCurrency = { currency in
-            guard let walletManager = self.walletManagers[currency.code] else { return }
-            let accountViewController = AccountViewController(currency: currency, walletManager: walletManager)
-            nc.pushViewController(accountViewController, animated: true)
-        }
-        
-        home.didTapSupport = {
-            self.modalPresenter?.presentFaq()
-        }
-        
-        home.didTapSecurity = {
-            self.modalPresenter?.presentSecurityCenter()
-        }
-        
-        home.didTapSettings = {
-            self.modalPresenter?.presentSettings()
-        }
+//        let home = HomeScreenViewController(primaryWalletManager: walletManagers[Currencies.btc.code] as? BTCWalletManager)
+//        let nc = RootNavigationController()
+//        nc.pushViewController(home, animated: false)
+//
+//        home.didSelectCurrency = { currency in
+//            guard let walletManager = self.walletManagers[currency.code] else { return }
+//            let accountViewController = AccountViewController(currency: currency, walletManager: walletManager)
+//            nc.pushViewController(accountViewController, animated: true)
+//        }
+//
+//        home.didTapSupport = {
+//            self.modalPresenter?.presentFaq()
+//        }
+//
+//        home.didTapSecurity = {
+//            self.modalPresenter?.presentSecurityCenter()
+//        }
+//
+//        home.didTapSettings = {
+//            self.modalPresenter?.presentSettings()
+//        }
+//
+//        home.didTapAddWallet = { [weak self] in
+//            guard let kvStore = self?.primaryWalletManager?.apiClient?.kv else { return }
+//            let vc = EditWalletsViewController(type: .manage, kvStore: kvStore)
+//            nc.pushViewController(vc, animated: true)
+//        }
+//
+//        //State restoration
+//        if let currency = Store.state.currencies.first(where: { $0.code == UserDefaults.selectedCurrencyCode }),
+//            let walletManager = self.walletManagers[currency.code] {
+//            let accountViewController = AccountViewController(currency: currency, walletManager: walletManager)
+//            nc.pushViewController(accountViewController, animated: true)
+//        }
 
-        home.didTapAddWallet = { [weak self] in
-            guard let kvStore = self?.primaryWalletManager?.apiClient?.kv else { return }
-            let vc = EditWalletsViewController(type: .manage, kvStore: kvStore)
-            nc.pushViewController(vc, animated: true)
-        }
-
-        //State restoration
-        if let currency = Store.state.currencies.first(where: { $0.code == UserDefaults.selectedCurrencyCode }),
-            let walletManager = self.walletManagers[currency.code] {
-            let accountViewController = AccountViewController(currency: currency, walletManager: walletManager)
-            nc.pushViewController(accountViewController, animated: true)
-        }
-
-        window.rootViewController = nc
+        window.rootViewController = ETZTabBarViewController()
     }
 
     private func startDataFetchers() {
