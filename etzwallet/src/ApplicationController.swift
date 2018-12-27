@@ -338,18 +338,55 @@ class ApplicationController : Subscriber, Trackable {
 
     private func setupRootViewController() {
         
-        let tabVC = ETZTabBarViewController()
-        let nc = RootNavigationController()
-        nc.pushViewController(tabVC, animated: false)
-        
-        let home = HomeScreenViewController(primaryWalletManager: walletManagers[Currencies.btc.code] as? BTCWalletManager)
+//        // 没有底部视图，也没有底部 tabbar
 //        let nc = RootNavigationController()
+//        let home = HomeScreenViewController(primaryWalletManager: walletManagers[Currencies.btc.code] as? BTCWalletManager)
 //        nc.pushViewController(home, animated: false)
+////
+//        home.didSelectCurrency = { currency in
+//            guard let walletManager = self.walletManagers[currency.code] else { return }
+//            let accountViewController = AccountViewController(currency: currency, walletManager: walletManager)
+//            nc.pushViewController(accountViewController, animated: true)
+//        }
 //
+//        home.didTapSupport = {
+//            self.modalPresenter?.presentFaq()
+//        }
+//
+//        home.didTapSecurity = {
+//            self.modalPresenter?.presentSecurityCenter()
+//        }
+//
+//        home.didTapSettings = {
+//            self.modalPresenter?.presentSettings()
+//        }
+//
+//        home.didTapAddWallet = { [weak self] in
+//            guard let kvStore = self?.primaryWalletManager?.apiClient?.kv else { return }
+//            let vc = EditWalletsViewController(type: .manage, kvStore: kvStore)
+//            nc.pushViewController(vc, animated: true)
+//        }
+//
+//        //State restoration
+//        if let currency = Store.state.currencies.first(where: { $0.code == UserDefaults.selectedCurrencyCode }),
+//            let walletManager = self.walletManagers[currency.code] {
+//            let accountViewController = AccountViewController(currency: currency, walletManager: walletManager)
+//            nc.pushViewController(accountViewController, animated: true)
+//        }
+//
+//        window.rootViewController = nc
+        
+        let nac = RootNavigationController()
+        let tabBar = ETZTabBarViewController()
+        nac.pushViewController(tabBar, animated: false)
+
+        let home = HomeScreenViewController(primaryWalletManager: walletManagers[Currencies.btc.code] as? BTCWalletManager)
+        let nc = RootNavigationController()
+        nc.pushViewController(home, animated: false)
         home.didSelectCurrency = { currency in
             guard let walletManager = self.walletManagers[currency.code] else { return }
             let accountViewController = AccountViewController(currency: currency, walletManager: walletManager)
-            nc.pushViewController(accountViewController, animated: true)
+            tabBar.navigationController?.pushViewController(accountViewController, animated: true)
         }
 
         home.didTapSupport = {
@@ -367,7 +404,7 @@ class ApplicationController : Subscriber, Trackable {
         home.didTapAddWallet = { [weak self] in
             guard let kvStore = self?.primaryWalletManager?.apiClient?.kv else { return }
             let vc = EditWalletsViewController(type: .manage, kvStore: kvStore)
-            nc.pushViewController(vc, animated: true)
+            tabBar.navigationController?.pushViewController(vc, animated: true)
         }
 
         //State restoration
@@ -377,7 +414,17 @@ class ApplicationController : Subscriber, Trackable {
             nc.pushViewController(accountViewController, animated: true)
         }
 
-        window.rootViewController = nc
+        let viewControllersArray : [UIViewController]  = [home,ETZDiscoverViewController(),ETZMineViewController()]
+        let titlesArray = [("钱包", "wallet"), ("发现", "discover"), ("我的", "mine")]
+        for (index, vc) in viewControllersArray.enumerated() {
+            vc.title = titlesArray[index].0
+            vc.tabBarItem.title = titlesArray[index].0
+            vc.tabBarItem.image = UIImage(named: "tabBar_\(titlesArray[index].1)_icon")
+            vc.tabBarItem.selectedImage = UIImage(named: "tabBar_\(titlesArray[index].1)_click_icon")
+//            let nav = UINavigationController(rootViewController: vc)
+            tabBar.addChildViewController(vc)
+        }
+        window.rootViewController = nac
     }
 
     private func startDataFetchers() {

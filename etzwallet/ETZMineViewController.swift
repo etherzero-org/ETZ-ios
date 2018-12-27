@@ -13,6 +13,7 @@ class ETZMineViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        self.navigationController?.navigationItem.title  = "我的"
         view.backgroundColor = .lightGray
     }
 }

@@ -32,7 +32,7 @@ class RootNavigationController : UINavigationController {
 
     override func viewDidLoad() {
         setLightStyle()
-        self.isNavigationBarHidden = true
+//        self.isNavigationBarHidden = true
         navigationBar.isTranslucent = false
         self.addChildViewController(tempLoginView, layout: {
             tempLoginView.view.constrain(toSuperviewEdges: nil)

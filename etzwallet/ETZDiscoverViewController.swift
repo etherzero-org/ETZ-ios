@@ -10,10 +10,14 @@ import UIKit
 
 class ETZDiscoverViewController: UIViewController {
 
+    var urlString : String = "http://52.197.189.155/"
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        navigationItem.title = "EASH-eash"
+        self.navigationController?.navigationItem.title  = "EASH-eash"
         view.backgroundColor = .grayBackground
+        let webView = UIWebView(frame: self.view.bounds)
+        webView.loadRequest(URLRequest(url: URL(string: urlString)!))
+        self.view.addSubview(webView)
     }
 }
