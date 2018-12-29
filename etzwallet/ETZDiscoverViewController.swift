@@ -10,8 +10,8 @@ import UIKit
 import JavaScriptCore
 
 @objc protocol SwiftJavaScriptDelegate: JSExport {
-    // 调用钱包发送交易
-    func etzTransaction(address:String, value:String, Data:String, tid:String, gasL:String, gasP:String)
+    // 调用钱包发送交易 -> 改成 json 格式
+    func etzTransaction(_ dict:[String : AnyObject])
     // 获取钱包地址
     func getAddress() -> String
 }
@@ -21,14 +21,16 @@ import JavaScriptCore
     
     weak var controller: UIViewController?
     weak var jsContext: JSContext?
-    
-    func etzTransaction(address: String, value: String, Data: String, tid: String, gasL: String, gasP: String) {
-        
+    var  wallet = EthWalletManager()
+
+    func etzTransaction(_ dict: [String : AnyObject]) {
+        print("开始交易\(dict)")
+        Store.perform(action: RootModalActions.Present(modal: .send(currency:(self.wallet?.currency)!)))
     }
     
     func getAddress() -> String {
         print("abc")
-        return "abc"
+        return (self.wallet?.address)!
     }
 }
 
@@ -68,6 +70,7 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate{
         let model = SwiftJavaScriptModel()
         model.controller = self
         model.jsContext = context
+        model.wallet = EthWalletManager()
         
         // 这一步是将SwiftJavaScriptModel模型注入到JS中，在JS就可以通过WebViewJavascriptBridge调用我们暴露的方法了。
         context.setObject(model, forKeyedSubscript: "easyetz" as NSCopying & NSObjectProtocol)
