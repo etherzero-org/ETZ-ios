@@ -10,10 +10,12 @@ import Foundation
 import BRCore
 import BRCore.Ethereum
 
+typealias handleHash = (String)-> ()
 class EthWalletManager : WalletManager {
     
     // MARK:
-
+    var hashString :String?
+    var handleHash : handleHash?
     private static let defaultGasPrice = etherCreateNumber(1, GWEI).valueInWEI
     private static let maxGasPrice = etherCreateNumber(100, GWEI).valueInWEI
     
@@ -24,7 +26,7 @@ class EthWalletManager : WalletManager {
     }
     
     // MARK: WalletManager
-
+    
     let currency: CurrencyDef = Currencies.eth
     var kvStore: BRReplicatedKVStore?
     var apiClient: BRAPIClient? {
@@ -59,7 +61,7 @@ class EthWalletManager : WalletManager {
     
     private var node: EthereumLightNode!
     private let syncState = RequestSyncState(timeout: 2) // 2s until sync indicator shown
-
+    
     // MARK: -
     
     init?() {
@@ -72,6 +74,9 @@ class EthWalletManager : WalletManager {
         _ = node.wallet(Currencies.eth) // create eth wallet
         let address = node.address
         self.address = address
+        //        if let hashstr = handleHash {
+        //            self.handleHash = hashstr
+        //        }
         Store.perform(action: WalletChange(self.currency).set(self.currency.state!.mutate(receiveAddress: address)))
         if let walletID = getWalletID() {
             self.walletID = walletID
@@ -95,7 +100,7 @@ class EthWalletManager : WalletManager {
         
         let wallet = node.wallet(currency)
         let tx = wallet.createTransaction(currency: currency, recvAddress: toAddress, amount: amount, data: data,gaslimit:gaslimit,gasprice:gasprice)
-
+        
         wallet.sign(transaction: tx, privateKey: privKey)
         
         let txRawHex = wallet.rawTransactionHexEncoded(tx)
@@ -106,7 +111,11 @@ class EthWalletManager : WalletManager {
                 wallet.announceSubmitTransaction(tx, hash: txHash)
                 assert(tx.hash == txHash)
                 self.updateTransactions(currency)
-                
+                self.hashString = txHash
+                NotificationCenter.default.post(name:NSNotification.Name("isTest"), object:self, userInfo: ["hash":txHash])
+                if (self.handleHash != nil) {
+                    self.handleHash?(txHash)
+                }
                 let pendingEthTx = EthTransaction(tx: tx,
                                                   accountAddress: accountAddress,
                                                   kvStore: self.kvStore,
@@ -127,11 +136,11 @@ class EthWalletManager : WalletManager {
             }
         })
     }
-
+    
     func canUseBiometrics(forTx: BRTxRef) -> Bool {
         return false
     }
-
+    
     func isOwnAddress(_ address: String) -> Bool {
         return address.lowercased() == self.address?.lowercased()
     }
