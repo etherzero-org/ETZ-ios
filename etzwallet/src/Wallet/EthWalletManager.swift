@@ -112,7 +112,7 @@ class EthWalletManager : WalletManager {
                 assert(tx.hash == txHash)
                 self.updateTransactions(currency)
                 self.hashString = txHash
-                NotificationCenter.default.post(name:NSNotification.Name("isTest"), object:self, userInfo: ["hash":txHash])
+                NotificationCenter.default.post(name:NSNotification.Name("isPostHash"), object:self, userInfo: ["hash":txHash])
                 if (self.handleHash != nil) {
                     self.handleHash?(txHash)
                 }

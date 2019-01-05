@@ -9,7 +9,7 @@
 import UIKit
 import JavaScriptCore
 import SwiftyJSON
-typealias keyTimeBlock = (NSNumber)-> ()
+
 @objc protocol SwiftJavaScriptDelegate: JSExport {
     // 调用钱包发送交易 -> 改成 json 格式
     // func etzTransaction(_ dict:[String : AnyObject])
@@ -28,21 +28,31 @@ typealias keyTimeBlock = (NSNumber)-> ()
         let keyTime: String
         let gasLimit: String
         let gasPrice: String
+        
+        init(jsonData: JSON) {
+            contractAddress = jsonData["contractAddress"].stringValue
+            etzValue        = jsonData["etzValue"].intValue
+            datas           = jsonData["datas"].stringValue
+            keyTime         = jsonData["keyTime"].stringValue
+            gasLimit        = jsonData["gasLimit"].stringValue
+            gasPrice        = jsonData["gasPrice"].stringValue
+        }
     }
     weak var controller: UIViewController?
     weak var jsContext: JSContext?
     var  wallet = EthWalletManager()
-    var  keyblock : keyTimeBlock?
-    var  keyTime  : String?
     var  jsModel  : JsModel?
     
     func etzTransaction(_ jsons: String) {
         
         let jsonData:Data = jsons.data(using: .utf8)!
         let json = try? JSON(data: jsonData)
-        self.keyTime = json!["keyTime"].stringValue
-        print("json\(String(describing: json))")
+        self.jsModel = JsModel(jsonData: json!)
+    
+//        print("json\(String(describing: json))")
         Store.perform(action: RootModalActions.Present(modal: .send(currency:(self.wallet?.currency)!)))
+//        Store.perform(action: RootModalActions.Present(modal: .sell(currency:(self.wallet?.currency)!)))
+//        Store.perform(action: RootModalActions.Present(modal: .buy(currency:(self.wallet?.currency)!)))
     }
     
     //        self.wallet?.handleHash = {(currentHash) in
@@ -52,7 +62,6 @@ typealias keyTimeBlock = (NSNumber)-> ()
     //    }
     
     func getAddress() -> String {
-        print("abc")
         return (self.wallet?.address)!
     }
 }
@@ -61,19 +70,23 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate{
     
     var webView  : UIWebView!
     var jsContext: JSContext!
-    var keyTime  : NSNumber?
-    var model    :SwiftJavaScriptModel?
+    var model    : SwiftJavaScriptModel?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.white
         self.setupWebView()
-        NotificationCenter.default.addObserver(self, selector:#selector(noti(noti:)), name:NSNotification.Name(rawValue:"isTest"), object:nil)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.webView.reload()
+        NotificationCenter.default.addObserver(self, selector:#selector(noti(noti:)), name:NSNotification.Name(rawValue:"isPostHash"), object:nil)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        NotificationCenter.default.removeObserver(self)
     }
     
     func setupWebView() {
@@ -97,10 +110,6 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate{
         self.model?.controller = self
         self.model?.jsContext = self.jsContext
         self.model?.wallet = EthWalletManager()
-    
-//        self.model?.wallet?.handleHash = {(hashString) in
-//            print(hashString)
-//        }
         
         // 这一步是将SwiftJavaScriptModel模型注入到JS中，在JS就可以通过WebViewJavascriptBridge调用我们暴露的方法了。
         self.model?.jsContext?.setObject(model, forKeyedSubscript: "easyetz" as NSCopying & NSObjectProtocol)
@@ -119,7 +128,7 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate{
         let hashString = dict["hash"]
         print("拿到 hash \(dict["hash"]!)")
         let jsHandlerFunc = self.model!.jsContext?.objectForKeyedSubscript("\("makeSaveData")")
-        let _ = jsHandlerFunc?.call(withArguments: [hashString as Any,self.model?.keyTime as Any])
+        let _ = jsHandlerFunc?.call(withArguments: [hashString as Any,self.model?.jsModel?.keyTime as Any])
     }
     
     override func didReceiveMemoryWarning() {
