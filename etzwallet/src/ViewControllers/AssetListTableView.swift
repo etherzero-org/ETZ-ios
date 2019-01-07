@@ -17,7 +17,7 @@ class AssetListTableView: UITableViewController, Subscriber {
     var didTapAddWallet: (() -> Void)?
     private let assetHeight: CGFloat = 85.0
     private let menuHeight: CGFloat = 53.0
-    private let manageWalletContent = (S.TokenList.manageTitle, #imageLiteral(resourceName: "PlaylistPlus"))
+    private let manageWalletContent = (S.TokenList.addTitle, #imageLiteral(resourceName: "PlaylistPlus"))
 
     // MARK: - Init
     

@@ -19,8 +19,9 @@ class ETZTabBarViewController: UITabBarController ,Subscriber, Trackable {
     override func viewDidLoad() {
         super.viewDidLoad()
         let tabBar = UITabBarItem.appearance()
-        let attrs_Normal = [NSAttributedStringKey.font: UIFont.systemFont(ofSize: 12), NSAttributedStringKey.foregroundColor: UIColor.gray]//未点击颜色
-        let attrs_Select = [NSAttributedStringKey.font: UIFont.systemFont(ofSize: 12), NSAttributedStringKey.foregroundColor: UIColor.darkGray]//点击后颜色
+//        self.tabBar.tintColor = UIColor.fromHex("ffffff")
+        let attrs_Normal = [NSAttributedStringKey.font: UIFont.systemFont(ofSize: 12), NSAttributedStringKey.foregroundColor: UIColor.fromHex("B9B9B9")]//未点击颜色
+        let attrs_Select = [NSAttributedStringKey.font: UIFont.systemFont(ofSize: 12), NSAttributedStringKey.foregroundColor: UIColor.fromHex("1e52cd")]//点击后颜色
         tabBar.setTitleTextAttributes(attrs_Normal, for: .normal)
         tabBar.setTitleTextAttributes(attrs_Select, for: .selected)
         
