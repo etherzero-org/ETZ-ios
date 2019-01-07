@@ -401,9 +401,10 @@ class ApplicationController : Subscriber, Trackable {
             self.modalPresenter?.presentSettings()
         }
 
+        // -> 管理钱包 -> 添加钱包
         home.didTapAddWallet = { [weak self] in
             guard let kvStore = self?.primaryWalletManager?.apiClient?.kv else { return }
-            let vc = EditWalletsViewController(type: .manage, kvStore: kvStore)
+            let vc = EditWalletsViewController(type: .add, kvStore: kvStore)
             tabBar.navigationController?.pushViewController(vc, animated: true)
         }
 

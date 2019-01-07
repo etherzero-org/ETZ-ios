@@ -11,6 +11,8 @@
 		022815BC21DDFB56002475AF /* SwiftyJSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 022815BB21DDFB56002475AF /* SwiftyJSON.framework */; };
 		022815BD21DDFDCD002475AF /* SwiftyJSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 022815BB21DDFB56002475AF /* SwiftyJSON.framework */; };
 		022815BE21DDFDCD002475AF /* SwiftyJSON.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 022815BB21DDFB56002475AF /* SwiftyJSON.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		022815C021E0ADE0002475AF /* MenuItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 022815BF21E0ADDF002475AF /* MenuItem.swift */; };
+		022815C221E32F7B002475AF /* JsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 022815C121E32F7B002475AF /* JsModel.swift */; };
 		022C511420FD838C00CB4576 /* DataSendCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 022C511320FD838C00CB4576 /* DataSendCell.swift */; };
 		023809A92101D9D000B14D6F /* Advanced.swift in Sources */ = {isa = PBXBuildFile; fileRef = 023809A82101D9D000B14D6F /* Advanced.swift */; };
 		023809AE2102D78900B14D6F /* AdvancedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 023809AD2102D78800B14D6F /* AdvancedCell.swift */; };
@@ -610,6 +612,8 @@
 		0206B76C210AFE53002B4AD7 /* BREthereumPower.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BREthereumPower.h; sourceTree = "<group>"; };
 		0206B76D210AFFC1002B4AD7 /* BREthereumPower.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = BREthereumPower.c; sourceTree = "<group>"; };
 		022815BB21DDFB56002475AF /* SwiftyJSON.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = SwiftyJSON.framework; sourceTree = "<group>"; };
+		022815BF21E0ADDF002475AF /* MenuItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MenuItem.swift; sourceTree = "<group>"; };
+		022815C121E32F7B002475AF /* JsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JsModel.swift; sourceTree = "<group>"; };
 		022C511320FD838C00CB4576 /* DataSendCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSendCell.swift; sourceTree = "<group>"; };
 		023809A82101D9D000B14D6F /* Advanced.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Advanced.swift; sourceTree = "<group>"; };
 		023809AD2102D78800B14D6F /* AdvancedCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvancedCell.swift; sourceTree = "<group>"; };
@@ -3136,6 +3140,8 @@
 				CE6D0E5B1E14BFA600137DF1 /* KeyboardNotificationInfo.swift */,
 				CEE65DEF1E39056F0002994D /* Rate.swift */,
 				CEEC70821E90C07C00EF788E /* Setting.swift */,
+				022815BF21E0ADDF002475AF /* MenuItem.swift */,
+				022815C121E32F7B002475AF /* JsModel.swift */,
 				CE03EC731EF256AC0038E3A8 /* SimpleUTXO.swift */,
 				7CA3BC2F2006864C00517BF7 /* Currency.swift */,
 				7CBC59BF20782D7E006EAE56 /* ERC20ABI.swift */,
@@ -3944,6 +3950,7 @@
 				CE92F9F61DEDF6890046B516 /* UIViewControllerContextTransitioning+BRAdditions.swift in Sources */,
 				CEA362681E00EE320061FC0E /* CameraGuideView.swift in Sources */,
 				CE03EC741EF256AC0038E3A8 /* SimpleUTXO.swift in Sources */,
+				022815C021E0ADE0002475AF /* MenuItem.swift in Sources */,
 				CEBF32F61DDCEAF900348FC6 /* TransactionsTableViewController.swift in Sources */,
 				CE124CFC1E68932C00DFA146 /* FeeUpdater.swift in Sources */,
 				CEE20C381EA5B4680086F724 /* Strings.swift in Sources */,
@@ -4059,6 +4066,7 @@
 				CE3840E81FD590BD00437C31 /* AssetListTableView.swift in Sources */,
 				22A9A9591DF61945000F0016 /* Extensions.swift in Sources */,
 				22A9A94C1DF61945000F0016 /* BRGeoLocationPlugin.swift in Sources */,
+				022815C221E32F7B002475AF /* JsModel.swift in Sources */,
 				CEAA9EA61DC3246F0066731D /* StartNavigationDelegate.swift in Sources */,
 				023809AE2102D78900B14D6F /* AdvancedCell.swift in Sources */,
 				7CBF4B6420081BCE00E003AA /* KeyedDecodingContainer+Additions.swift in Sources */,

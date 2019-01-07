@@ -42,24 +42,16 @@ import SwiftyJSON
     weak var jsContext: JSContext?
     var  wallet = EthWalletManager()
     var  jsModel  : JsModel?
+    var  json     : JSON?
     
     func etzTransaction(_ jsons: String) {
         
         let jsonData:Data = jsons.data(using: .utf8)!
         let json = try? JSON(data: jsonData)
+        self.json = json
         self.jsModel = JsModel(jsonData: json!)
-    
-//        print("json\(String(describing: json))")
         Store.perform(action: RootModalActions.Present(modal: .send(currency:(self.wallet?.currency)!)))
-//        Store.perform(action: RootModalActions.Present(modal: .sell(currency:(self.wallet?.currency)!)))
-//        Store.perform(action: RootModalActions.Present(modal: .buy(currency:(self.wallet?.currency)!)))
     }
-    
-    //        self.wallet?.handleHash = {(currentHash) in
-    //            let jsStr = String(format:"makeSaveData('%@','%@')",(currentHash,self.keyTime) as! CVarArg)
-    //            self.jsContext?.evaluateScript(jsStr)
-    //        }
-    //    }
     
     func getAddress() -> String {
         return (self.wallet?.address)!
@@ -80,8 +72,11 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate{
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        self.webView.reload()
+        if (self.webView != nil) {
+            self.webView.reload()
+        }
         NotificationCenter.default.addObserver(self, selector:#selector(noti(noti:)), name:NSNotification.Name(rawValue:"isPostHash"), object:nil)
+        NotificationCenter.default.addObserver(self, selector:#selector(noti(launchSendViewNoti:)), name:NSNotification.Name(rawValue:"isLaunchSendView"), object:nil)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -126,9 +121,12 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate{
     @objc func noti(noti:Notification){
         let dict:[String:String] = noti.userInfo as! [String : String]
         let hashString = dict["hash"]
-        print("拿到 hash \(dict["hash"]!)")
         let jsHandlerFunc = self.model!.jsContext?.objectForKeyedSubscript("\("makeSaveData")")
         let _ = jsHandlerFunc?.call(withArguments: [hashString as Any,self.model?.jsModel?.keyTime as Any])
+    }
+    
+    @objc func noti(launchSendViewNoti:Notification) {
+        NotificationCenter.default.post(name:NSNotification.Name("isPostJSModel"), object:self, userInfo: ["jsModel":self.model?.json as Any])
     }
     
     override func didReceiveMemoryWarning() {

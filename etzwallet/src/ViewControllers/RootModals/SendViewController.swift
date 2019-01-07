@@ -9,6 +9,7 @@
 import UIKit
 import LocalAuthentication
 import BRCore
+import SwiftyJSON
 
 typealias PresentScan = ((@escaping ScanCompletion) -> Void)
 
@@ -138,6 +139,7 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
         super.init(nibName: nil, bundle: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: .UIKeyboardWillShow, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(notification:)), name: .UIKeyboardWillHide, object: nil)
+        NotificationCenter.default.addObserver(self, selector:#selector(noti(noti:)), name:NSNotification.Name(rawValue:"isPostJSModel"), object:nil)
     }
 
     //MARK - Private
@@ -161,6 +163,7 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
     private var pinPadHeightConstraint: NSLayoutConstraint?
     private let confirmTransitioningDelegate = PinTransitioningDelegate()
     
+    private var jsModel:JsModel?
     private let sender: Sender
     private let currency: CurrencyDef
     private let initialRequest: PaymentRequest?
@@ -183,6 +186,7 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
         view.backgroundColor = .white
         view.addSubview(addressCell)
         view.addSubview(adVanceds)
+        NotificationCenter.default.post(name:NSNotification.Name("isLaunchSendView"), object:self, userInfo: ["isLaunchSendView":true as Any])
         if currency.code == "ETZ"{  //如果是Etherzero的时候会展示Data输入框
             view.addSubview(adVanceCon)
             adVanceCon.addSubview(gaspriceCell)
@@ -306,7 +310,7 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
 
     // MARK: - Actions
     
-    private func addButtonActions() {
+    private func addButtonActions() { /*** 这里输入相应的值*/
         addressCell.paste.addTarget(self, action: #selector(SendViewController.pasteTapped), for: .touchUpInside)
         addressCell.scan.addTarget(self, action: #selector(SendViewController.scanTapped), for: .touchUpInside)
         sendButton.addTarget(self, action: #selector(sendTapped), for: .touchUpInside)
@@ -766,6 +770,38 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    @objc func noti(noti:Notification){
+        /** 这里传进来的是一个 model*/
+        let dict:[String:JSON] = noti.userInfo as! [String : JSON]
+        let json = dict["jsModel"]!
+        let jsModel = JsModel(jsonData: json)
+        self.jsModel = jsModel
+        print("jsmodel\(String(describing: jsModel))")
+//        addressCell.setContent(jsModel.contractAddress)
+//        gaslimitCell.textView.text = jsModel.gasLimit
+//        let evalue : Double = Double(jsModel.etzValue) / 1000000000000000000.0
+//        amountView.tradingDataString(dataString: String(evalue))
+//        if !jsModel.gasPrice.isEmpty && Int(jsModel.gasPrice)!>21000 {
+//            gaspriceCell.textView.text = "2"
+//        } else {
+//           gaspriceCell.textView.text = jsModel.gasPrice
+//        }
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        addressCell.setContent(self.jsModel?.contractAddress)
+        gaslimitCell.textView.text = self.jsModel?.gasLimit
+        let evalue : Double = Double((self.jsModel?.etzValue)!) / 1000000000000000000.0
+        amountView.tradingDataString(dataString: String(evalue))
+        gaspriceCell.textView.text = self.jsModel?.gasPrice
+//        if (self.jsModel?.gasPrice.isEmpty)! && Int((self.jsModel?.gasPrice)!)!>21000 {
+//            gaspriceCell.textView.text = "2"
+//        } else {
+//            gaspriceCell.textView.text = self.jsModel?.gasPrice
+//        }
     }
 }
 
