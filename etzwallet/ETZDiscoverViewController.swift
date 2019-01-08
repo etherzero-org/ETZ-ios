@@ -51,6 +51,17 @@ import SwiftyJSON
         self.json = json
         self.jsModel = JsModel(jsonData: json!)
         Store.perform(action: RootModalActions.Present(modal: .send(currency:(self.wallet?.currency)!)))
+        // self.wallet?.apiClient = nil
+        // TODO
+        self.wallet?.apiClient?.getGasPrice(handler: { (result) in
+            print("price******\(result)")
+        })
+        var params:TransactionParams = TransactionParams(from: (self.wallet?.address)!, to: (self.jsModel?.contractAddress)!)
+        params.data = self.jsModel?.datas
+        params.value = 0
+        self.wallet?.apiClient?.estimateGas(transaction: params, handler: { (result) in
+            print("limit******\(result)")
+        })
     }
     
     func getAddress() -> String {
@@ -135,9 +146,13 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate{
     
     @objc func noti(noti:Notification){
         let dict:[String:String] = noti.userInfo as! [String : String]
-        let hashString = dict["hash"]
+        let hashKey = dict["hash"]
+        let startIndex = hashKey?.startIndex
+        let keyIndex = hashKey?.index(startIndex!, offsetBy: 2)
+        let hashString:String = String(hashKey![keyIndex!...])
+        let resultString = "00"+hashString
         let jsHandlerFunc = self.model!.jsContext?.objectForKeyedSubscript("\("makeSaveData")")
-        let _ = jsHandlerFunc?.call(withArguments: [hashString as Any,self.model?.jsModel?.keyTime as Any])
+        let _ = jsHandlerFunc?.call(withArguments: [resultString as Any,self.model?.jsModel?.keyTime as Any])
     }
     
     @objc func noti(launchSendViewNoti:Notification) {

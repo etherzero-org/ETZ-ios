@@ -193,14 +193,22 @@ class EthWalletManager : WalletManager {
 extension EthWalletManager: EthereumClient {
     func getGasPrice(wallet: EthereumWallet, completion: @escaping (String) -> Void) {
         // unused - gas price is set by the FeeUpdater
-        assertionFailure()
+//        assertionFailure()
+        guard let _ = address, let apiClient = apiClient else { return assertionFailure() }
+        apiClient.getGasPrice { (result) in
+            print("gasprice***********\(result)")   
+        }
     }
     
     func getGasEstimate(wallet: EthereumWallet, tid: EthereumTransactionId, to: String, amount: String, data: String, completion: @escaping (String) -> Void) {
         //guard let apiClient = apiClient else { return assertionFailure() }
-        let currency = wallet.currency
-        print("getGasEstimate \(currency.code)")
+//        let currency = wallet.currency
+//        print("getGasEstimate \(currency.code)")
         //TODO
+        guard let accountAddress = address, let apiClient = apiClient else { return assertionFailure() }
+//        apiClient.estimateGas(transaction: TransactionParams) { (result) in
+//            print("gaslimit************\(result)")
+//        }
     }
     
     func getBalance(wallet: EthereumWallet, address: String, completion: @escaping (String) -> Void) {

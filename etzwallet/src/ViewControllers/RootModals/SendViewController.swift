@@ -779,28 +779,18 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
         let jsModel = JsModel(jsonData: json)
         self.jsModel = jsModel
         print("jsmodel\(String(describing: jsModel))")
-//        addressCell.setContent(jsModel.contractAddress)
-//        gaslimitCell.textView.text = jsModel.gasLimit
-//        let evalue : Double = Double(jsModel.etzValue) / 1000000000000000000.0
-//        amountView.tradingDataString(dataString: String(evalue))
-//        if !jsModel.gasPrice.isEmpty && Int(jsModel.gasPrice)!>21000 {
-//            gaspriceCell.textView.text = "2"
-//        } else {
-//           gaspriceCell.textView.text = jsModel.gasPrice
-//        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         if (self.jsModel != nil) {
             addressCell.setContent(self.jsModel?.contractAddress)
-            gaslimitCell.textView.text = self.jsModel?.gasLimit
-            let evalue : Double = Double((self.jsModel?.etzValue)!)*1.0 / 10e17
+            let evalue : Double = Double((self.jsModel?.etzValue)!) / 10e17
             amountView.tradingDataString(dataString: String(evalue))
-            gaspriceCell.textView.text = self.jsModel?.gasPrice
             dataCell.content = self.jsModel?.datas
-            gaslimitCell.textView.text = "35000"
-            gaspriceCell.textView.text = "2"
+            
+            gaslimitCell.content = self.jsModel?.gasLimit
+            gaspriceCell.content = self.jsModel?.gasPrice
             //        if (self.jsModel?.gasPrice.isEmpty)! && Int((self.jsModel?.gasPrice)!)!>21000 {
             //            gaspriceCell.textView.text = "2"
             //        } else {
