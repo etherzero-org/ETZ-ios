@@ -118,6 +118,7 @@ class AccountViewController : UIViewController, Subscriber {
     // MARK: -
     
     private func setupNavigationBar() {
+        self.navigationController?.navigationBar.tintColor = .black
         let searchButton = UIButton(type: .system)
         searchButton.setImage(#imageLiteral(resourceName: "SearchIcon"), for: .normal)
         searchButton.frame = CGRect(x: 0.0, y: 12.0, width: 22.0, height: 22.0) // for iOS 10

@@ -412,7 +412,7 @@ class ApplicationController : Subscriber, Trackable {
         if let currency = Store.state.currencies.first(where: { $0.code == UserDefaults.selectedCurrencyCode }),
             let walletManager = self.walletManagers[currency.code] {
             let accountViewController = AccountViewController(currency: currency, walletManager: walletManager)
-            tabBar.navigationController?.pushViewController(accountViewController, animated: true)
+            home.navigationController?.pushViewController(accountViewController, animated: true)
         }
 
         let viewControllersArray : [UIViewController]  = [home,ETZDiscoverViewController(),ETZMineViewController()]

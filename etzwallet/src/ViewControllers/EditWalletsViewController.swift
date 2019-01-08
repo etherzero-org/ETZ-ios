@@ -66,6 +66,7 @@ class EditWalletsViewController : UIViewController {
 
     override func viewDidLoad() {
         view.backgroundColor = .white
+        self.navigationController?.navigationBar.tintColor = .black
         view.addSubview(tableView)
         tableView.keyboardDismissMode = .interactive
         tableView.constrain([
