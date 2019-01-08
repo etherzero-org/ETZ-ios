@@ -792,16 +792,18 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        addressCell.setContent(self.jsModel?.contractAddress)
-        gaslimitCell.textView.text = self.jsModel?.gasLimit
-        let evalue : Double = Double((self.jsModel?.etzValue)!) / 1000000000000000000.0
-        amountView.tradingDataString(dataString: String(evalue))
-        gaspriceCell.textView.text = self.jsModel?.gasPrice
-//        if (self.jsModel?.gasPrice.isEmpty)! && Int((self.jsModel?.gasPrice)!)!>21000 {
-//            gaspriceCell.textView.text = "2"
-//        } else {
-//            gaspriceCell.textView.text = self.jsModel?.gasPrice
-//        }
+        if (self.jsModel != nil) {
+            addressCell.setContent(self.jsModel?.contractAddress)
+            gaslimitCell.textView.text = self.jsModel?.gasLimit
+            let evalue : Double = Double((self.jsModel?.etzValue)!) / 1000000000000000000.0
+            amountView.tradingDataString(dataString: String(evalue))
+            gaspriceCell.textView.text = self.jsModel?.gasPrice
+            //        if (self.jsModel?.gasPrice.isEmpty)! && Int((self.jsModel?.gasPrice)!)!>21000 {
+            //            gaspriceCell.textView.text = "2"
+            //        } else {
+            //            gaspriceCell.textView.text = self.jsModel?.gasPrice
+            //        }
+        }
     }
 }
 

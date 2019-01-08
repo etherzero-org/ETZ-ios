@@ -68,6 +68,7 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate{
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.white
         self.setupWebView()
+        self.setupNavigationBar()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -82,6 +83,17 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate{
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         NotificationCenter.default.removeObserver(self)
+    }
+    
+    private func setupNavigationBar() {
+        let shareButton = UIButton(type: .system)
+        shareButton.setImage(#imageLiteral(resourceName: "SearchIcon"), for: .normal)
+        shareButton.frame = CGRect(x: 0.0, y: 12.0, width: 22.0, height: 22.0)
+        shareButton.widthAnchor.constraint(equalToConstant: 22.0).isActive = true
+        shareButton.heightAnchor.constraint(equalToConstant: 22.0).isActive = true
+        shareButton.tintColor = .white
+        shareButton.tap = showShareView
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: shareButton)
     }
     
     func setupWebView() {
@@ -116,6 +128,9 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate{
         self.model?.jsContext?.exceptionHandler = { (context, exception) in
             print("exception：", exception as Any)
         }
+    }
+    
+    private func showShareView() {
     }
     
     @objc func noti(noti:Notification){

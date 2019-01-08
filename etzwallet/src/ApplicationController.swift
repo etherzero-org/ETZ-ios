@@ -381,12 +381,12 @@ class ApplicationController : Subscriber, Trackable {
         nac.pushViewController(tabBar, animated: false)
 
         let home = HomeScreenViewController(primaryWalletManager: walletManagers[Currencies.btc.code] as? BTCWalletManager)
-        let nc = RootNavigationController()
-        nc.pushViewController(home, animated: false)
+//        let nc = RootNavigationController()
+//        nc.pushViewController(home, animated: false)
         home.didSelectCurrency = { currency in
             guard let walletManager = self.walletManagers[currency.code] else { return }
             let accountViewController = AccountViewController(currency: currency, walletManager: walletManager)
-            tabBar.navigationController?.pushViewController(accountViewController, animated: true)
+            home.navigationController?.pushViewController(accountViewController, animated: true)
         }
 
         home.didTapSupport = {
@@ -405,14 +405,14 @@ class ApplicationController : Subscriber, Trackable {
         home.didTapAddWallet = { [weak self] in
             guard let kvStore = self?.primaryWalletManager?.apiClient?.kv else { return }
             let vc = EditWalletsViewController(type: .add, kvStore: kvStore)
-            tabBar.navigationController?.pushViewController(vc, animated: true)
+            home.navigationController?.pushViewController(vc, animated: true)
         }
 
         //State restoration
         if let currency = Store.state.currencies.first(where: { $0.code == UserDefaults.selectedCurrencyCode }),
             let walletManager = self.walletManagers[currency.code] {
             let accountViewController = AccountViewController(currency: currency, walletManager: walletManager)
-            nc.pushViewController(accountViewController, animated: true)
+            tabBar.navigationController?.pushViewController(accountViewController, animated: true)
         }
 
         let viewControllersArray : [UIViewController]  = [home,ETZDiscoverViewController(),ETZMineViewController()]
@@ -422,8 +422,8 @@ class ApplicationController : Subscriber, Trackable {
             vc.tabBarItem.title = titlesArray[index].0
             vc.tabBarItem.image = UIImage(named: "tabBar_\(titlesArray[index].1)_icon")
             vc.tabBarItem.selectedImage = UIImage(named: "tabBar_\(titlesArray[index].1)_click_icon")
-//            let nav = UINavigationController(rootViewController: vc)
-            tabBar.addChildViewController(vc)
+            let nav = UINavigationController(rootViewController: vc)
+            tabBar.addChildViewController(nav)
         }
         window.rootViewController = nac
     }
