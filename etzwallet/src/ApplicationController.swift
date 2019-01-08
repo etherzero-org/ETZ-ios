@@ -338,51 +338,11 @@ class ApplicationController : Subscriber, Trackable {
 
     private func setupRootViewController() {
         
-//        // 没有底部视图，也没有底部 tabbar
-//        let nc = RootNavigationController()
-//        let home = HomeScreenViewController(primaryWalletManager: walletManagers[Currencies.btc.code] as? BTCWalletManager)
-//        nc.pushViewController(home, animated: false)
-////
-//        home.didSelectCurrency = { currency in
-//            guard let walletManager = self.walletManagers[currency.code] else { return }
-//            let accountViewController = AccountViewController(currency: currency, walletManager: walletManager)
-//            nc.pushViewController(accountViewController, animated: true)
-//        }
-//
-//        home.didTapSupport = {
-//            self.modalPresenter?.presentFaq()
-//        }
-//
-//        home.didTapSecurity = {
-//            self.modalPresenter?.presentSecurityCenter()
-//        }
-//
-//        home.didTapSettings = {
-//            self.modalPresenter?.presentSettings()
-//        }
-//
-//        home.didTapAddWallet = { [weak self] in
-//            guard let kvStore = self?.primaryWalletManager?.apiClient?.kv else { return }
-//            let vc = EditWalletsViewController(type: .manage, kvStore: kvStore)
-//            nc.pushViewController(vc, animated: true)
-//        }
-//
-//        //State restoration
-//        if let currency = Store.state.currencies.first(where: { $0.code == UserDefaults.selectedCurrencyCode }),
-//            let walletManager = self.walletManagers[currency.code] {
-//            let accountViewController = AccountViewController(currency: currency, walletManager: walletManager)
-//            nc.pushViewController(accountViewController, animated: true)
-//        }
-//
-//        window.rootViewController = nc
-        
         let nac = RootNavigationController()
         let tabBar = ETZTabBarViewController()
         nac.pushViewController(tabBar, animated: false)
 
         let home = HomeScreenViewController(primaryWalletManager: walletManagers[Currencies.btc.code] as? BTCWalletManager)
-//        let nc = RootNavigationController()
-//        nc.pushViewController(home, animated: false)
         home.didSelectCurrency = { currency in
             guard let walletManager = self.walletManagers[currency.code] else { return }
             let accountViewController = AccountViewController(currency: currency, walletManager: walletManager)
@@ -414,8 +374,54 @@ class ApplicationController : Subscriber, Trackable {
             let accountViewController = AccountViewController(currency: currency, walletManager: walletManager)
             home.navigationController?.pushViewController(accountViewController, animated: true)
         }
+        
+        let sections: [MineSections] = [.wallet, .preferences, .currencies, .other]
+        let rows = [
+            MineSections.wallet: [
+                Setting(title: S.Settings.wipe, callback: { [weak self] in
+                    guard let `self` = self else { return }
+                    let nc = ModalNavigationController()
+                    nc.setClearNavbar()
+                    nc.setWhiteStyle()
+                    let start = StartWipeWalletViewController { [weak self] in
+                    }
+                    start.addCloseNavigationItem(tintColor: .white)
+                    start.navigationItem.title = S.WipeWallet.title
+                    nc.viewControllers = [start]
+                })
+            ],
+            MineSections.preferences: [
+                Setting(title: S.UpdatePin.updateTitle, callback: strongify(self) { myself in
+                }),
+                Setting(title: S.Settings.currency, accessoryText: {
+                    let code = Store.state.defaultCurrencyCode
+                    let components: [String : String] = [NSLocale.Key.currencyCode.rawValue : code]
+                    let identifier = Locale.identifier(fromComponents: components)
+                    return Locale(identifier: identifier).currencyCode ?? ""
+                }, callback: {
+                }),
+            ],
+            MineSections.other: [
+                Setting(title: S.Settings.about, callback: {
+                }),
+                Setting(title: S.Settings.advanced, callback: {
+                    var sections = [SettingsSections.network]
+                    var advancedSettings = [
+                        SettingsSections.network: [
+                        ],
+                        ]
+                    if E.isTestFlight {
+                        advancedSettings[SettingsSections.other] = [
+                        ]
+                        sections.append(SettingsSections.other)
+                    }
+                })
+            ]
+            ] as [MineSections : Any]
+        
 
-        let viewControllersArray : [UIViewController]  = [home,ETZDiscoverViewController(),ETZMineViewController()]
+        let mine = ETZMineViewController(sections: sections, rows: rows as! [MineSections : [Setting]])
+        let viewControllersArray : [UIViewController]  = [home,ETZDiscoverViewController(),mine]
         let titlesArray = [("钱包", "wallet"), ("发现", "discover"), ("我的", "mine")]
         for (index, vc) in viewControllersArray.enumerated() {
             vc.title = titlesArray[index].0

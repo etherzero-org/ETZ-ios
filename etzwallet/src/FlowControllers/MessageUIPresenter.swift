@@ -12,6 +12,19 @@ import MessageUI
 class MessageUIPresenter: NSObject, Trackable {
 
     weak var presenter: UIViewController?
+    
+    /** Allows the user to share a wallet address and QR code image using the iOS system share action sheet. */
+    func presentShareSheet(text: String, image: UIImage) {
+        let shareItems = [text, image] as [Any]
+        let shareVC = UIActivityViewController(activityItems: shareItems, applicationActivities: nil)
+        
+        shareVC.excludedActivityTypes = shareAddressExclusions
+        present(shareVC)
+    }
+    
+    private var shareAddressExclusions: [UIActivityType] {
+        return [.airDrop, .openInIBooks, .addToReadingList, .saveToCameraRoll, .assignToContact]
+    }
 
     func presentMailCompose(uri: String, image: UIImage) {
         presentMailCompose(string: uri, image: image)

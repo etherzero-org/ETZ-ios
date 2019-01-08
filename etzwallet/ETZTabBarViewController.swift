@@ -73,16 +73,16 @@ extension ETZTabBarViewController {
             nc.pushViewController(accountViewController, animated: true)
         }
         
-        let viewControllersArray : [UIViewController]  = [home,ETZDiscoverViewController(),ETZMineViewController()]
-        let titlesArray = [("钱包", "wallet"), ("发现", "discover"), ("我的", "mine")]
-        for (index, vc) in viewControllersArray.enumerated() {
-            vc.title = titlesArray[index].0
-            vc.tabBarItem.title = titlesArray[index].0
-            vc.tabBarItem.image = UIImage(named: "tabBar_\(titlesArray[index].1)_icon")
-            vc.tabBarItem.selectedImage = UIImage(named: "tabBar_\(titlesArray[index].1)_click_icon")
-            let nav = UINavigationController(rootViewController: vc)
-            addChildViewController(nav)
-        }
+//        let viewControllersArray : [UIViewController]  = [home,ETZDiscoverViewController(),ETZMineViewController()]
+//        let titlesArray = [("钱包", "wallet"), ("发现", "discover"), ("我的", "mine")]
+//        for (index, vc) in viewControllersArray.enumerated() {
+//            vc.title = titlesArray[index].0
+//            vc.tabBarItem.title = titlesArray[index].0
+//            vc.tabBarItem.image = UIImage(named: "tabBar_\(titlesArray[index].1)_icon")
+//            vc.tabBarItem.selectedImage = UIImage(named: "tabBar_\(titlesArray[index].1)_click_icon")
+//            let nav = UINavigationController(rootViewController: vc)
+//            addChildViewController(nav)
+//        }
     }
 }
 

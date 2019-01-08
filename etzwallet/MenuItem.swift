@@ -23,11 +23,11 @@ struct MenuItem {
         self.callback = callback
     }
     
-    init(title: String, icon: UIImage? = nil, subMenu: [MenuItem], rootNav: UINavigationController, faqButton: UIButton? = nil) {
+//    init(title: String, icon: UIImage? = nil, subMenu: [MenuItem], rootNav: UINavigationController, faqButton: UIButton? = nil) {
 //        let subMenuVC = ETZMineViewController(items: subMenu, title: title, faqButton: faqButton)
-        let subMenuVC = ETZMineViewController()
-        self.init(title: title, icon: icon, accessoryText: nil) {
-            rootNav.pushViewController(subMenuVC, animated: true)
-        }
-    }
+//        let subMenuVC = ETZMineViewController()
+//        self.init(title: title, icon: icon, accessoryText: nil) {
+//            rootNav.pushViewController(subMenuVC, animated: true)
+//        }
+//    }
 }
