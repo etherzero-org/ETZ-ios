@@ -98,7 +98,7 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate{
     
     private func setupNavigationBar() {
         let shareButton = UIButton(type: .system)
-        shareButton.setImage(#imageLiteral(resourceName: "SearchIcon"), for: .normal)
+        shareButton.setImage(#imageLiteral(resourceName: "icon_share"), for: .normal)
         shareButton.frame = CGRect(x: 0.0, y: 12.0, width: 22.0, height: 22.0)
         shareButton.widthAnchor.constraint(equalToConstant: 22.0).isActive = true
         shareButton.heightAnchor.constraint(equalToConstant: 22.0).isActive = true
@@ -112,7 +112,8 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate{
         self.view.addSubview(self.webView)
         self.webView.delegate = self
         self.webView.scalesPageToFit = true
-        let web_url = URL.init(string: "http://52.197.189.155/")
+//        let web_url = URL.init(string: "http://52.197.189.155/")
+        let web_url = URL.init(string: "https://dapp.easyetz.io")
         let request = URLRequest(url: web_url!)
         self.webView.loadRequest(request as URLRequest)
     }
@@ -142,17 +143,20 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate{
     }
     
     private func showShareView() {
+        let messagePresenter = MessageUIPresenter()
+        messagePresenter.presenter = self
+        messagePresenter.presentShareSheet(text: "123", image: #imageLiteral(resourceName: "icon_share"))
     }
     
     @objc func noti(noti:Notification){
         let dict:[String:String] = noti.userInfo as! [String : String]
         let hashKey = dict["hash"]
-        let startIndex = hashKey?.startIndex
-        let keyIndex = hashKey?.index(startIndex!, offsetBy: 2)
-        let hashString:String = String(hashKey![keyIndex!...])
-        let resultString = "00"+hashString
+//        let startIndex = hashKey?.startIndex
+//        let keyIndex = hashKey?.index(startIndex!, offsetBy: 2)
+//        let hashString:String = String(hashKey![keyIndex!...])
+//        let resultString = "00"+hashString
         let jsHandlerFunc = self.model!.jsContext?.objectForKeyedSubscript("\("makeSaveData")")
-        let _ = jsHandlerFunc?.call(withArguments: [resultString as Any,self.model?.jsModel?.keyTime as Any])
+        let _ = jsHandlerFunc?.call(withArguments: [hashKey as Any,self.model?.jsModel?.keyTime as Any])
     }
     
     @objc func noti(launchSendViewNoti:Notification) {
