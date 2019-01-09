@@ -43,6 +43,7 @@ import SwiftyJSON
     var  wallet = EthWalletManager()
     var  jsModel  : JsModel?
     var  json     : JSON?
+    private let client = BRAPIClient(authenticator: NoAuthAuthenticator())
     
     func etzTransaction(_ jsons: String) {
         
@@ -56,9 +57,17 @@ import SwiftyJSON
         self.wallet?.apiClient?.getGasPrice(handler: { (result) in
             print("price******\(result)")
         })
+        
+        self.client.getGasPrice { (result) in
+            print("result**********\(result)")
+        }
+        
         var params:TransactionParams = TransactionParams(from: (self.wallet?.address)!, to: (self.jsModel?.contractAddress)!)
         params.data = self.jsModel?.datas
         params.value = 0
+        self.client.estimateGas(transaction: params) { (result) in
+            print("limit************\(result)")
+        }
         self.wallet?.apiClient?.estimateGas(transaction: params, handler: { (result) in
             print("limit******\(result)")
         })
@@ -74,6 +83,7 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate{
     var webView  : UIWebView!
     var jsContext: JSContext!
     var model    : SwiftJavaScriptModel?
+    private var backButton:UIButton!
     private var qrCodeImage:UIImage? = nil
     
     override func viewDidLoad() {
@@ -104,9 +114,19 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate{
         shareButton.frame = CGRect(x: 0.0, y: 12.0, width: 22.0, height: 22.0)
         shareButton.widthAnchor.constraint(equalToConstant: 22.0).isActive = true
         shareButton.heightAnchor.constraint(equalToConstant: 22.0).isActive = true
-        shareButton.tintColor = .white
+        shareButton.tintColor = .black
         shareButton.tap = showShareView
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: shareButton)
+        
+        self.backButton = UIButton(type: .system)
+        self.backButton.setImage(#imageLiteral(resourceName: "Back"), for: .normal)
+        self.backButton.frame = CGRect(x: 0.0, y: 12.0, width: 22.0, height: 22.0)
+        self.backButton.widthAnchor.constraint(equalToConstant: 22.0).isActive = true
+        self.backButton.heightAnchor.constraint(equalToConstant: 22.0).isActive = true
+        self.backButton.tintColor = .black
+        self.backButton.tap = closeSecondWebView
+        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: self.backButton)
+        self.backButton.isHidden = true
     }
     
     func setupWebView() {
@@ -143,6 +163,13 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate{
         
         // 注册到网络Html页面 请设置允许Http请求
         let curUrl = self.webView.request?.url?.absoluteString  //WebView当前访问页面的链接 可动态注册
+        if (curUrl?.contains("easyetz.io"))! {
+            self.tabBarController?.tabBar.isHidden = false
+            self.backButton.isHidden = true
+        } else {
+            self.tabBarController?.tabBar.isHidden = true
+            self.backButton.isHidden = false
+        }
         self.model?.jsContext?.evaluateScript(curUrl)
         
         self.model?.jsContext?.exceptionHandler = { (context, exception) in
@@ -154,6 +181,14 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate{
         let messagePresenter = MessageUIPresenter()
         messagePresenter.presenter = self
         messagePresenter.presentShareSheet(text: "", image: self.qrCodeImage!)
+    }
+    
+    private func closeSecondWebView() {
+        let web_url = URL.init(string: "https://dapp.easyetz.io")
+        let request = URLRequest(url: web_url!)
+        self.webView.loadRequest(request as URLRequest)
+        self.backButton.isHidden = true
+        self.tabBarController?.tabBar.isHidden = false
     }
     
     @objc func noti(noti:Notification){
