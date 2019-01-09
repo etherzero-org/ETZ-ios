@@ -426,7 +426,7 @@ class ApplicationController : Subscriber, Trackable {
             self.modalPresenter?.presentSecurityCenter()
         }
         let viewControllersArray : [UIViewController]  = [home,ETZDiscoverViewController(),mine]
-        let titlesArray = [("钱包", "wallet"), ("发现", "discover"), ("我的", "mine")]
+        let titlesArray = [(S.Tabbar.wallet, "wallet"), (S.Tabbar.discover, "discover"), (S.Tabbar.mine, "mine")]
         for (index, vc) in viewControllersArray.enumerated() {
             vc.title = titlesArray[index].0
             vc.tabBarItem.title = titlesArray[index].0

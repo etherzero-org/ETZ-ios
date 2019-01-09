@@ -622,4 +622,10 @@ enum S {
         static let hide = NSLocalizedString("TokenList.hide", value: "Hide", comment: "Hide currency button label")
         static let manageTitle = NSLocalizedString("TokenList.manageTitle", value: "Manage Wallets", comment: "Manage Wallets view title")
     }
+    
+    enum Tabbar {
+        static let wallet = NSLocalizedString("Tabbar.wallet", value: "Wallet", comment: "wallet view controller")
+        static let discover = NSLocalizedString("Tabbar.discover", value: "Discover", comment: "discover view controller")
+        static let mine = NSLocalizedString("Tabbar.mine", value: "Me", comment: "mine view controller")
+    }
 }

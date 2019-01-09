@@ -64,9 +64,8 @@ class ETZMineViewController: UITableViewController ,CustomTitleView{
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.navigationController?.navigationItem.title  = "我的"
+        self.navigationController?.navigationItem.title  = S.Tabbar.mine
         view.backgroundColor = .white
-        self.title = "我的"
     
         tableView.register(SeparatorCell.self, forCellReuseIdentifier: cellIdentifier)
         tableView.tableFooterView = UIView()
