@@ -74,12 +74,14 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate{
     var webView  : UIWebView!
     var jsContext: JSContext!
     var model    : SwiftJavaScriptModel?
+    private var qrCodeImage:UIImage? = nil
     
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.white
         self.setupWebView()
         self.setupNavigationBar()
+        self.creareQrCodeImage()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -122,6 +124,12 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate{
         setContext()
     }
     
+    private func creareQrCodeImage() {
+        let url:String = "https://easyetz.io"
+        let screenWidth = UIScreen.main.bounds.width
+        self.qrCodeImage = UIImage.generateQRCode(url, screenWidth - 80, UIImage(named: "Icon_link_etz"), .black)
+    }
+    
     func setContext(){
         self.jsContext = webView.value(forKeyPath: "documentView.webView.mainFrame.javaScriptContext") as? JSContext
         
@@ -145,7 +153,7 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate{
     private func showShareView() {
         let messagePresenter = MessageUIPresenter()
         messagePresenter.presenter = self
-        messagePresenter.presentShareSheet(text: "123", image: #imageLiteral(resourceName: "icon_share"))
+        messagePresenter.presentShareSheet(text: "", image: self.qrCodeImage!)
     }
     
     @objc func noti(noti:Notification){
@@ -167,6 +175,45 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate{
         super.didReceiveMemoryWarning()
     }
 }
+
+extension UIImage {
+    public class func generateQRCode(_ text: String,_ width:CGFloat,_ fillImage:UIImage? = nil, _ color:UIColor? = nil) -> UIImage? {
+        guard let data = text.data(using: .utf8) else {
+            return nil
+        }
+        if let filter = CIFilter(name: "CIQRCodeGenerator") {
+            filter.setValue(data, forKey: "inputMessage")
+            filter.setValue("H", forKey: "inputCorrectionLevel")
+            guard let outPutImage = filter.outputImage else {
+                return nil
+            }
+            let colorFilter = CIFilter(name: "CIFalseColor", withInputParameters: ["inputImage":outPutImage,"inputColor0":CIColor(cgColor: color?.cgColor ?? UIColor.black.cgColor),"inputColor1":CIColor(cgColor: UIColor.clear.cgColor)])
+            guard let newOutPutImage = colorFilter?.outputImage else {
+                return nil
+            }
+            
+            let scale = width/newOutPutImage.extent.width
+            let transform = CGAffineTransform(scaleX: scale, y: scale)
+            let output = newOutPutImage.transformed(by: transform)
+            let QRCodeImage = UIImage(ciImage: output)
+            guard let fillImage = fillImage else {
+                return QRCodeImage
+            }
+            
+            let imageSize = QRCodeImage.size
+            UIGraphicsBeginImageContext(imageSize)
+            QRCodeImage.draw(in: CGRect(x: 0, y: 0, width: imageSize.width, height: imageSize.height))
+            let fillRect = CGRect(x: (width - width/5)/2, y: (width - width/5)/2, width: width/5, height: width/5)
+            fillImage.draw(in: fillRect)
+            guard let newImage = UIGraphicsGetImageFromCurrentImageContext() else { return QRCodeImage }
+            UIGraphicsEndImageContext()
+            
+            return newImage
+        }
+        return nil
+    }
+}
+
 
 
 
