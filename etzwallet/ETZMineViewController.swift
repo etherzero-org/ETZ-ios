@@ -46,11 +46,21 @@ class ETZMineViewController: UITableViewController ,CustomTitleView{
         fatalError("init(coder:) has not been implemented")
     }
     
-    private let sections: [MineSections]
-    private let rows: [MineSections: [Setting]]
+    private var sections: [MineSections]
+    private var rows: [MineSections: [Setting]]
     private let cellIdentifier = "MineCellIdentifier"
     let titleLabel = UILabel(font: .customBold(size: 28.0), color: .darkGray)
     let customTitle: String
+    
+    var initSettings: (() -> Void)?
+    var changeWallet: (() -> Void)?
+    var updatePin: (() -> Void)?
+    var showCurrency: (() -> Void)?
+    var walletManager: (() -> Void)?
+    var shareAnonymousData: (() -> Void)?
+    var about: (() -> Void)?
+    var senior: (() -> Void)?
+    var securityCenter: (() -> Void)?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -62,6 +72,12 @@ class ETZMineViewController: UITableViewController ,CustomTitleView{
         tableView.tableFooterView = UIView()
         tableView.separatorStyle = .none
         tableView.backgroundColor = .whiteBackground
+//        initSettings!()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+         super.viewWillAppear(animated)
+        tableView.reloadData()
     }
     
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -132,5 +148,4 @@ class ETZMineViewController: UITableViewController ,CustomTitleView{
     override func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
         scrollViewWillEndDraggingForCustomTitle(yOffset: targetContentOffset.pointee.y)
     }
-
 }

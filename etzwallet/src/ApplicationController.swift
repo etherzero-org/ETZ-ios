@@ -364,7 +364,7 @@ class ApplicationController : Subscriber, Trackable {
         // -> 管理钱包 -> 添加钱包
         home.didTapAddWallet = { [weak self] in
             guard let kvStore = self?.primaryWalletManager?.apiClient?.kv else { return }
-            let vc = EditWalletsViewController(type: .add, kvStore: kvStore)
+            let vc = EditWalletsViewController(type: .manage, kvStore: kvStore)
             home.navigationController?.pushViewController(vc, animated: true)
         }
 
@@ -375,23 +375,21 @@ class ApplicationController : Subscriber, Trackable {
             home.navigationController?.pushViewController(accountViewController, animated: true)
         }
         
+        let currencySettings: [Setting]  = [
+            Setting(title: S.Settings.resetCurrencies, callback: {
+                self.modalPresenter?.resetWallet()
+            })
+        ]
         let sections: [MineSections] = [.wallet, .preferences, .currencies, .other]
         let rows = [
             MineSections.wallet: [
-                Setting(title: S.Settings.wipe, callback: { [weak self] in
-                    guard let `self` = self else { return }
-                    let nc = ModalNavigationController()
-                    nc.setClearNavbar()
-                    nc.setWhiteStyle()
-                    let start = StartWipeWalletViewController { [weak self] in
-                    }
-                    start.addCloseNavigationItem(tintColor: .white)
-                    start.navigationItem.title = S.WipeWallet.title
-                    nc.viewControllers = [start]
+                Setting(title: S.Settings.wipe, callback: {
+                    self.modalPresenter?.presentSwitchWallet()
                 })
             ],
             MineSections.preferences: [
                 Setting(title: S.UpdatePin.updateTitle, callback: strongify(self) { myself in
+                    myself.modalPresenter!.presentPinView()
                 }),
                 Setting(title: S.Settings.currency, accessoryText: {
                     let code = Store.state.defaultCurrencyCode
@@ -399,28 +397,34 @@ class ApplicationController : Subscriber, Trackable {
                     let identifier = Locale.identifier(fromComponents: components)
                     return Locale(identifier: identifier).currencyCode ?? ""
                 }, callback: {
+                    self.modalPresenter!.presentCurrency()
                 }),
             ],
+            MineSections.currencies: currencySettings,
             MineSections.other: [
+//                Setting(title: S.Settings.shareData, callback: {
+//
+//                }),
                 Setting(title: S.Settings.about, callback: {
+                    self.modalPresenter?.presentAboutView()
                 }),
                 Setting(title: S.Settings.advanced, callback: {
-                    var sections = [SettingsSections.network]
-                    var advancedSettings = [
-                        SettingsSections.network: [
-                        ],
-                        ]
-                    if E.isTestFlight {
-                        advancedSettings[SettingsSections.other] = [
-                        ]
-                        sections.append(SettingsSections.other)
-                    }
+                    self.modalPresenter?.presentAdvancedView()
+                }),
+                Setting(title: S.SecurityCenter.title, callback: {
+                    self.modalPresenter?.presentSecurityCenter()
                 })
             ]
             ] as [MineSections : Any]
         
 
         let mine = ETZMineViewController(sections: sections, rows: rows as! [MineSections : [Setting]])
+//        mine.initSettings = {
+//            self.modalPresenter?.presentSettings()
+//        }
+        mine.updatePin = {
+            self.modalPresenter?.presentSecurityCenter()
+        }
         let viewControllersArray : [UIViewController]  = [home,ETZDiscoverViewController(),mine]
         let titlesArray = [("钱包", "wallet"), ("发现", "discover"), ("我的", "mine")]
         for (index, vc) in viewControllersArray.enumerated() {
