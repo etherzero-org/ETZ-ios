@@ -88,15 +88,6 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber{
     private var backButton:UIButton!
     private var qrCodeImage:UIImage? = nil
     private var isLoginRequired = false
-    private var shouldShowStatusBar: Bool = true {
-        didSet {
-            if oldValue != shouldShowStatusBar {
-                UIView.animate(withDuration: C.animationDuration) {
-                    self.setNeedsStatusBarAppearanceUpdate()
-                }
-            }
-        }
-    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -139,6 +130,22 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber{
         self.backButton.isHidden = true
     }
     
+    private func addConstraints() {
+        if #available(iOS 11.0, *) {
+            self.webView.constrain([
+                self.webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                self.webView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0.0),
+                self.webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                self.webView.heightAnchor.constraint(equalToConstant: self.view.frame.size.height) ])
+        } else {
+            self.webView.constrain([
+                self.webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                self.webView.topAnchor.constraint(equalTo: topLayoutGuide.bottomAnchor, constant: 0.0),
+                self.webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                self.webView.heightAnchor.constraint(equalToConstant: self.view.frame.size.height) ])
+        }
+    }
+    
     func updateNavigationBar() {
         if #available(iOS 11.0, *) {
             self.navigationController?.navigationBar.topAnchor.constraint(
@@ -158,34 +165,42 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber{
         }
     }
     
-    public func position(for bar: UIBarPositioning) -> UIBarPosition {
-        return .topAttached
+    private func updateWebViewFrame() {
+        if #available(iOS 11.0, *) {
+            self.webView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+            self.webView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+            self.webView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
+            self.webView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
+        }
     }
     
-    private func addSubscriptions() {
-        Store.subscribe(self, selector: { $0.isLoginRequired != $1.isLoginRequired }, callback: { self.isLoginRequired = $0.isLoginRequired })
-        Store.subscribe(self, name: .showStatusBar, callback: { _ in
-//            self.shouldShowStatusBar = true
-            self.updateNavigationBar()
-        })
-        Store.subscribe(self, name: .hideStatusBar, callback: { _ in
-//            self.shouldShowStatusBar = false
-        })
-    }
-    
-    func setupWebView() {
-        self.webView = UIWebView(frame: self.view.bounds)
-        self.view.addSubview(self.webView)
+    public func loadWebViewRequest(){
+        self.webView = UIWebView()
         self.webView.delegate = self
         self.webView.scalesPageToFit = true
-//        let web_url = URL.init(string: "http://52.197.189.155/")
         let web_url = URL.init(string: "https://dapp.easyetz.io")
         let request = URLRequest(url: web_url!)
         self.webView.loadRequest(request as URLRequest)
     }
     
+    private func addSubscriptions() {
+        Store.subscribe(self, selector: { $0.isLoginRequired != $1.isLoginRequired }, callback: { self.isLoginRequired = $0.isLoginRequired })
+        Store.subscribe(self, name: .showStatusBar, callback: { _ in
+            self.updateNavigationBar()
+        })
+        Store.subscribe(self, name: .hideStatusBar, callback: { _ in
+        })
+    }
+    
+    func setupWebView() {
+        self.view.addSubview(self.webView)
+        self.addConstraints()
+    }
+    
     func webViewDidFinishLoad(_ webView: UIWebView) {
         setContext()
+        let title = self.webView.stringByEvaluatingJavaScript(from: "document.title") ?? "" as String
+        self.navigationItem.title = title
     }
     
     private func creareQrCodeImage() {
@@ -208,11 +223,15 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber{
         // 注册到网络Html页面 请设置允许Http请求
         let curUrl = self.webView.request?.url?.absoluteString  //WebView当前访问页面的链接 可动态注册
         if (curUrl?.contains("easyetz.io"))! {
-            self.tabBarController?.tabBar.isHidden = false
-            self.backButton.isHidden = true
+            if (self.backButton != nil) {
+                self.tabBarController?.tabBar.isHidden = false
+                self.backButton.isHidden = true
+            }
         } else {
-            self.tabBarController?.tabBar.isHidden = true
-            self.backButton.isHidden = false
+            if (self.backButton != nil) {
+                self.tabBarController?.tabBar.isHidden = true
+                self.backButton.isHidden = false
+            }
         }
         self.model?.jsContext?.evaluateScript(curUrl)
         

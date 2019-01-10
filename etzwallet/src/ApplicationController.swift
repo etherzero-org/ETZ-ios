@@ -419,7 +419,12 @@ class ApplicationController : Subscriber, Trackable {
         
 
         let mine = ETZMineViewController(sections: sections, rows: rows as! [MineSections : [Setting]])
-        let viewControllersArray : [UIViewController]  = [home,ETZDiscoverViewController(),mine]
+        let disCover = ETZDiscoverViewController()
+        DispatchQueue.global().sync {
+            disCover.loadWebViewRequest()
+        }
+        disCover.loadWebViewRequest()
+        let viewControllersArray : [UIViewController]  = [home,disCover,mine]
         let titlesArray = [(S.Tabbar.wallet, "wallet"), (S.Tabbar.discover, "discover"), (S.Tabbar.mine, "mine")]
         for (index, vc) in viewControllersArray.enumerated() {
             vc.title = titlesArray[index].0
