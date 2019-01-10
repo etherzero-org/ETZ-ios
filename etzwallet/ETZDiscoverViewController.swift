@@ -80,13 +80,23 @@ import SwiftyJSON
     }
 }
 
-class ETZDiscoverViewController: UIViewController, UIWebViewDelegate{
+class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber{
     
     var webView  : UIWebView!
     var jsContext: JSContext!
     var model    : SwiftJavaScriptModel?
     private var backButton:UIButton!
     private var qrCodeImage:UIImage? = nil
+    private var isLoginRequired = false
+    private var shouldShowStatusBar: Bool = true {
+        didSet {
+            if oldValue != shouldShowStatusBar {
+                UIView.animate(withDuration: C.animationDuration) {
+                    self.setNeedsStatusBarAppearanceUpdate()
+                }
+            }
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -94,6 +104,7 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate{
         self.setupWebView()
         self.setupNavigationBar()
         self.creareQrCodeImage()
+        self.addSubscriptions()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -126,6 +137,40 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate{
         self.backButton.tap = closeSecondWebView
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: self.backButton)
         self.backButton.isHidden = true
+    }
+    
+    func updateNavigationBar() {
+        if #available(iOS 11.0, *) {
+            self.navigationController?.navigationBar.topAnchor.constraint(
+                equalTo: self.view.safeAreaLayoutGuide.topAnchor
+                ).isActive = true
+        } else {
+            self.navigationController?.navigationBar.topAnchor.constraint(
+                equalTo: topLayoutGuide.bottomAnchor
+                ).isActive = true
+        }
+        
+        if #available(iOS 11.0, *) {
+            self.navigationController?.navigationBar.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+            self.navigationController?.navigationBar.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+            self.navigationController?.navigationBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
+//            self.navigationController?.navigationBar.heightAnchor.constraint(equalToConstant: 88).isActive = true
+        }
+    }
+    
+    public func position(for bar: UIBarPositioning) -> UIBarPosition {
+        return .topAttached
+    }
+    
+    private func addSubscriptions() {
+        Store.subscribe(self, selector: { $0.isLoginRequired != $1.isLoginRequired }, callback: { self.isLoginRequired = $0.isLoginRequired })
+        Store.subscribe(self, name: .showStatusBar, callback: { _ in
+//            self.shouldShowStatusBar = true
+            self.updateNavigationBar()
+        })
+        Store.subscribe(self, name: .hideStatusBar, callback: { _ in
+//            self.shouldShowStatusBar = false
+        })
     }
     
     func setupWebView() {
