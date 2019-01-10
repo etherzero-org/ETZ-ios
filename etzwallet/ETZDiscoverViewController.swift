@@ -54,6 +54,7 @@ import SwiftyJSON
         Store.perform(action: RootModalActions.Present(modal: .send(currency:(self.wallet?.currency)!)))
         // self.wallet?.apiClient = nil
         // TODO
+/*
         self.wallet?.apiClient?.getGasPrice(handler: { (result) in
             print("price******\(result)")
         })
@@ -71,6 +72,7 @@ import SwiftyJSON
         self.wallet?.apiClient?.estimateGas(transaction: params, handler: { (result) in
             print("limit******\(result)")
         })
+ */
     }
     
     func getAddress() -> String {
@@ -96,9 +98,6 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate{
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        if (self.webView != nil) {
-            self.webView.reload()
-        }
         NotificationCenter.default.addObserver(self, selector:#selector(noti(noti:)), name:NSNotification.Name(rawValue:"isPostHash"), object:nil)
         NotificationCenter.default.addObserver(self, selector:#selector(noti(launchSendViewNoti:)), name:NSNotification.Name(rawValue:"isLaunchSendView"), object:nil)
     }

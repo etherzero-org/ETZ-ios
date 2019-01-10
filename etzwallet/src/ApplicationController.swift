@@ -419,12 +419,6 @@ class ApplicationController : Subscriber, Trackable {
         
 
         let mine = ETZMineViewController(sections: sections, rows: rows as! [MineSections : [Setting]])
-//        mine.initSettings = {
-//            self.modalPresenter?.presentSettings()
-//        }
-        mine.updatePin = {
-            self.modalPresenter?.presentSecurityCenter()
-        }
         let viewControllersArray : [UIViewController]  = [home,ETZDiscoverViewController(),mine]
         let titlesArray = [(S.Tabbar.wallet, "wallet"), (S.Tabbar.discover, "discover"), (S.Tabbar.mine, "mine")]
         for (index, vc) in viewControllersArray.enumerated() {

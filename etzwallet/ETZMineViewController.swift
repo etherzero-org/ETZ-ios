@@ -75,7 +75,7 @@ class ETZMineViewController: UITableViewController ,CustomTitleView{
     }
     
     override func viewWillAppear(_ animated: Bool) {
-         super.viewWillAppear(animated)
+        super.viewWillAppear(animated)
         tableView.reloadData()
     }
     
@@ -129,6 +129,9 @@ class ETZMineViewController: UITableViewController ,CustomTitleView{
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if let setting = rows[sections[indexPath.section]]?[indexPath.row] {
             setting.callback()
+            if setting.title.contains(S.Settings.resetCurrencies){
+                tableView.reloadData()
+            }
         }
     }
     
