@@ -22,6 +22,8 @@
 		02C41CEC21D22AC700581A0E /* ETZTabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C41CEB21D22AC700581A0E /* ETZTabBarViewController.swift */; };
 		02C41CEE21D22BE900581A0E /* ETZDiscoverViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C41CED21D22BE900581A0E /* ETZDiscoverViewController.swift */; };
 		02C41CF021D22BFD00581A0E /* ETZMineViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C41CEF21D22BFD00581A0E /* ETZMineViewController.swift */; };
+		02F2A17821E772B60047CE73 /* SwiftWebViewProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F2A17621E772B60047CE73 /* SwiftWebViewProgress.swift */; };
+		02F2A17921E772B60047CE73 /* SwiftWebViewProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02F2A17721E772B60047CE73 /* SwiftWebViewProgressView.swift */; };
 		1B1AFFA01FB7EF7C00E61908 /* BiometricsSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1AFF9E1FB7EF7C00E61908 /* BiometricsSettingsViewController.swift */; };
 		1B1AFFA11FB7EF7C00E61908 /* BiometricsSpendingLimitViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1AFF9F1FB7EF7C00E61908 /* BiometricsSpendingLimitViewController.swift */; };
 		22122B721F0B8996000E9AB9 /* BRAPIClient+Events.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22122B711F0B8996000E9AB9 /* BRAPIClient+Events.swift */; };
@@ -623,6 +625,8 @@
 		02C41CEB21D22AC700581A0E /* ETZTabBarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ETZTabBarViewController.swift; sourceTree = "<group>"; };
 		02C41CED21D22BE900581A0E /* ETZDiscoverViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ETZDiscoverViewController.swift; sourceTree = "<group>"; };
 		02C41CEF21D22BFD00581A0E /* ETZMineViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ETZMineViewController.swift; sourceTree = "<group>"; };
+		02F2A17621E772B60047CE73 /* SwiftWebViewProgress.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftWebViewProgress.swift; sourceTree = "<group>"; };
+		02F2A17721E772B60047CE73 /* SwiftWebViewProgressView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftWebViewProgressView.swift; sourceTree = "<group>"; };
 		1B1AFF9E1FB7EF7C00E61908 /* BiometricsSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BiometricsSettingsViewController.swift; sourceTree = "<group>"; };
 		1B1AFF9F1FB7EF7C00E61908 /* BiometricsSpendingLimitViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BiometricsSpendingLimitViewController.swift; sourceTree = "<group>"; };
 		22122B711F0B8996000E9AB9 /* BRAPIClient+Events.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "BRAPIClient+Events.swift"; sourceTree = "<group>"; };
@@ -1744,6 +1748,15 @@
 				022815BB21DDFB56002475AF /* SwiftyJSON.framework */,
 			);
 			path = Vendor;
+			sourceTree = "<group>";
+		};
+		02F2A17521E772B60047CE73 /* SwiftWebViewProgress */ = {
+			isa = PBXGroup;
+			children = (
+				02F2A17621E772B60047CE73 /* SwiftWebViewProgress.swift */,
+				02F2A17721E772B60047CE73 /* SwiftWebViewProgressView.swift */,
+			);
+			path = SwiftWebViewProgress;
 			sourceTree = "<group>";
 		};
 		22A9A9311DF61930000F0016 /* Platform */ = {
@@ -3035,6 +3048,7 @@
 		CE20C90F1DBE5B5100C8397A /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				02F2A17521E772B60047CE73 /* SwiftWebViewProgress */,
 				CEF3E8301DE554F1007C0A9E /* AnimatedIcons */,
 				CEC6AA471DEFCFCD00EE5AFD /* Controls */,
 				CE3645461E7B40280079D0CF /* PinPadCells */,
@@ -4043,6 +4057,7 @@
 				7CA238142011A97C00A4A59D /* TxDetailViewController.swift in Sources */,
 				CE20C9111DBE5B6F00C8397A /* Circle.swift in Sources */,
 				CE65C665207B0BEF000C99C4 /* TokenCell.swift in Sources */,
+				02F2A17921E772B60047CE73 /* SwiftWebViewProgressView.swift in Sources */,
 				CE20C9071DBC587200C8397A /* StartViewController.swift in Sources */,
 				223DB2151DF654940076A151 /* WalletManager.swift in Sources */,
 				22A9A94E1DF61945000F0016 /* BRHTTPIndexMiddleware.swift in Sources */,
@@ -4089,6 +4104,7 @@
 				7CF913BE1FFC7DC30085CB70 /* TxMemoCell.swift in Sources */,
 				22A9A9471DF61945000F0016 /* BRAPIProxy.swift in Sources */,
 				CE20C9011DBBFFF800C8397A /* Actions.swift in Sources */,
+				02F2A17821E772B60047CE73 /* SwiftWebViewProgress.swift in Sources */,
 				CE20C9191DBE7B8200C8397A /* State.swift in Sources */,
 				CEEC70811E90C04700EF788E /* SeparatorCell.swift in Sources */,
 				CE20C8FE1DBB133A00C8397A /* SimpleRedux.swift in Sources */,

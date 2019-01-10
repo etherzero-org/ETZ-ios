@@ -80,12 +80,15 @@ import SwiftyJSON
     }
 }
 
-class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber{
+class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,WebViewProgressDelegate{
     
+    private var progressView: WebViewProgressView!
+    private var progressProxy: WebViewProgress!
     var webView  : UIWebView!
     var jsContext: JSContext!
     var model    : SwiftJavaScriptModel?
     private var backButton:UIButton!
+    private var closeButton:UIButton!
     private var qrCodeImage:UIImage? = nil
     private var isLoginRequired = false
     
@@ -100,6 +103,9 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber{
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        if (self.webView != nil) {
+            self.webView.reload()
+        }
         NotificationCenter.default.addObserver(self, selector:#selector(noti(noti:)), name:NSNotification.Name(rawValue:"isPostHash"), object:nil)
         NotificationCenter.default.addObserver(self, selector:#selector(noti(launchSendViewNoti:)), name:NSNotification.Name(rawValue:"isLaunchSendView"), object:nil)
     }
@@ -125,9 +131,28 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber{
         self.backButton.widthAnchor.constraint(equalToConstant: 22.0).isActive = true
         self.backButton.heightAnchor.constraint(equalToConstant: 22.0).isActive = true
         self.backButton.tintColor = .black
-        self.backButton.tap = closeSecondWebView
-        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: self.backButton)
+        self.backButton.tap = returnOnWebView
+        let firstItem = UIBarButtonItem(customView: self.backButton)
+        
+        let gap = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil,
+                                  action: nil)
+        gap.width = 15
+        
+        let spacer = UIBarButtonItem(barButtonSystemItem: .fixedSpace, target: nil,
+                                     action: nil)
+        
+        self.closeButton = UIButton(type: .system)
+        self.closeButton.setImage(#imageLiteral(resourceName: "close_icon"), for: .normal)
+        self.closeButton.frame = CGRect(x: 0.0, y: 12.0, width: 22.0, height: 22.0)
+        self.closeButton.widthAnchor.constraint(equalToConstant: 22.0).isActive = true
+        self.closeButton.heightAnchor.constraint(equalToConstant: 22.0).isActive = true
+        self.closeButton.tintColor = .black
+        self.closeButton.tap = closeSecondWebView
+        let lastItem = UIBarButtonItem(customView: self.closeButton)
+        
+        navigationItem.leftBarButtonItems = ([spacer,firstItem,gap,lastItem])
         self.backButton.isHidden = true
+        self.closeButton.isHidden = true
     }
     
     private func addConstraints() {
@@ -144,6 +169,20 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber{
                 self.webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
                 self.webView.heightAnchor.constraint(equalToConstant: self.view.frame.size.height) ])
         }
+        
+//        if #available(iOS 11.0, *) {
+//            self.webView.constrain([
+//                self.webView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+//                self.webView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: -C.padding[1]),
+//                self.webView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: C.padding[1]),
+//                self.webView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0.0)])
+//        } else {
+//            self.webView.constrain([
+//                self.webView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+//                self.webView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: -C.padding[1]),
+//                self.webView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: C.padding[1]),
+//                self.webView.topAnchor.constraint(equalTo: topLayoutGuide.bottomAnchor, constant: 0.0)])
+//        }
     }
     
     func updateNavigationBar() {
@@ -193,8 +232,21 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber{
     }
     
     func setupWebView() {
+        self.webView.frame = self.view.bounds
         self.view.addSubview(self.webView)
-        self.addConstraints()
+//        self.addConstraints()
+        
+        progressProxy = WebViewProgress()
+        webView.delegate = progressProxy
+        progressProxy.webViewProxyDelegate = self
+        progressProxy.progressDelegate = self
+        
+        let progressBarHeight: CGFloat = 2.0
+        let navigationBarBounds = self.navigationController!.navigationBar.bounds
+        let barFrame = CGRect(x: 0, y: navigationBarBounds.size.height - progressBarHeight, width: navigationBarBounds.width, height: progressBarHeight)
+        progressView = WebViewProgressView(frame: barFrame)
+        progressView.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
+        self.navigationController!.navigationBar.addSubview(progressView)
     }
     
     func webViewDidFinishLoad(_ webView: UIWebView) {
@@ -226,11 +278,13 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber{
             if (self.backButton != nil) {
                 self.tabBarController?.tabBar.isHidden = false
                 self.backButton.isHidden = true
+                self.closeButton.isHidden = true
             }
         } else {
             if (self.backButton != nil) {
                 self.tabBarController?.tabBar.isHidden = true
                 self.backButton.isHidden = false
+                self.closeButton.isHidden = false
             }
         }
         self.model?.jsContext?.evaluateScript(curUrl)
@@ -246,11 +300,18 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber{
         messagePresenter.presentShareSheet(text: "", image: self.qrCodeImage!)
     }
     
+    private func returnOnWebView() {
+        if self.webView.canGoBack {
+            self.webView.goBack()
+        }
+    }
+    
     private func closeSecondWebView() {
         let web_url = URL.init(string: "https://dapp.easyetz.io")
         let request = URLRequest(url: web_url!)
         self.webView.loadRequest(request as URLRequest)
         self.backButton.isHidden = true
+        self.closeButton.isHidden = true
         self.tabBarController?.tabBar.isHidden = false
     }
     
@@ -271,6 +332,11 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber{
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
+    }
+    
+    // MARK: - WebViewProgressDelegate
+    func webViewProgress(_ webViewProgress: WebViewProgress, updateProgress progress: Float) {
+        progressView.setProgress(progress, animated: true)
     }
 }
 
