@@ -9,6 +9,7 @@
 import UIKit
 import JavaScriptCore
 import SwiftyJSON
+import BRCore
 
 @objc protocol SwiftJavaScriptDelegate: JSExport {
     // 调用钱包发送交易 -> 改成 json 格式
@@ -23,7 +24,7 @@ import SwiftyJSON
     
     struct JsModel {
         let contractAddress: String
-        let etzValue: NSInteger
+        let etzValue: Int64
         let datas: String
         let keyTime: String
         let gasLimit: String
@@ -31,7 +32,7 @@ import SwiftyJSON
         
         init(jsonData: JSON) {
             contractAddress = jsonData["contractAddress"].stringValue
-            etzValue        = jsonData["etzValue"].intValue
+            etzValue        = Int64((jsonData["etzValue"].int64Value))
             datas           = jsonData["datas"].stringValue
             keyTime         = jsonData["keyTime"].stringValue
             gasLimit        = jsonData["gasLimit"].stringValue
@@ -91,21 +92,12 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
     private var closeButton:UIButton!
     private var qrCodeImage:UIImage? = nil
     private var isLoginRequired = false
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        self.view.backgroundColor = UIColor.white
-        self.setupWebView()
-        self.setupNavigationBar()
-        self.creareQrCodeImage()
-        self.addSubscriptions()
-    }
+    private var bgView: UIImageView!
+    private var refreshBtn:UIButton!
+    private var isLoadingFailure = false
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        if (self.webView != nil) {
-            self.webView.reload()
-        }
         NotificationCenter.default.addObserver(self, selector:#selector(noti(noti:)), name:NSNotification.Name(rawValue:"isPostHash"), object:nil)
         NotificationCenter.default.addObserver(self, selector:#selector(noti(launchSendViewNoti:)), name:NSNotification.Name(rawValue:"isLaunchSendView"), object:nil)
     }
@@ -115,9 +107,22 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
         NotificationCenter.default.removeObserver(self)
     }
     
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        self.view.backgroundColor = UIColor.white
+        self.setupWebView()
+        self.setupNavigationBar()
+        self.creareQrCodeImage()
+        self.addSubscriptions()
+//        self.createRequestFialdView()
+//        if self.isLoadingFailure {
+//            self.bgView.isHidden = false
+//        }
+    }
+    
     private func setupNavigationBar() {
         let shareButton = UIButton(type: .system)
-        shareButton.setImage(#imageLiteral(resourceName: "icon_share"), for: .normal)
+        shareButton.setImage(UIImage(named: "share_icon"), for: .normal)
         shareButton.frame = CGRect(x: 0.0, y: 12.0, width: 22.0, height: 22.0)
         shareButton.widthAnchor.constraint(equalToConstant: 22.0).isActive = true
         shareButton.heightAnchor.constraint(equalToConstant: 22.0).isActive = true
@@ -126,7 +131,7 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: shareButton)
         
         self.backButton = UIButton(type: .system)
-        self.backButton.setImage(#imageLiteral(resourceName: "Back"), for: .normal)
+        self.backButton.setImage(UIImage(named: "comeback_icon"), for: .normal)
         self.backButton.frame = CGRect(x: 0.0, y: 12.0, width: 22.0, height: 22.0)
         self.backButton.widthAnchor.constraint(equalToConstant: 22.0).isActive = true
         self.backButton.heightAnchor.constraint(equalToConstant: 22.0).isActive = true
@@ -142,7 +147,7 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
                                      action: nil)
         
         self.closeButton = UIButton(type: .system)
-        self.closeButton.setImage(#imageLiteral(resourceName: "close_icon"), for: .normal)
+        self.closeButton.setImage(UIImage(named: "close_icon"), for: .normal)
         self.closeButton.frame = CGRect(x: 0.0, y: 12.0, width: 22.0, height: 22.0)
         self.closeButton.widthAnchor.constraint(equalToConstant: 22.0).isActive = true
         self.closeButton.heightAnchor.constraint(equalToConstant: 22.0).isActive = true
@@ -161,7 +166,7 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
                 self.webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
                 self.webView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0.0),
                 self.webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                self.webView.heightAnchor.constraint(equalToConstant: self.view.frame.size.height) ])
+                self.webView.heightAnchor.constraint(equalToConstant: self.view.frame.size.height-(self.tabBarController?.tabBar.bounds.size.height)!) ])
         } else {
             self.webView.constrain([
                 self.webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -169,38 +174,23 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
                 self.webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
                 self.webView.heightAnchor.constraint(equalToConstant: self.view.frame.size.height) ])
         }
-        
-//        if #available(iOS 11.0, *) {
-//            self.webView.constrain([
-//                self.webView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
-//                self.webView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: -C.padding[1]),
-//                self.webView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: C.padding[1]),
-//                self.webView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0.0)])
-//        } else {
-//            self.webView.constrain([
-//                self.webView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-//                self.webView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: -C.padding[1]),
-//                self.webView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: C.padding[1]),
-//                self.webView.topAnchor.constraint(equalTo: topLayoutGuide.bottomAnchor, constant: 0.0)])
-//        }
     }
     
     func updateNavigationBar() {
-        if #available(iOS 11.0, *) {
-            self.navigationController?.navigationBar.topAnchor.constraint(
-                equalTo: self.view.safeAreaLayoutGuide.topAnchor
-                ).isActive = true
-        } else {
-            self.navigationController?.navigationBar.topAnchor.constraint(
-                equalTo: topLayoutGuide.bottomAnchor
-                ).isActive = true
-        }
+//        if #available(iOS 11.0, *) {
+//            self.navigationController?.navigationBar.topAnchor.constraint(
+//                equalTo: self.view.safeAreaLayoutGuide.topAnchor
+//                ).isActive = true
+//        } else {
+//            self.navigationController?.navigationBar.topAnchor.constraint(
+//                equalTo: topLayoutGuide.bottomAnchor
+//                ).isActive = true
+//        }
         
         if #available(iOS 11.0, *) {
             self.navigationController?.navigationBar.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
             self.navigationController?.navigationBar.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
             self.navigationController?.navigationBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
-//            self.navigationController?.navigationBar.heightAnchor.constraint(equalToConstant: 88).isActive = true
         }
     }
     
@@ -211,6 +201,21 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
             self.webView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
             self.webView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
         }
+    }
+    
+    private func createRequestFialdView(){
+        self.bgView = UIImageView()
+        self.bgView.image = UIImage(named: "wallet_bg")
+        self.bgView.frame = self.view.bounds
+        self.view.addSubview(self.bgView)
+        self.bgView.isHidden = true
+        
+        self.refreshBtn = UIButton(type: .system)
+        self.refreshBtn.setImage(UIImage(named: "refresh_icon"), for: .normal)
+        self.bgView.addSubview(self.refreshBtn)
+        self.refreshBtn.frame = CGRect(x: self.view.frame.width/2 - 36.5, y: 120.0, width: 73.0, height: 27.0)
+        self.refreshBtn.tintColor = .white
+        self.refreshBtn.tap = loadWebViewRequest
     }
     
     public func loadWebViewRequest(){
@@ -234,8 +239,7 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
     func setupWebView() {
         self.webView.frame = self.view.bounds
         self.view.addSubview(self.webView)
-//        self.addConstraints()
-        
+
         progressProxy = WebViewProgress()
         webView.delegate = progressProxy
         progressProxy.webViewProxyDelegate = self
@@ -247,12 +251,27 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
         progressView = WebViewProgressView(frame: barFrame)
         progressView.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
         self.navigationController!.navigationBar.addSubview(progressView)
+        progressView.isHidden = true
+    }
+    
+    func webViewDidStartLoad(_ webView: UIWebView) {
+        if (progressView != nil) {
+            progressView.isHidden = false
+        }
     }
     
     func webViewDidFinishLoad(_ webView: UIWebView) {
         setContext()
         let title = self.webView.stringByEvaluatingJavaScript(from: "document.title") ?? "" as String
         self.navigationItem.title = title
+    }
+    
+    func webView(_ webView: UIWebView, didFailLoadWithError error: Error) {
+//        print(error.localizedDescription)
+//        self.isLoadingFailure = true
+//        if (self.bgView != nil) {
+//            self.bgView.isHidden = false
+//        }
     }
     
     private func creareQrCodeImage() {
@@ -274,6 +293,9 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
         
         // 注册到网络Html页面 请设置允许Http请求
         let curUrl = self.webView.request?.url?.absoluteString  //WebView当前访问页面的链接 可动态注册
+//        if (self.bgView != nil) && !self.bgView.isHidden {
+//            self.bgView.isHidden = true
+//        }
         if (curUrl?.contains("easyetz.io"))! {
             if (self.backButton != nil) {
                 self.tabBarController?.tabBar.isHidden = false
@@ -287,8 +309,8 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
                 self.closeButton.isHidden = false
             }
         }
-        self.model?.jsContext?.evaluateScript(curUrl)
         
+        self.model?.jsContext?.evaluateScript(curUrl)
         self.model?.jsContext?.exceptionHandler = { (context, exception) in
             print("exception：", exception as Any)
         }
