@@ -24,7 +24,7 @@ import BRCore
     
     struct JsModel {
         let contractAddress: String
-        let etzValue: Int64
+        let etzValue: Int
         let datas: String
         let keyTime: String
         let gasLimit: String
@@ -32,7 +32,7 @@ import BRCore
         
         init(jsonData: JSON) {
             contractAddress = jsonData["contractAddress"].stringValue
-            etzValue        = Int64((jsonData["etzValue"].int64Value))
+            etzValue        = jsonData["etzValue"].intValue
             datas           = jsonData["datas"].stringValue
             keyTime         = jsonData["keyTime"].stringValue
             gasLimit        = jsonData["gasLimit"].stringValue
@@ -238,6 +238,7 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
     
     func setupWebView() {
         self.webView.frame = self.view.bounds
+//        self.webView.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
         self.view.addSubview(self.webView)
 
         progressProxy = WebViewProgress()

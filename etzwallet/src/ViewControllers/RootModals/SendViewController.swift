@@ -785,7 +785,9 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
         super.viewWillAppear(animated)
         if (self.jsModel != nil) {
             addressCell.setContent(self.jsModel?.contractAddress)
-            let evalue : Double = Double((self.jsModel?.etzValue)!) / 10e17
+//            let evalue : Double = Double((self.jsModel?.etzValue)!) / 10e17
+            // 这里直接传数值
+            let evalue : Double = Double((self.jsModel?.etzValue)!)
             amountView.tradingDataString(dataString: String(evalue))
             dataCell.content = self.jsModel?.datas
             
