@@ -24,15 +24,22 @@ import BRCore
     
     struct JsModel {
         let contractAddress: String
-        let etzValue: Int
+        let etzValue: String
         let datas: String
         let keyTime: String
         let gasLimit: String
         let gasPrice: String
         
+        func etzValueCalculate(_ str:String) -> NSDecimalNumber {
+            let value1:NSDecimalNumber = NSDecimalNumber.init(string: str)
+            let value2:NSDecimalNumber = NSDecimalNumber.init(string: String(10e17))
+            let value = value1.dividing(by:value2)
+            return value
+        }
+        
         init(jsonData: JSON) {
             contractAddress = jsonData["contractAddress"].stringValue
-            etzValue        = jsonData["etzValue"].intValue
+            etzValue        = jsonData["etzValue"].stringValue
             datas           = jsonData["datas"].stringValue
             keyTime         = jsonData["keyTime"].stringValue
             gasLimit        = jsonData["gasLimit"].stringValue

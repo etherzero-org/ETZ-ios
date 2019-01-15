@@ -11,7 +11,7 @@ import SwiftyJSON
 
 struct JsModel {
     let contractAddress: String
-    let etzValue: NSInteger
+    let etzValue: String
     let datas: String
     let keyTime: String
     let gasLimit: String
@@ -19,7 +19,7 @@ struct JsModel {
     
     init(jsonData: JSON) {
         contractAddress = jsonData["contractAddress"].stringValue
-        etzValue        = jsonData["etzValue"].intValue
+        etzValue        = jsonData["etzValue"].stringValue
         datas           = jsonData["datas"].stringValue
         keyTime         = jsonData["keyTime"].stringValue
         gasLimit        = jsonData["gasLimit"].stringValue

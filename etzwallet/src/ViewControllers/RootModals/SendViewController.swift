@@ -785,20 +785,19 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
         super.viewWillAppear(animated)
         if (self.jsModel != nil) {
             addressCell.setContent(self.jsModel?.contractAddress)
-//            let evalue : Double = Double((self.jsModel?.etzValue)!) / 10e17
-            // 这里直接传数值
-            let evalue : Double = Double((self.jsModel?.etzValue)!)
-            amountView.tradingDataString(dataString: String(evalue))
+            let value = self.etzValueCalculate((self.jsModel?.etzValue)!)
+            amountView.tradingDataString(dataString: value.stringValue)
             dataCell.content = self.jsModel?.datas
-            
             gaslimitCell.content = self.jsModel?.gasLimit
             gaspriceCell.content = self.jsModel?.gasPrice
-            //        if (self.jsModel?.gasPrice.isEmpty)! && Int((self.jsModel?.gasPrice)!)!>21000 {
-            //            gaspriceCell.textView.text = "2"
-            //        } else {
-            //            gaspriceCell.textView.text = self.jsModel?.gasPrice
-            //        }
         }
+    }
+    
+    func etzValueCalculate(_ str:String) -> NSDecimalNumber {
+        let value1:NSDecimalNumber = NSDecimalNumber.init(string: str)
+        let value2:NSDecimalNumber = NSDecimalNumber.init(string: String(10e17))
+        let value = value1.dividing(by:value2)
+        return value
     }
 }
 
