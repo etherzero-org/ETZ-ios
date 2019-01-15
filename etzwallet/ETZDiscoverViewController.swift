@@ -60,27 +60,7 @@ import BRCore
         self.json = json
         self.jsModel = JsModel(jsonData: json!)
         Store.perform(action: RootModalActions.Present(modal: .send(currency:(self.wallet?.currency)!)))
-        // self.wallet?.apiClient = nil
-        // TODO
-/*
-        self.wallet?.apiClient?.getGasPrice(handler: { (result) in
-            print("price******\(result)")
-        })
-        
-        self.client.getGasPrice { (result) in
-            print("result**********\(result)")
-        }
-        
-        var params:TransactionParams = TransactionParams(from: (self.wallet?.address)!, to: (self.jsModel?.contractAddress)!)
-        params.data = self.jsModel?.datas
-        params.value = 0
-        self.client.estimateGas(transaction: params) { (result) in
-            print("limit************\(result)")
-        }
-        self.wallet?.apiClient?.estimateGas(transaction: params, handler: { (result) in
-            print("limit******\(result)")
-        })
- */
+        // TODO getGasPrice getEstimateGas
     }
     
     func getAddress() -> String {
@@ -121,10 +101,7 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
         self.setupNavigationBar()
         self.creareQrCodeImage()
         self.addSubscriptions()
-//        self.createRequestFialdView()
-//        if self.isLoadingFailure {
-//            self.bgView.isHidden = false
-//        }
+        self.extendedLayoutIncludesOpaqueBars = true
     }
     
     private func setupNavigationBar() {
@@ -184,16 +161,6 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
     }
     
     func updateNavigationBar() {
-//        if #available(iOS 11.0, *) {
-//            self.navigationController?.navigationBar.topAnchor.constraint(
-//                equalTo: self.view.safeAreaLayoutGuide.topAnchor
-//                ).isActive = true
-//        } else {
-//            self.navigationController?.navigationBar.topAnchor.constraint(
-//                equalTo: topLayoutGuide.bottomAnchor
-//                ).isActive = true
-//        }
-        
         if #available(iOS 11.0, *) {
             self.navigationController?.navigationBar.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
             self.navigationController?.navigationBar.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
@@ -245,7 +212,6 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
     
     func setupWebView() {
         self.webView.frame = self.view.bounds
-//        self.webView.frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
         self.view.addSubview(self.webView)
 
         progressProxy = WebViewProgress()
@@ -274,14 +240,6 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
         self.navigationItem.title = title
     }
     
-    func webView(_ webView: UIWebView, didFailLoadWithError error: Error) {
-//        print(error.localizedDescription)
-//        self.isLoadingFailure = true
-//        if (self.bgView != nil) {
-//            self.bgView.isHidden = false
-//        }
-    }
-    
     private func creareQrCodeImage() {
         let url:String = "https://easyetz.io"
         let screenWidth = UIScreen.main.bounds.width
@@ -301,9 +259,6 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
         
         // 注册到网络Html页面 请设置允许Http请求
         let curUrl = self.webView.request?.url?.absoluteString  //WebView当前访问页面的链接 可动态注册
-//        if (self.bgView != nil) && !self.bgView.isHidden {
-//            self.bgView.isHidden = true
-//        }
         if (curUrl?.contains("easyetz.io"))! {
             if (self.backButton != nil) {
                 self.tabBarController?.tabBar.isHidden = false
@@ -348,10 +303,6 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
     @objc func noti(noti:Notification){
         let dict:[String:String] = noti.userInfo as! [String : String]
         let hashKey = dict["hash"]
-//        let startIndex = hashKey?.startIndex
-//        let keyIndex = hashKey?.index(startIndex!, offsetBy: 2)
-//        let hashString:String = String(hashKey![keyIndex!...])
-//        let resultString = "00"+hashString
         let jsHandlerFunc = self.model!.jsContext?.objectForKeyedSubscript("\("makeSaveData")")
         let _ = jsHandlerFunc?.call(withArguments: [hashKey as Any,self.model?.jsModel?.keyTime as Any])
     }
