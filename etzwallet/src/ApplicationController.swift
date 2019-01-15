@@ -423,7 +423,6 @@ class ApplicationController : Subscriber, Trackable {
         DispatchQueue.global().sync {
             disCover.loadWebViewRequest()
         }
-        disCover.loadWebViewRequest()
         let viewControllersArray : [UIViewController]  = [home,disCover,mine]
         let titlesArray = [(S.Tabbar.wallet, "wallet"), (S.Tabbar.discover, "discover"), (S.Tabbar.mine, "mine")]
         for (index, vc) in viewControllersArray.enumerated() {

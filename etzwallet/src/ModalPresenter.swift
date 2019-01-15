@@ -505,6 +505,7 @@ class ModalPresenter : Subscriber, Trackable {
             SettingsSections.network: [
                 Setting(title: S.NodeSelector.title, callback: {
                     let nodeSelector = NodeSelectorViewController(walletManager: walletManager)
+                    currentViewController?.navigationController?.navigationBar.isTranslucent = false
                     currentViewController?.navigationController!.pushViewController(nodeSelector, animated: true)
                 }),
             ],

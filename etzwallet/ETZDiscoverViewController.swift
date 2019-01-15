@@ -230,7 +230,6 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
         self.webView.delegate = self
         self.webView.scalesPageToFit = true
         let web_url = URL.init(string: "https://dapp.easyetz.io")
-     //   let web_url = URL.init(string: "http://192.168.199.126:8080")
         let request = URLRequest(url: web_url!)
         self.webView.loadRequest(request as URLRequest)
     }
