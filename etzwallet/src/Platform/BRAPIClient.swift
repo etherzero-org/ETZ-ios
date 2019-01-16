@@ -99,7 +99,7 @@ open class BRAPIClient : NSObject, URLSessionDelegate, URLSessionTaskDelegate, B
     
     // convenience getter for the API endpoint
     private var baseUrl: String {
-        return "\(proto)://\(host)"
+        return "\(proto)://\(UserDefaults.standard.object(forKey: "baseUrl") ?? String.self)"
     }
     
     private var otherUrl: String {
@@ -112,6 +112,9 @@ open class BRAPIClient : NSObject, URLSessionDelegate, URLSessionTaskDelegate, B
     
     init(authenticator: WalletAuthenticator) {
         self.authenticator = authenticator
+        if !(UserDefaults.standard.object(forKey: "baseUrl") != nil) {
+            UserDefaults.standard.set("etzrpc.org:443", forKey: "baseUrl")
+        }
     }
     
     // prints whatever you give it if logEnabled is true
