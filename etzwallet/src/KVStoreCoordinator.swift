@@ -85,7 +85,8 @@ class KVStoreCoordinator : Subscriber {
                     }
                     displayOrder = displayOrder + 1
                 } else {
-                    assert(E.isTestnet, "unknown token")
+                    print("unknown token \(tokenAddress) in metadata will be removed")
+//                    assert(E.isTestnet, "unknown token")
                 }
                 
                 if tokenAddress.lowercased() == Currencies.eash.address.lowercased() {
@@ -101,7 +102,8 @@ class KVStoreCoordinator : Subscriber {
                         }
                         displayOrder = displayOrder + 1
                     } else {
-                        assert(E.isTestnet, "unknown token")
+//                        assert(E.isTestnet, "unknown token")
+                        print("unknown token \(tokenAddress) in metadata will be removed")
                     }
                 }
             }
