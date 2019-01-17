@@ -628,4 +628,10 @@ enum S {
         static let discover = NSLocalizedString("Tabbar.discover", value: "Discover", comment: "discover view controller")
         static let mine = NSLocalizedString("Tabbar.mine", value: "Me", comment: "mine view controller")
     }
+    
+    enum Region {
+        static let wallet = NSLocalizedString("Setting.HongKong", value: "HongKong", comment: "Region Hong Kong")
+        static let discover = NSLocalizedString("Setting.Singapore", value: "Singapore", comment: "Region Singapore")
+        static let mine = NSLocalizedString("Setting.USA", value: "USA", comment: "Region American")
+    }
 }
