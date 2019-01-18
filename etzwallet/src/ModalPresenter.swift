@@ -513,6 +513,11 @@ class ModalPresenter : Subscriber, Trackable {
                     currentViewController?.navigationController?.navigationBar.isTranslucent = false
                     currentViewController?.navigationController!.pushViewController(etzNodeSelector, animated: true)
                 }),
+                Setting(title: S.NodeSelector.customTitle, callback: {
+                    let etzNodeSelector = ETZCustomNodeSelectorViewController(walletManager: walletManager)
+                    currentViewController?.navigationController?.navigationBar.isTranslucent = false
+                    currentViewController?.navigationController!.pushViewController(etzNodeSelector, animated: true)
+                }),
             ],
             ]
         

@@ -601,6 +601,7 @@ enum S {
         static let automaticButton = NSLocalizedString("NodeSelector.automaticButton", value: "Switch to Automatic Mode", comment: "Switch to automatic mode button label")
         static let title = NSLocalizedString("NodeSelector.title", value: "Bitcoin Nodes", comment: "Node Selector view title")
         static let etzTitle = NSLocalizedString("NodeSelector.etzTitle", value: "Etherzero node", comment: "ETZ Node Selector view title")
+        static let customTitle = NSLocalizedString("NodeSelector.customTitle", value: "Custom node", comment: "Custom Node Selector view title")
         static let nodeLabel = NSLocalizedString("NodeSelector.nodeLabel", value: "Current Primary Node", comment: "Node address label")
         static let statusLabel = NSLocalizedString("NodeSelector.statusLabel", value: "Node Connection Status", comment: "Node status label")
         static let connected = NSLocalizedString("NodeSelector.connected", value: "Connected", comment: "Node is connected label")
@@ -631,8 +632,8 @@ enum S {
     }
     
     enum Region {
-        static let wallet = NSLocalizedString("Setting.HongKong", value: "HongKong", comment: "Region Hong Kong")
-        static let discover = NSLocalizedString("Setting.Singapore", value: "Singapore", comment: "Region Singapore")
-        static let mine = NSLocalizedString("Setting.USA", value: "USA", comment: "Region American")
+        static let HongKong = NSLocalizedString("Setting.HongKong", value: "HongKong", comment: "Region Hong Kong")
+        static let Singapore = NSLocalizedString("Setting.Singapore", value: "Singapore", comment: "Region Singapore")
+        static let USA = NSLocalizedString("Setting.USA", value: "USA", comment: "Region American")
     }
 }
