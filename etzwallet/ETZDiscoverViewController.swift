@@ -144,36 +144,11 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
         self.closeButton.isHidden = true
     }
     
-    private func addConstraints() {
-        if #available(iOS 11.0, *) {
-            self.webView.constrain([
-                self.webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                self.webView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0.0),
-                self.webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                self.webView.heightAnchor.constraint(equalToConstant: self.view.frame.size.height-(self.tabBarController?.tabBar.bounds.size.height)!) ])
-        } else {
-            self.webView.constrain([
-                self.webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-                self.webView.topAnchor.constraint(equalTo: topLayoutGuide.bottomAnchor, constant: 0.0),
-                self.webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-                self.webView.heightAnchor.constraint(equalToConstant: self.view.frame.size.height) ])
-        }
-    }
-    
     func updateNavigationBar() {
         if #available(iOS 11.0, *) {
             self.navigationController?.navigationBar.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
             self.navigationController?.navigationBar.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
             self.navigationController?.navigationBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
-        }
-    }
-    
-    private func updateWebViewFrame() {
-        if #available(iOS 11.0, *) {
-            self.webView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-            self.webView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-            self.webView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
-            self.webView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
         }
     }
     
