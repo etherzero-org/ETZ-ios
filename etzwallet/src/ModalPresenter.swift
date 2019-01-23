@@ -503,20 +503,28 @@ class ModalPresenter : Subscriber, Trackable {
         var sections = [SettingsSections.network]
         var advancedSettings = [
             SettingsSections.network: [
+                // btc node 
                 Setting(title: S.NodeSelector.title, callback: {
                     let nodeSelector = NodeSelectorViewController(walletManager: walletManager)
                     currentViewController?.navigationController?.navigationBar.isTranslucent = false
                     currentViewController?.navigationController!.pushViewController(nodeSelector, animated: true)
                 }),
+                // etz node
                 Setting(title: S.NodeSelector.etzTitle, callback: {
                     let etzNodeSelector = ETZNodeSelectorViewController(walletManager: walletManager)
                     currentViewController?.navigationController?.navigationBar.isTranslucent = false
                     currentViewController?.navigationController!.pushViewController(etzNodeSelector, animated: true)
                 }),
+                // custom nodes
                 Setting(title: S.NodeSelector.customTitle, callback: {
                     let etzNodeSelector = ETZCustomNodeSelectorViewController(walletManager: walletManager)
                     currentViewController?.navigationController?.navigationBar.isTranslucent = false
                     currentViewController?.navigationController!.pushViewController(etzNodeSelector, animated: true)
+                }),
+                // Share Anonymous Data
+                Setting(title: S.Settings.shareData, callback: {
+                    currentViewController?.navigationController?.navigationBar.isTranslucent = false
+                    currentViewController?.navigationController!.pushViewController(ShareDataViewController(), animated: true)
                 }),
             ],
             ]
