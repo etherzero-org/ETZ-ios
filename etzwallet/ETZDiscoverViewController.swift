@@ -82,6 +82,7 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
     private var bgView: UIImageView!
     private var refreshBtn:UIButton!
     private var isLoadingFailure = false
+    private var baseUrlString:String?
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -171,7 +172,8 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
         self.webView = UIWebView()
         self.webView.delegate = self
         self.webView.scalesPageToFit = true
-        let web_url = URL.init(string: "https://dapp.easyetz.io")
+        self.baseUrlString = "https://dapp.easyetz.io"
+        let web_url = URL.init(string: self.baseUrlString!)
         let request = URLRequest(url: web_url!)
         self.webView.loadRequest(request as URLRequest)
     }
@@ -234,7 +236,7 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
         
         // 注册到网络Html页面 请设置允许Http请求
         let curUrl = self.webView.request?.url?.absoluteString  //WebView当前访问页面的链接 可动态注册
-        if (curUrl?.contains("easyetz.io"))! {
+        if (curUrl?.contains("https://dapp.easyetz.io"))! {
             if (self.backButton != nil) {
                 self.tabBarController?.tabBar.isHidden = false
                 self.backButton.isHidden = true
