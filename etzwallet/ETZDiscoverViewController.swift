@@ -82,7 +82,6 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
     private var bgView: UIImageView!
     private var refreshBtn:UIButton!
     private var isLoadingFailure = false
-    private var baseUrlString:String?
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -172,8 +171,7 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
         self.webView = UIWebView()
         self.webView.delegate = self
         self.webView.scalesPageToFit = true
-        self.baseUrlString = "https://dapp.easyetz.io"
-        let web_url = URL.init(string: self.baseUrlString!)
+        let web_url = URL.init(string: "https://dapp.easyetz.io")
         let request = URLRequest(url: web_url!)
         self.webView.loadRequest(request as URLRequest)
     }
