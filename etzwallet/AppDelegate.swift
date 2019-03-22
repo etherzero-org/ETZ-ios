@@ -25,6 +25,7 @@
 
 import UIKit
 import LocalAuthentication
+import Bugly
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
@@ -37,6 +38,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         redirectStdOut()
         UIView.swizzleSetFrame()
         applicationController.launch(application: application, options: launchOptions)
+        DispatchQueue.walletQueue.async {
+            Bugly.start(withAppId: "f504f6b23f")
+        }
         return true
     }
 
