@@ -738,17 +738,17 @@ class EthereumLightNode: EthereumPointer {
                                             defer { cTopics.forEach { free(UnsafeMutablePointer(mutating: $0)) } }
                                             lightNodeAnnounceLog(core,
                                                                  rid,
-                                                                 $0.transactionHash,
+                                                                 $0.txHash,
                                                                  $0.address,
                                                                  Int32($0.topics.count),
                                                                  &cTopics,
                                                                  $0.data,
                                                                  $0.gasPrice,
-                                                                 $0.gasUsed,
-                                                                 $0.logIndex,
-                                                                 $0.blockNumber,
-                                                                 $0.transactionIndex,
-                                                                 $0.timeStamp)
+                                                                 String($0.gasUsed),
+                                                                 String($0.logIndex),
+                                                                 String($0.blockNumber),
+                                                                 /*$0.transactionIndex */ "",
+                                                                 String($0.timestamp))
                                         }
                 })
         },
