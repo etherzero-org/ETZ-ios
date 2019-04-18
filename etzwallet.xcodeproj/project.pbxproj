@@ -22,6 +22,7 @@
 		023809B421082A6000B14D6F /* PowerLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 023809B321082A6000B14D6F /* PowerLabel.swift */; };
 		024966D021F1D16700F7CC1D /* NodeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 024966CF21F1D16700F7CC1D /* NodeCell.swift */; };
 		024966D221F1D82D00F7CC1D /* NodeItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 024966D121F1D82D00F7CC1D /* NodeItem.swift */; };
+		02570C2922673DF9003A3456 /* PlistSaveManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02570C2822673DF9003A3456 /* PlistSaveManager.swift */; };
 		026624592233563F001898BF /* Bugly.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 026624582233563F001898BF /* Bugly.framework */; };
 		0276A7A221F179B200E46B3D /* ETZCustomNodeSelectorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0276A7A121F179B200E46B3D /* ETZCustomNodeSelectorViewController.swift */; };
 		02C41CEC21D22AC700581A0E /* ETZTabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C41CEB21D22AC700581A0E /* ETZTabBarViewController.swift */; };
@@ -630,6 +631,7 @@
 		023809B321082A6000B14D6F /* PowerLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PowerLabel.swift; sourceTree = "<group>"; };
 		024966CF21F1D16700F7CC1D /* NodeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeCell.swift; sourceTree = "<group>"; };
 		024966D121F1D82D00F7CC1D /* NodeItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeItem.swift; sourceTree = "<group>"; };
+		02570C2822673DF9003A3456 /* PlistSaveManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlistSaveManager.swift; sourceTree = "<group>"; };
 		026624582233563F001898BF /* Bugly.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Bugly.framework; sourceTree = "<group>"; };
 		0276A7A121F179B200E46B3D /* ETZCustomNodeSelectorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ETZCustomNodeSelectorViewController.swift; sourceTree = "<group>"; };
 		02C41CEB21D22AC700581A0E /* ETZTabBarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ETZTabBarViewController.swift; sourceTree = "<group>"; };
@@ -2699,6 +2701,7 @@
 				CEC7E593200D7C830056F410 /* Sentry.swift */,
 				CE20C8F11DBAF71500C8397A /* ApplicationController.swift */,
 				02C41CEB21D22AC700581A0E /* ETZTabBarViewController.swift */,
+				02570C2822673DF9003A3456 /* PlistSaveManager.swift */,
 				754AE0BB1DFE8A46007FD001 /* BRCore.swift */,
 				CEE659E61F65A936001FF29D /* RetryTimer.swift */,
 				CE8CD8DC1E2D9EF200785E02 /* Sender.swift */,
@@ -4155,6 +4158,7 @@
 				CE5F21D91E4A922700C47B8E /* DismissLoginAnimator.swift in Sources */,
 				CECCE5A51E02408300D99448 /* UIView+FrameChangeBlocking.swift in Sources */,
 				22A9A94F1DF61945000F0016 /* BRHTTPRouter.swift in Sources */,
+				02570C2922673DF9003A3456 /* PlistSaveManager.swift in Sources */,
 				CE6DCC271E6108D50044257B /* EnterPhraseCell.swift in Sources */,
 				CE760EDD1E561DF900EFAC2B /* UpdatePinViewController.swift in Sources */,
 				22A9A9481DF61945000F0016 /* BRBitID.swift in Sources */,
