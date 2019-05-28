@@ -17,6 +17,10 @@ import BRCore
     func etzTransaction(_ jsons:String)
     // 获取钱包地址
     func getAddress() -> String
+    // 转横屏
+    func landscapeAndHideTitle()
+    // 回到竖屏
+    func backToPortrait()
 }
 
 // 定义一个模型 该模型实现SwiftJavaScriptDelegate协议
@@ -66,6 +70,17 @@ import BRCore
     func getAddress() -> String {
         return (self.wallet?.address)!
     }
+    
+    func landscapeAndHideTitle() {
+//        self.webVC?.navigationController?.navigationBar.isHidden = true
+//        self.webVC?.setNewOrientation(fullScreen: true)
+        NotificationCenter.default.post(name:NSNotification.Name("rightScapeAndHideTitle"), object:self, userInfo:nil)
+//        UIViewController.attemptRotationToDeviceOrientation()
+    }
+    
+    func backToPortrait() {
+        NotificationCenter.default.post(name:NSNotification.Name("backToPortrait"), object:self, userInfo:nil)
+    }
 }
 
 class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,WebViewProgressDelegate{
@@ -82,10 +97,13 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
     private var bgView: UIImageView!
     private var refreshBtn:UIButton!
     private var isLoadingFailure = false
+    let appDeleagte = UIApplication.shared.delegate as! AppDelegate
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         NotificationCenter.default.addObserver(self, selector:#selector(noti(noti:)), name:NSNotification.Name(rawValue:"isPostHash"), object:nil)
+        NotificationCenter.default.addObserver(self, selector:#selector(noti(landScapeNoti:)), name:NSNotification.Name(rawValue:"rightScapeAndHideTitle"), object:nil)
+        NotificationCenter.default.addObserver(self, selector:#selector(noti(backToPortrait:)), name:NSNotification.Name(rawValue:"backToPortrait"), object:nil)
         NotificationCenter.default.addObserver(self, selector:#selector(noti(launchSendViewNoti:)), name:NSNotification.Name(rawValue:"isLaunchSendView"), object:nil)
     }
     
@@ -146,9 +164,9 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
     
     func updateNavigationBar() {
         if #available(iOS 11.0, *) {
-            self.navigationController?.navigationBar.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-            self.navigationController?.navigationBar.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-            self.navigationController?.navigationBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
+//            self.navigationController?.navigationBar.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+//            self.navigationController?.navigationBar.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+//            self.navigationController?.navigationBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
         }
     }
     
@@ -240,13 +258,23 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
                 self.backButton.isHidden = true
                 self.closeButton.isHidden = true
             }
-        } else {
+        } else if (appDeleagte.allowRotation == false) {
             if (self.backButton != nil) {
                 self.tabBarController?.tabBar.isHidden = true
                 self.backButton.isHidden = false
                 self.closeButton.isHidden = false
             }
         }
+        
+//        if appDeleagte.allowRotation == true {
+//            self.setNewOrientation(fullScreen: false)
+//            self.navigationController?.navigationBar.isHidden = false
+//            if (self.backButton != nil) {
+//                self.tabBarController?.tabBar.isHidden = false
+//                self.backButton.isHidden = true
+//                self.closeButton.isHidden = true
+//            }
+//        }
         
         self.model?.jsContext?.evaluateScript(curUrl)
         self.model?.jsContext?.exceptionHandler = { (context, exception) in
@@ -273,6 +301,46 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
         self.backButton.isHidden = true
         self.closeButton.isHidden = true
         self.tabBarController?.tabBar.isHidden = false
+    }
+    
+    //横竖屏
+    func setNewOrientation(fullScreen: Bool) {
+        if fullScreen { //横屏
+            if #available(iOS 11.0, *) {
+                self.webView.scrollView.contentInsetAdjustmentBehavior = .never
+            }
+            appDeleagte.allowRotation = true
+            let value = UIInterfaceOrientation.landscapeRight.rawValue
+            UIDevice.current.setValue(value, forKey: "orientation")
+        }else { //竖屏
+            if #available(iOS 11.0, *) {
+                self.webView.scrollView.contentInsetAdjustmentBehavior = .automatic
+            }
+            appDeleagte.allowRotation = false
+            let value = UIInterfaceOrientation.portrait.rawValue
+            UIDevice.current.setValue(value, forKey: "orientation")
+        }
+        self.webView.frame = self.view.bounds
+        self.webView.setNeedsLayout()
+    }
+    
+    func shouldAutorotate() -> Bool {
+        return false
+    }
+    
+    @objc func noti(landScapeNoti:Notification) {
+        DispatchQueue.main.async {
+            self.navigationController?.navigationBar.isHidden = true
+            self.tabBarController?.tabBar.isHidden = true
+            self.setNewOrientation(fullScreen: true)
+        }
+    }
+    
+    @objc func noti(backToPortrait:Notification) {
+        DispatchQueue.main.async {
+            self.navigationController?.navigationBar.isHidden = false
+            self.setNewOrientation(fullScreen: false)
+        }
     }
     
     @objc func noti(noti:Notification){
