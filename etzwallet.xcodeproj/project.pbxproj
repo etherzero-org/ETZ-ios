@@ -9,9 +9,6 @@
 /* Begin PBXBuildFile section */
 		02029FBC21F01F5B0000DC80 /* ETZNodeSelectorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02029FBB21F01F5B0000DC80 /* ETZNodeSelectorViewController.swift */; };
 		0206B76E210AFFC1002B4AD7 /* BREthereumPower.c in Sources */ = {isa = PBXBuildFile; fileRef = 0206B76D210AFFC1002B4AD7 /* BREthereumPower.c */; };
-		022815BC21DDFB56002475AF /* SwiftyJSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 022815BB21DDFB56002475AF /* SwiftyJSON.framework */; };
-		022815BD21DDFDCD002475AF /* SwiftyJSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 022815BB21DDFB56002475AF /* SwiftyJSON.framework */; };
-		022815BE21DDFDCD002475AF /* SwiftyJSON.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 022815BB21DDFB56002475AF /* SwiftyJSON.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		022815C021E0ADE0002475AF /* MenuItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 022815BF21E0ADDF002475AF /* MenuItem.swift */; };
 		022815C221E32F7B002475AF /* JsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 022815C121E32F7B002475AF /* JsModel.swift */; };
 		022C511420FD838C00CB4576 /* DataSendCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 022C511320FD838C00CB4576 /* DataSendCell.swift */; };
@@ -25,6 +22,9 @@
 		02570C2922673DF9003A3456 /* PlistSaveManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02570C2822673DF9003A3456 /* PlistSaveManager.swift */; };
 		026624592233563F001898BF /* Bugly.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 026624582233563F001898BF /* Bugly.framework */; };
 		0276A7A221F179B200E46B3D /* ETZCustomNodeSelectorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0276A7A121F179B200E46B3D /* ETZCustomNodeSelectorViewController.swift */; };
+		028AD99B229648AB00020020 /* SwiftyJSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 028AD99A229648AB00020020 /* SwiftyJSON.framework */; };
+		028AD99C229649BF00020020 /* SwiftyJSON.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 028AD99A229648AB00020020 /* SwiftyJSON.framework */; };
+		028AD99D229649BF00020020 /* SwiftyJSON.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 028AD99A229648AB00020020 /* SwiftyJSON.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		02C41CEC21D22AC700581A0E /* ETZTabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C41CEB21D22AC700581A0E /* ETZTabBarViewController.swift */; };
 		02C41CEE21D22BE900581A0E /* ETZDiscoverViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C41CED21D22BE900581A0E /* ETZDiscoverViewController.swift */; };
 		02C41CF021D22BFD00581A0E /* ETZMineViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02C41CEF21D22BFD00581A0E /* ETZMineViewController.swift */; };
@@ -562,7 +562,7 @@
 			files = (
 				754AE0B71DFCA870007FD001 /* libbz2.framework in Embed Frameworks */,
 				754AE0B81DFCA870007FD001 /* sqlite3.framework in Embed Frameworks */,
-				022815BE21DDFDCD002475AF /* SwiftyJSON.framework in Embed Frameworks */,
+				028AD99D229649BF00020020 /* SwiftyJSON.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -620,7 +620,6 @@
 		02029FBB21F01F5B0000DC80 /* ETZNodeSelectorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ETZNodeSelectorViewController.swift; sourceTree = "<group>"; };
 		0206B76C210AFE53002B4AD7 /* BREthereumPower.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BREthereumPower.h; sourceTree = "<group>"; };
 		0206B76D210AFFC1002B4AD7 /* BREthereumPower.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = BREthereumPower.c; sourceTree = "<group>"; };
-		022815BB21DDFB56002475AF /* SwiftyJSON.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = SwiftyJSON.framework; sourceTree = "<group>"; };
 		022815BF21E0ADDF002475AF /* MenuItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MenuItem.swift; sourceTree = "<group>"; };
 		022815C121E32F7B002475AF /* JsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JsModel.swift; sourceTree = "<group>"; };
 		022C511320FD838C00CB4576 /* DataSendCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSendCell.swift; sourceTree = "<group>"; };
@@ -634,6 +633,7 @@
 		02570C2822673DF9003A3456 /* PlistSaveManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlistSaveManager.swift; sourceTree = "<group>"; };
 		026624582233563F001898BF /* Bugly.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Bugly.framework; sourceTree = "<group>"; };
 		0276A7A121F179B200E46B3D /* ETZCustomNodeSelectorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ETZCustomNodeSelectorViewController.swift; sourceTree = "<group>"; };
+		028AD99A229648AB00020020 /* SwiftyJSON.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = SwiftyJSON.framework; sourceTree = "<group>"; };
 		02C41CEB21D22AC700581A0E /* ETZTabBarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ETZTabBarViewController.swift; sourceTree = "<group>"; };
 		02C41CED21D22BE900581A0E /* ETZDiscoverViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ETZDiscoverViewController.swift; sourceTree = "<group>"; };
 		02C41CEF21D22BFD00581A0E /* ETZMineViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ETZMineViewController.swift; sourceTree = "<group>"; };
@@ -1712,11 +1712,11 @@
 			files = (
 				22A9A9661DF61FEE000F0016 /* WebKit.framework in Frameworks */,
 				22A9A9641DF61FE7000F0016 /* Security.framework in Frameworks */,
-				022815BC21DDFB56002475AF /* SwiftyJSON.framework in Frameworks */,
 				22A9A9621DF61FE0000F0016 /* SystemConfiguration.framework in Frameworks */,
-				022815BD21DDFDCD002475AF /* SwiftyJSON.framework in Frameworks */,
 				026624592233563F001898BF /* Bugly.framework in Frameworks */,
+				028AD99B229648AB00020020 /* SwiftyJSON.framework in Frameworks */,
 				22A9A9601DF61FD8000F0016 /* CoreLocation.framework in Frameworks */,
+				028AD99C229649BF00020020 /* SwiftyJSON.framework in Frameworks */,
 				22A9A95E1DF61FD0000F0016 /* PushKit.framework in Frameworks */,
 				223DB21B1DF69F0F0076A151 /* libbz2.framework in Frameworks */,
 				752FB04D1DF8BF4B009086FB /* sqlite3.framework in Frameworks */,
@@ -1758,8 +1758,8 @@
 		022815BA21DDFB56002475AF /* Vendor */ = {
 			isa = PBXGroup;
 			children = (
+				028AD99A229648AB00020020 /* SwiftyJSON.framework */,
 				026624582233563F001898BF /* Bugly.framework */,
-				022815BB21DDFB56002475AF /* SwiftyJSON.framework */,
 			);
 			path = Vendor;
 			sourceTree = "<group>";
@@ -3646,6 +3646,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 				fr,
@@ -3660,6 +3661,7 @@
 				pt,
 				ko,
 				"zh-Hant",
+				sv,
 			);
 			mainGroup = 75A2A7871DA5934300A983D8;
 			productRefGroup = 75A2A7911DA5934300A983D8 /* Products */;
