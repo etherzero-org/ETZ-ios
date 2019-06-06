@@ -346,8 +346,10 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
     @objc func noti(noti:Notification){
         let dict:[String:String] = noti.userInfo as! [String : String]
         let hashKey = dict["hash"]
-        let jsHandlerFunc = self.model!.jsContext?.objectForKeyedSubscript("\("makeSaveData")")
-        let _ = jsHandlerFunc?.call(withArguments: [hashKey as Any,self.model?.jsModel?.keyTime as Any])
+        DispatchQueue.main.async {
+            let jsHandlerFunc = self.model!.jsContext?.objectForKeyedSubscript("\("makeSaveData")")
+            let _ = jsHandlerFunc?.call(withArguments: [hashKey as Any,self.model?.jsModel?.keyTime as Any])
+        }
     }
     
     @objc func noti(launchSendViewNoti:Notification) {
