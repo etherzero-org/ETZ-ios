@@ -30,7 +30,7 @@ extension BRAPIClient {
     }
     
     public func estimateGas(transaction: TransactionParams, handler: @escaping (JSONRPCResult<Quantity>) -> Void) {
-        send(rpcRequest: JSONRPCRequest(method: "eth_estimateGas", params: JSONRPCParams([transaction, "pending"])), handler: handler)
+        send(rpcRequest: JSONRPCRequest(method: "eth_estimateGas", params: JSONRPCParams([transaction])), handler: handler)
     }
     
     public func sendRawTransaction(rawTx: String, handler: @escaping (JSONRPCResult<String>) -> Void) {
@@ -64,6 +64,12 @@ extension BRAPIClient {
         //        let req = URLRequest(url: otherurl("/ethq/\(network)/query?module=logs&action=getLogs&fromBlock=0&toBlock=latest\(tokenAddressParam)&topic0=\(ERC20Token.transferEventSignature)&topic1=\(accountAddress)&topic1_2_opr=or&topic2=\(accountAddress)"))
         let reqs = URLRequest(url: tokensurl("/publicAPI?module=logs&action=getLogs&\(tokenAddressParam)&&fromBlock=100&topic_oprs=0_and,1_2_or&topics=\(ERC20Token.transferEventSignature),\(accountAddress),\(accountAddress)&apikey=YourApiKeyToken"))
         send(apiRequest: reqs, handler: handler)
+    }
+    
+    // Data from the list of substituted COINS
+    func getTokensList(handler: @escaping (NSData) -> Void) {
+        let request = URLRequest(url: URL(string: "https://www.easyetz.io/etzq/api/v1/getTokenList")!)
+        sendrep(apiRequest: request, handler: handler)
     }
     
     // MARK: -
@@ -118,6 +124,17 @@ extension BRAPIClient {
                 print("[API] JSON error: \(jsonError)")
                 handler(APIResult<ResultType>.error(jsonError))
             }
+        }).resume()
+    }
+    
+    private func sendrep(apiRequest: URLRequest, handler: @escaping (NSData) -> Void) {
+        dataTaskWithRequest(apiRequest, authenticated: true, retryCount: 0, handler: { data, response, error in
+            guard error == nil, let data = data else {
+                print("[API] HTTP error: \(error!)")
+                let mdata = NSData()
+                return handler(mdata)
+            }
+            handler(data as NSData)
         }).resume()
     }
     
@@ -179,3 +196,17 @@ public struct EthLogEventJSON: Codable {
     public let gasUsed: Int
     public let gasPrice: String
 }
+
+struct StoredToken : Codable {
+    let id: Int
+    let address: String
+    let symbol: String
+    let name: String
+    let description: String
+    let decimals: Int
+    let tokenABI: String
+    let logoUrl: String
+    let colorLeft: String
+    let colorRight: String
+}
+

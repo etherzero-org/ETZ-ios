@@ -31,6 +31,8 @@ private let mostRecentSelectedCurrencyCodeKey = "mostRecentSelectedCurrencyCodeK
 private let hasSetSelectedCurrencyKey = "hasSetSelectedCurrencyKey"
 private let hasBchConnectedKey = "hasBchConnectedKey"
 private let rescanStateKeyPrefix = "lastRescan" // append uppercased currency code for key
+private let debugBackendHostKey = "debugBackendHostKey"
+private let debugWebBundleNameKey = "debugWebBundleNameKey"
 
 extension UserDefaults {
 
@@ -257,5 +259,25 @@ extension UserDefaults {
     static var hasBchConnected: Bool {
         get { return defaults.bool(forKey: hasBchConnectedKey) }
         set { defaults.set(newValue, forKey: hasBchConnectedKey) }
+    }
+    
+    static var debugBackendHost: String? {
+        get {
+            return defaults.string(forKey: debugBackendHostKey)
+        }
+        
+        set {
+            defaults.set(newValue, forKey: debugBackendHostKey)
+        }
+    }
+    
+    static var debugWebBundleName: String? {
+        get {
+            return defaults.string(forKey: debugWebBundleNameKey)
+        }
+        
+        set {
+            defaults.set(newValue, forKey: debugWebBundleNameKey)
+        }
     }
 }

@@ -173,7 +173,11 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
     private var feeSelection: FeeLevel? = nil
     private var balance: UInt256 = 0
     private var power: Double = 0
-    private var amount: Amount?
+    private var amount: Amount? {
+        didSet {
+            attemptEstimateGas()
+        }
+    }
     private var address: String? {
         if let protoRequest = validatedProtoRequest {
             return currency.matches(Currencies.bch) ? protoRequest.address.bCashAddr : protoRequest.address
@@ -299,6 +303,10 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
                 self.amountView.canEditFee = false
             }
         })
+        
+        if currency.matches(Currencies.eth) || currency is ERC20Token {
+            addEstimateGasListener()
+        }
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -306,6 +314,23 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
         if let initialRequest = initialRequest {
             handleRequest(initialRequest)
         }
+    }
+    
+    private func addEstimateGasListener() {
+        addressCell.textDidChange = { [weak self] text in
+            guard let `self` = self else { return }
+            guard let text = text else { return }
+            guard self.currency.isValidAddress(text) else { return }
+            self.attemptEstimateGas()
+        }
+    }
+    
+    private func attemptEstimateGas() {
+        guard let gasEstimator = self.sender as? GasEstimator else { return }
+        guard let address = addressCell.address else { return }
+        guard let amount = amount else { return }
+        guard !gasEstimator.hasFeeForAddress(address, amount: amount) else { return }
+        gasEstimator.estimateGas(toAddress: address, amount: amount)
     }
 
     // MARK: - Actions
@@ -541,6 +566,13 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
         guard validateSendForm(),
             let amount = amount,
             let address = address else { return }
+        
+        if let gasEstimator = sender as? GasEstimator {
+            guard gasEstimator.hasFeeForAddress(address, amount: amount) else {
+                showAlert(title: S.Alert.error, message: S.Send.noFeesError, buttonLabel: S.Button.ok)
+                return
+            }
+        }
         
         let fee = UInt256(0)
         let feeCurrency = (currency is ERC20Token) ? Currencies.eth : currency

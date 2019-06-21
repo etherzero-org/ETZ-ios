@@ -70,6 +70,11 @@ extension Sender {
     var canUseBiometrics: Bool { return false }
 }
 
+protocol GasEstimator {
+    func hasFeeForAddress(_ address: String, amount: Amount) -> Bool
+    func estimateGas(toAddress: String, amount: Amount)
+}
+
 // MARK: - Base Class
 
 class SenderBase<CurrencyType: CurrencyDef, WalletType: WalletManager> {
@@ -405,7 +410,7 @@ class BitcoinSender: SenderBase<Bitcoin, BTCWalletManager>, Sender {
 // MARK: -
 
 /// Base class for sending Ethereum-network transactions
-class EthSenderBase<CurrencyType: CurrencyDef> : SenderBase<CurrencyType, EthWalletManager> {
+class EthSenderBase<CurrencyType: CurrencyDef> : SenderBase<CurrencyType, EthWalletManager>, GasEstimator {
     
     fileprivate var address: String?
     fileprivate var amount: UInt256?
@@ -443,6 +448,41 @@ class EthSenderBase<CurrencyType: CurrencyDef> : SenderBase<CurrencyType, EthWal
     fileprivate func validate(address: String, amount: UInt256, data: String?) -> SenderValidationResult {
         // must override
         return .failed
+    }
+    
+    // MARK: GasEstimator
+    
+    fileprivate struct GasEstimate {
+        let address: String
+        let amount: Amount
+        let estimate: UInt256
+    }
+    
+    fileprivate var estimate: GasEstimate?
+    
+    func hasFeeForAddress(_ address: String, amount: Amount) -> Bool {
+        return estimate?.address == address && estimate?.amount.rawValue == amount.rawValue
+    }
+    
+    func estimateGas(toAddress: String, amount: Amount) {
+        estimate = nil
+        guard let fromAddress = self.walletManager.address else { return }
+        let params = transactionParams(fromAddress: fromAddress, toAddress: toAddress, forAmount: amount)
+        Backend.apiClient.estimateGas(transaction: params, handler: { result in
+            switch result {
+            case .success(let value):
+                self.estimate = GasEstimate(address: toAddress, amount: amount, estimate: value)
+            case .error(let error):
+                print("estimate gas error: \(error)")
+                self.estimate = nil
+            }
+        })
+    }
+    
+    func transactionParams(fromAddress: String, toAddress: String, forAmount: Amount) -> TransactionParams {
+        var params = TransactionParams(from: fromAddress, to: toAddress)
+        params.value = forAmount.amount
+        return params
     }
 }
 

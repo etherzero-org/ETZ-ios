@@ -19,6 +19,8 @@
 		023809B421082A6000B14D6F /* PowerLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 023809B321082A6000B14D6F /* PowerLabel.swift */; };
 		024966D021F1D16700F7CC1D /* NodeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 024966CF21F1D16700F7CC1D /* NodeCell.swift */; };
 		024966D221F1D82D00F7CC1D /* NodeItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 024966D121F1D82D00F7CC1D /* NodeItem.swift */; };
+		0249BA1222BB813800863D86 /* Backend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0249BA1122BB813700863D86 /* Backend.swift */; };
+		0249BA2822BB887500863D86 /* KeyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0249BA2722BB887400863D86 /* KeyStore.swift */; };
 		02570C2922673DF9003A3456 /* PlistSaveManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02570C2822673DF9003A3456 /* PlistSaveManager.swift */; };
 		026624592233563F001898BF /* Bugly.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 026624582233563F001898BF /* Bugly.framework */; };
 		0276A7A221F179B200E46B3D /* ETZCustomNodeSelectorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0276A7A121F179B200E46B3D /* ETZCustomNodeSelectorViewController.swift */; };
@@ -630,6 +632,8 @@
 		023809B321082A6000B14D6F /* PowerLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PowerLabel.swift; sourceTree = "<group>"; };
 		024966CF21F1D16700F7CC1D /* NodeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeCell.swift; sourceTree = "<group>"; };
 		024966D121F1D82D00F7CC1D /* NodeItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeItem.swift; sourceTree = "<group>"; };
+		0249BA1122BB813700863D86 /* Backend.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Backend.swift; sourceTree = "<group>"; };
+		0249BA2722BB887400863D86 /* KeyStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyStore.swift; sourceTree = "<group>"; };
 		02570C2822673DF9003A3456 /* PlistSaveManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlistSaveManager.swift; sourceTree = "<group>"; };
 		026624582233563F001898BF /* Bugly.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Bugly.framework; sourceTree = "<group>"; };
 		0276A7A121F179B200E46B3D /* ETZCustomNodeSelectorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ETZCustomNodeSelectorViewController.swift; sourceTree = "<group>"; };
@@ -2703,6 +2707,8 @@
 				02C41CEB21D22AC700581A0E /* ETZTabBarViewController.swift */,
 				02570C2822673DF9003A3456 /* PlistSaveManager.swift */,
 				754AE0BB1DFE8A46007FD001 /* BRCore.swift */,
+				0249BA1122BB813700863D86 /* Backend.swift */,
+				0249BA2722BB887400863D86 /* KeyStore.swift */,
 				CEE659E61F65A936001FF29D /* RetryTimer.swift */,
 				CE8CD8DC1E2D9EF200785E02 /* Sender.swift */,
 				CE74F58C1E3BA85600ED5FA9 /* ExchangeUpdater.swift */,
@@ -4055,6 +4061,7 @@
 				CEAA9E9B1DC2B9320066731D /* ConfirmPhrase.swift in Sources */,
 				75A2A7941DA5934300A983D8 /* AppDelegate.swift in Sources */,
 				CEEC70901E95D5C100EF788E /* PushNotificationsViewController.swift in Sources */,
+				0249BA2822BB887500863D86 /* KeyStore.swift in Sources */,
 				222C42501E90492800078EB5 /* BRAPIClient+KV.swift in Sources */,
 				CE5E6C941EB7964900A476DB /* WalletDisabledView.swift in Sources */,
 				CEF3E8341DE57166007C0A9E /* AnimatableIcon.swift in Sources */,
@@ -4139,6 +4146,7 @@
 				CE760EDC1E561DF900EFAC2B /* SecurityCenterViewController.swift in Sources */,
 				CEEC70861E94397D00EF788E /* UserDefaults+Additions.swift in Sources */,
 				22A9A9501DF61945000F0016 /* BRHTTPServer.swift in Sources */,
+				0249BA1222BB813800863D86 /* Backend.swift in Sources */,
 				CE1E7A9A20938DFD00C86BB7 /* MenuButton.swift in Sources */,
 				22A9A9531DF61945000F0016 /* BRLinkPlugin.swift in Sources */,
 				7CA3BC302006864C00517BF7 /* Currency.swift in Sources */,
@@ -4801,6 +4809,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SRCROOT)/**",
 					"$(PROJECT_DIR)/Vendor",
+					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = etzwallet/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
@@ -4830,6 +4839,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SRCROOT)/**",
 					"$(PROJECT_DIR)/Vendor",
+					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = etzwallet/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
@@ -5052,6 +5062,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SRCROOT)/**",
 					"$(PROJECT_DIR)/Vendor",
+					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = etzwallet/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
@@ -5295,6 +5306,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SRCROOT)/**",
 					"$(PROJECT_DIR)/Vendor",
+					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = etzwallet/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
@@ -5531,6 +5543,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SRCROOT)/**",
 					"$(PROJECT_DIR)/Vendor",
+					"$(PROJECT_DIR)",
 				);
 				INFOPLIST_FILE = etzwallet/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
