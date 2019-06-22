@@ -363,6 +363,17 @@ extension StoredTokenData {
                 let path = Bundle.main.path(forResource: "tokens", ofType: "json")
                 let data = try Data(contentsOf: URL(fileURLWithPath: path!))
                 let tokens = try JSONDecoder().decode([StoredTokenData].self, from: data)
+//                let ktokens = PlistSaveManager.readDataByFile(fileName: "codes")
+//                print("kkkkkkkkktokens:\(ktokens)")
+//                var tokensArr:[StoredTokenData] = NSMutableArray() as! [StoredTokenData]
+//                if ktokens.count > 0 {
+//                    for item:StoredToken in ktokens {
+//                        let token :StoredTokenData = StoredTokenData.init(address: item.address, name: item.name, code: item.symbol, colors: [item.colorLeft,item.colorRight], decimal: String(item.decimals))
+////                        tokensArr.append(token)
+//                    }
+//                }
+//                print("kkkkkkkkktokens:\(ktokens)")
+//                let tokens = NSArray(contentsOfFile:NSHomeDirectory() + "/Documents/tf.plist")
 //                if E.isDebug {
 //                    tokens.append(StoredTokenData.tst)
 //                    tokens.append(StoredTokenData.viu)
@@ -372,6 +383,22 @@ extension StoredTokenData {
                 }
             } catch let e {
                 print("json errro: \(e)")
+            }
+        }
+    }
+}
+
+extension StoredToken {
+    static func fetchTokens(callback: @escaping ([StoredToken])->Void) {
+        DispatchQueue.global(qos: .utility).async {
+            let ktokens = PlistSaveManager.readDataByFile(fileName: "codes")
+            print("kkkkkkkkktokens:\(ktokens)")
+            if ktokens.count > 0 {
+                DispatchQueue.main.async {
+                    callback(ktokens)
+                }
+            } else {
+                print("no data")
             }
         }
     }

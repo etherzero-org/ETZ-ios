@@ -238,6 +238,10 @@ class ApplicationController : Subscriber, Trackable {
         guard let rootViewController = window.rootViewController as? RootNavigationController else { return }
         walletCoordinator = WalletCoordinator(walletManagers: walletManagers)
         primaryWalletManager.apiClient?.sendLaunchEvent()
+//        primaryWalletManager.apiClient?.getTokensList(handler: { [weak self] result in
+//            guard self != nil else { return }
+//            PlistSaveManager.saveDataToFile(value: result, fileName: "codes")
+//        })
         setupEthInitialState()
         addTokenCountChangeListener()
         Store.perform(action: PinLength.set(primaryWalletManager.pinLength))
