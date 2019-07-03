@@ -59,7 +59,7 @@ import BRCore
     
     func etzTransaction(_ jsons: String) {
         
-        let jsonData:Data = jsons.data(using: .utf8)!
+        let jsonData:Data = jsons.data(using: .utf8 )!
         let json = try? JSON(data: jsonData)
         self.json = json
         self.jsModel = JsModel(jsonData: json!)
@@ -72,10 +72,10 @@ import BRCore
     }
     
     func landscapeAndHideTitle() {
-//        self.webVC?.navigationController?.navigationBar.isHidden = true
-//        self.webVC?.setNewOrientation(fullScreen: true)
+        //        self.webVC?.navigationController?.navigationBar.isHidden = true
+        //        self.webVC?.setNewOrientation(fullScreen: true)
         NotificationCenter.default.post(name:NSNotification.Name("rightScapeAndHideTitle"), object:self, userInfo:nil)
-//        UIViewController.attemptRotationToDeviceOrientation()
+        //        UIViewController.attemptRotationToDeviceOrientation()
     }
     
     func backToPortrait() {
@@ -83,7 +83,7 @@ import BRCore
     }
 }
 
-class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,WebViewProgressDelegate{
+class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,WebViewProgressDelegate,UISearchBarDelegate{
     
     private var progressView: WebViewProgressView!
     private var progressProxy: WebViewProgress!
@@ -92,11 +92,14 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
     var model    : SwiftJavaScriptModel?
     private var backButton:UIButton!
     private var closeButton:UIButton!
+    private var searchBar:UISearchBar!
     private var qrCodeImage:UIImage? = nil
     private var isLoginRequired = false
     private var bgView: UIImageView!
     private var refreshBtn:UIButton!
+    private var sacanBtn:UIButton!
     private var isLoadingFailure = false
+    private var titleLabel = UILabel(font: .customBody(size: 18.0), color: .black)
     let appDeleagte = UIApplication.shared.delegate as! AppDelegate
     
     override func viewWillAppear(_ animated: Bool) {
@@ -120,9 +123,12 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
         self.creareQrCodeImage()
         self.addSubscriptions()
         self.extendedLayoutIncludesOpaqueBars = true
+        //        let leftNavBarButton = UIBarButtonItem(customView:searchBar)
+        //        self.navigationItem.leftBarButtonItem = leftNavBarButton
     }
     
     private func setupNavigationBar() {
+    
         let shareButton = UIButton(type: .system)
         shareButton.setImage(UIImage(named: "share_icon"), for: .normal)
         shareButton.frame = CGRect(x: 0.0, y: 12.0, width: 22.0, height: 22.0)
@@ -130,7 +136,8 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
         shareButton.heightAnchor.constraint(equalToConstant: 22.0).isActive = true
         shareButton.tintColor = .black
         shareButton.tap = showShareView
-        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: shareButton)
+        let shareItem = UIBarButtonItem(customView: shareButton)
+        //        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: shareButton)
         
         self.backButton = UIButton(type: .system)
         self.backButton.setImage(UIImage(named: "comeback_icon"), for: .normal)
@@ -157,16 +164,57 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
         self.closeButton.tap = closeSecondWebView
         let lastItem = UIBarButtonItem(customView: self.closeButton)
         
+//        self.searchBar = UISearchBar(frame: CGRect(x: 0, y: 0, width: self.view.frame.width - 104, height: 22))
+//        self.searchBar.delegate = self
+//        let leftNavBarButton = UIBarButtonItem(customView:searchBar)
+        
         navigationItem.leftBarButtonItems = ([spacer,firstItem,gap,lastItem])
+        navigationItem.rightBarButtonItems = ([spacer,shareItem,gap])
+        
+        
+//        self.searchBar = UISearchBar(frame:CGRect(x:0,y:2,width:self.view.frame.width - 104-18,height:35))
+        self.searchBar = UISearchBar(frame:CGRect(x:0,y:2,width:self.view.frame.width - 104,height:35))
+        self.searchBar.delegate = self
+        self.searchBar.isTranslucent = true
+        self.searchBar.showsScopeBar = true
+        
+        if #available(iOS 11.0, *) {
+            navigationItem.hidesSearchBarWhenScrolling = false
+        }
+        
+        let titleView:UIView = UIView(frame:CGRect(x:0,y:0,width:self.view.frame.width - 104,height:44))
+        
+        self.sacanBtn = UIButton(type: .system)
+        self.sacanBtn.setImage(UIImage(named: "comeback_icon"), for: .normal)
+        self.sacanBtn.frame = CGRect(x: 0.0, y: 0.0, width: 40.0, height: 40.0)
+        self.sacanBtn.tintColor = .black
+        self.sacanBtn.tap = returnOnWebView
+        
+        titleView.addSubview(self.searchBar)
+        titleView.addSubview(self.titleLabel)
+//        titleView.addSubview(self.sacanBtn)
+        navigationItem.titleView = titleView
+        
+//        self.sacanBtn.constrain([
+//            self.sacanBtn.centerYAnchor.constraint(equalTo: titleView.centerYAnchor),
+//            self.sacanBtn.rightAnchor.constraint(equalTo: titleView.rightAnchor)])
+        
+        self.titleLabel.constrain([
+            self.titleLabel.centerYAnchor.constraint(equalTo: titleView.centerYAnchor),
+            self.titleLabel.centerXAnchor.constraint(equalTo: titleView.centerXAnchor, constant: -6)])
+        
+        self.titleLabel.isHidden = true
         self.backButton.isHidden = true
         self.closeButton.isHidden = true
+        
+        self.navigationItem.title = ""
     }
     
     func updateNavigationBar() {
         if #available(iOS 11.0, *) {
-//            self.navigationController?.navigationBar.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-//            self.navigationController?.navigationBar.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-//            self.navigationController?.navigationBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
+            //            self.navigationController?.navigationBar.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
+            //            self.navigationController?.navigationBar.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
+            //            self.navigationController?.navigationBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
         }
     }
     
@@ -206,7 +254,7 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
     func setupWebView() {
         self.webView.frame = self.view.bounds
         self.view.addSubview(self.webView)
-
+        
         progressProxy = WebViewProgress()
         webView.delegate = progressProxy
         progressProxy.webViewProxyDelegate = self
@@ -230,7 +278,13 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
     func webViewDidFinishLoad(_ webView: UIWebView) {
         setContext()
         let title = self.webView.stringByEvaluatingJavaScript(from: "document.title") ?? "" as String
-        self.navigationItem.title = title
+        if (self.searchBar != nil) && self.searchBar.isHidden == false {
+            self.navigationItem.title = ""
+            self.titleLabel.text = ""
+        } else {
+            self.navigationItem.title = title
+            self.titleLabel.text = title
+        }
     }
     
     private func creareQrCodeImage() {
@@ -257,24 +311,28 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
                 self.tabBarController?.tabBar.isHidden = false
                 self.backButton.isHidden = true
                 self.closeButton.isHidden = true
+                self.searchBar.isHidden = false
+                self.titleLabel.isHidden = true
             }
         } else if (appDeleagte.allowRotation == false) {
             if (self.backButton != nil) {
                 self.tabBarController?.tabBar.isHidden = true
                 self.backButton.isHidden = false
                 self.closeButton.isHidden = false
+                self.searchBar.isHidden = true
+                self.titleLabel.isHidden = false
             }
         }
         
-//        if appDeleagte.allowRotation == true {
-//            self.setNewOrientation(fullScreen: false)
-//            self.navigationController?.navigationBar.isHidden = false
-//            if (self.backButton != nil) {
-//                self.tabBarController?.tabBar.isHidden = false
-//                self.backButton.isHidden = true
-//                self.closeButton.isHidden = true
-//            }
-//        }
+        //        if appDeleagte.allowRotation == true {
+        //            self.setNewOrientation(fullScreen: false)
+        //            self.navigationController?.navigationBar.isHidden = false
+        //            if (self.backButton != nil) {
+        //                self.tabBarController?.tabBar.isHidden = false
+        //                self.backButton.isHidden = true
+        //                self.closeButton.isHidden = true
+        //            }
+        //        }
         
         self.model?.jsContext?.evaluateScript(curUrl)
         self.model?.jsContext?.exceptionHandler = { (context, exception) in
@@ -364,6 +422,19 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
     func webViewProgress(_ webViewProgress: WebViewProgress, updateProgress progress: Float) {
         progressView.setProgress(progress, animated: true)
     }
+    
+    // MARK: - UISearchBarDelegate
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        self.searchBar.resignFirstResponder()
+        let web_url = URL.init(string: self.searchBar.text!)
+        let request = URLRequest(url: web_url!)
+        self.webView.loadRequest(request as URLRequest)
+    }
+    
+    func searchBarShouldEndEditing(_ searchBar: UISearchBar) -> Bool {
+        return true
+    }
+    
 }
 
 extension UIImage {
