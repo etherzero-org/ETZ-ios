@@ -330,7 +330,11 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
         guard let address = addressCell.address else { return }
         guard let amount = amount else { return }
         guard !gasEstimator.hasFeeForAddress(address, amount: amount) else { return }
-        gasEstimator.estimateGas(toAddress: address, amount: amount)
+        if ((self.jsModel) != nil) {
+            gasEstimator.estimateGas(toAddress: address, amount: amount,model:self.jsModel!)
+        } else {
+            gasEstimator.estimateGas(toAddress: address, amount: amount)
+        }
     }
 
     // MARK: - Actions

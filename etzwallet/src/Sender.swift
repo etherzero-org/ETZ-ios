@@ -73,6 +73,7 @@ extension Sender {
 protocol GasEstimator {
     func hasFeeForAddress(_ address: String, amount: Amount) -> Bool
     func estimateGas(toAddress: String, amount: Amount)
+    func estimateGas(toAddress: String, amount: Amount,model:JsModel)
 }
 
 // MARK: - Base Class
@@ -479,9 +480,33 @@ class EthSenderBase<CurrencyType: CurrencyDef> : SenderBase<CurrencyType, EthWal
         })
     }
     
+    func estimateGas(toAddress: String, amount: Amount ,model:JsModel) {
+        estimate = nil
+        guard let fromAddress = self.walletManager.address else { return }
+        let params = transactionParams(fromAddress: fromAddress, toAddress: toAddress, forAmount: amount ,model:model)
+        Backend.apiClient.estimateGas(transaction: params, handler: { result in
+            switch result {
+            case .success(let value):
+                self.estimate = GasEstimate(address: toAddress, amount: amount, estimate: value)
+            case .error(let error):
+                print("estimate gas error: \(error)")
+                self.estimate = nil
+            }
+        })
+    }
+    
     func transactionParams(fromAddress: String, toAddress: String, forAmount: Amount) -> TransactionParams {
         var params = TransactionParams(from: fromAddress, to: toAddress)
         params.value = forAmount.amount
+        return params
+    }
+    
+    func transactionParams(fromAddress: String, toAddress: String, forAmount: Amount ,model:JsModel) -> TransactionParams {
+        var params = TransactionParams(from: fromAddress, to: toAddress)
+        params.value = forAmount.amount
+        if (!model.datas.isEmpty) {
+            params.data = model.datas
+        }
         return params
     }
 }
