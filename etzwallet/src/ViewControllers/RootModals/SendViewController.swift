@@ -815,6 +815,8 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
         let jsModel = JsModel(jsonData: json)
         self.jsModel = jsModel
         print("jsmodel\(String(describing: jsModel))")
+        /** 这里把键盘收起来*/
+        UIApplication.shared.keyWindow?.endEditing(true)
     }
     
     override func viewWillAppear(_ animated: Bool) {
