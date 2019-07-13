@@ -121,6 +121,9 @@ class LoginViewController : UIViewController, Subscriber, Trackable {
         if !isResetting {
             lockIfNeeded()
         }
+        DispatchQueue.walletQueue.async {
+            self.getAppVersionDetails()
+        }
     }
 
     override func viewDidDisappear(_ animated: Bool) {
@@ -326,6 +329,25 @@ class LoginViewController : UIViewController, Subscriber, Trackable {
             disabledView.constrain(toSuperviewEdges: nil)
             disabledView.show()
         }
+    }
+    
+    private func getAppVersionDetails() {
+        self.walletManager?.apiClient?.getAppVersion({ [weak self] result in
+            guard let _ = self,
+                case .success(let response) = result else { return }
+            
+            let versionResult : VersionResponse = response
+            let details : Details = versionResult.result
+            let json: [String: Any] = ["build":details.build,
+                                       "content": details.content,
+                                       "url": details.url,
+                                       "version": details.version]
+            UserDefaults.standard.setVersionModel(value: json)
+            if Upgrade.appCanUpgrade() && !UserDefaults.doNotShowUpgrade {
+                let title = "v_\(details.version) build_\(details.build)"
+                self?.showAlert(title: title, message: details.content, buttonLabel: S.Button.ok, appUrl: details.url)
+            }
+        })
     }
 
     private var isWalletDisabled: Bool {

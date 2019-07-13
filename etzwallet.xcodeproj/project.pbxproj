@@ -21,6 +21,7 @@
 		024966D221F1D82D00F7CC1D /* NodeItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 024966D121F1D82D00F7CC1D /* NodeItem.swift */; };
 		0249BA1222BB813800863D86 /* Backend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0249BA1122BB813700863D86 /* Backend.swift */; };
 		0249BA2822BB887500863D86 /* KeyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0249BA2722BB887400863D86 /* KeyStore.swift */; };
+		02536BA522D97EF7009EC89E /* Upgrade.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02536BA422D97EF7009EC89E /* Upgrade.swift */; };
 		02570C2922673DF9003A3456 /* PlistSaveManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02570C2822673DF9003A3456 /* PlistSaveManager.swift */; };
 		026624592233563F001898BF /* Bugly.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 026624582233563F001898BF /* Bugly.framework */; };
 		0276A7A221F179B200E46B3D /* ETZCustomNodeSelectorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0276A7A121F179B200E46B3D /* ETZCustomNodeSelectorViewController.swift */; };
@@ -634,6 +635,7 @@
 		024966D121F1D82D00F7CC1D /* NodeItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeItem.swift; sourceTree = "<group>"; };
 		0249BA1122BB813700863D86 /* Backend.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Backend.swift; sourceTree = "<group>"; };
 		0249BA2722BB887400863D86 /* KeyStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyStore.swift; sourceTree = "<group>"; };
+		02536BA422D97EF7009EC89E /* Upgrade.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Upgrade.swift; sourceTree = "<group>"; };
 		02570C2822673DF9003A3456 /* PlistSaveManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlistSaveManager.swift; sourceTree = "<group>"; };
 		026624582233563F001898BF /* Bugly.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Bugly.framework; sourceTree = "<group>"; };
 		0276A7A121F179B200E46B3D /* ETZCustomNodeSelectorViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ETZCustomNodeSelectorViewController.swift; sourceTree = "<group>"; };
@@ -3030,6 +3032,7 @@
 				CE4B6C1F1E233C2C00CF935B /* UITableView+Additions.swift */,
 				CE6DCC241E6001E50044257B /* UIControl+Callback.swift */,
 				CE124CFD1E68F57700DFA146 /* Async.swift */,
+				02536BA422D97EF7009EC89E /* Upgrade.swift */,
 				CEF3D2DA1E8B55C80070178E /* UISlider+Gradient.swift */,
 				CEF3D2DC1E8CBA790070178E /* LAContext+Extensions.swift */,
 				222C42511E904C5000078EB5 /* AssociatedObject.swift */,
@@ -4149,6 +4152,7 @@
 				0249BA1222BB813800863D86 /* Backend.swift in Sources */,
 				CE1E7A9A20938DFD00C86BB7 /* MenuButton.swift in Sources */,
 				22A9A9531DF61945000F0016 /* BRLinkPlugin.swift in Sources */,
+				02536BA522D97EF7009EC89E /* Upgrade.swift in Sources */,
 				7CA3BC302006864C00517BF7 /* Currency.swift in Sources */,
 				CE3D4C571EF5D5740016B1C8 /* ReachabilityMonitor.swift in Sources */,
 				7CBA74E62022784D00FBBFA9 /* AssetListViewModel.swift in Sources */,
