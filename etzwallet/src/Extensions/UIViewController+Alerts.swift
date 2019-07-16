@@ -15,6 +15,15 @@ extension UIViewController {
         alert.addAction(UIAlertAction(title: S.Button.ok, style: .default, handler: nil))
         present(alert, animated: true, completion: nil)
     }
+    
+    func showToastMessage(_ message:String) {
+        let alertController = UIAlertController(title: "", message: message, preferredStyle: .alert)
+        present(alertController, animated: true, completion: nil)
+        //一秒钟后自动消失
+        DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 1) {
+            alertController.dismiss(animated: false, completion: nil)
+        }
+    }
 
     func showAlert(title: String, message: String, buttonLabel: String) {
         let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)

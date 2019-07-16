@@ -17,6 +17,7 @@
 		023809B02103103700B14D6F /* AdvanceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 023809AF2103103700B14D6F /* AdvanceViewController.swift */; };
 		023809B22107224600B14D6F /* GasPriceCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 023809B12107224100B14D6F /* GasPriceCell.swift */; };
 		023809B421082A6000B14D6F /* PowerLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 023809B321082A6000B14D6F /* PowerLabel.swift */; };
+		0246D14922DC2FF300864824 /* ETZUIActicity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0246D14822DC2FF300864824 /* ETZUIActicity.swift */; };
 		024966D021F1D16700F7CC1D /* NodeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 024966CF21F1D16700F7CC1D /* NodeCell.swift */; };
 		024966D221F1D82D00F7CC1D /* NodeItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 024966D121F1D82D00F7CC1D /* NodeItem.swift */; };
 		0249BA1222BB813800863D86 /* Backend.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0249BA1122BB813700863D86 /* Backend.swift */; };
@@ -631,6 +632,7 @@
 		023809AF2103103700B14D6F /* AdvanceViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdvanceViewController.swift; sourceTree = "<group>"; };
 		023809B12107224100B14D6F /* GasPriceCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GasPriceCell.swift; sourceTree = "<group>"; };
 		023809B321082A6000B14D6F /* PowerLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PowerLabel.swift; sourceTree = "<group>"; };
+		0246D14822DC2FF300864824 /* ETZUIActicity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ETZUIActicity.swift; sourceTree = "<group>"; };
 		024966CF21F1D16700F7CC1D /* NodeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeCell.swift; sourceTree = "<group>"; };
 		024966D121F1D82D00F7CC1D /* NodeItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeItem.swift; sourceTree = "<group>"; };
 		0249BA1122BB813700863D86 /* Backend.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Backend.swift; sourceTree = "<group>"; };
@@ -3125,6 +3127,7 @@
 				CE1E7A9920938DFD00C86BB7 /* MenuButton.swift */,
 				023809A82101D9D000B14D6F /* Advanced.swift */,
 				023809B321082A6000B14D6F /* PowerLabel.swift */,
+				0246D14822DC2FF300864824 /* ETZUIActicity.swift */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -4133,6 +4136,7 @@
 				7CE940E61FEB8A5F005A2B53 /* TxDetailRowCell.swift in Sources */,
 				CEAA9EA01DC2F9F50066731D /* UIFont+BRWAdditions.swift in Sources */,
 				CEF61B121ECF52C700C7EA6A /* AmountViewController.swift in Sources */,
+				0246D14922DC2FF300864824 /* ETZUIActicity.swift in Sources */,
 				CEBF32F21DDCE10D00348FC6 /* AccountHeaderView.swift in Sources */,
 				CECCE5B21E04B00D00D99448 /* SendCell.swift in Sources */,
 				CE6DCC301E6666470044257B /* NonScrollingCollectionView.swift in Sources */,

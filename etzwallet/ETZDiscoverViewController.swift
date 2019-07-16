@@ -196,7 +196,7 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
         navigationItem.titleView = titleView
         
 //        self.sacanBtn.constrain([
-//            self.sacanBtn.centerYAnchor.constraint(equalTo: titleView.centerYAnchor),
+//            self.sacanBtn.centerYAnchor.constraint(equalTo: titleView.centerYAndchor),
 //            self.sacanBtn.rightAnchor.constraint(equalTo: titleView.rightAnchor)])
         
         self.titleLabel.constrain([
@@ -287,6 +287,10 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
         }
     }
     
+    func webView(_ webView: UIWebView, didFailLoadWithError error: Error) {
+        print("加载错误\(error.localizedDescription)")
+    }
+    
     private func creareQrCodeImage() {
         let url:String = "https://easyetz.io"
         let screenWidth = UIScreen.main.bounds.width
@@ -341,9 +345,22 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
     }
     
     private func showShareView() {
-        let messagePresenter = MessageUIPresenter()
-        messagePresenter.presenter = self
-        messagePresenter.presentShareSheet(text: "", image: self.qrCodeImage!)
+//        let messagePresenter = MessageUIPresenter()
+//        messagePresenter.presenter = self
+//
+//        messagePresenter.presentShareSheet(text: "https://www.baidu.com", image:self.qrCodeImage!)
+//        messagePresenter.presentShareSheet(text: "", image: self.qrCodeImage!)
+        
+        let textShare = "以太零钱包EasyETZ下载"
+        let imageShare = self.qrCodeImage!
+        let urlShare = URL(string: "https://easyetz.io/download.html?Type=IOS&id=2")
+        let activityItems = [textShare,imageShare,urlShare as Any] as [Any]
+        let toVC = UIActivityViewController(activityItems: activityItems, applicationActivities: [CustomUIActicity()])
+        present(toVC, animated: true, completion: nil)
+        toVC.completionWithItemsHandler = {(_ activityType: UIActivityType?, _ completed: Bool, _ returnedItems: [Any]?, _ activityError: Error?) -> Void in
+//            self.showToastMessage("分享成功")
+            print(completed ? "分享成功" : "分享失败")
+            }
     }
     
     private func returnOnWebView() {
