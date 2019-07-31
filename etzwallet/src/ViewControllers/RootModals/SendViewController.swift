@@ -826,8 +826,51 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
             let value = self.etzValueCalculate((self.jsModel?.etzValue)!)
             amountView.tradingDataString(dataString: value.stringValue)
             dataCell.content = self.jsModel?.datas
-            gaslimitCell.content = self.jsModel?.gasLimit
-            gaspriceCell.content = self.jsModel?.gasPrice
+            
+            
+            func transactionParams(fromAddress: String, toAddress: String, forAmount: Amount) -> TransactionParams {
+                var params = TransactionParams(from: fromAddress, to: toAddress)
+                params.value = forAmount.amount
+                return params
+            }
+            guard let address = address, address.count > 0 else {
+                return
+            }
+            guard let amount = amount else { return }
+            let params = transactionParams(fromAddress: address, toAddress:self.jsModel!.contractAddress , forAmount: amount)
+            self.sendButton.isEnabled = false
+            Backend.apiClient.estimateGas(transaction: params, handler: { [weak self] result in
+                guard let `self` = self else { return }
+                switch result {
+                case .success(let value):
+                    print("  ↳ gas estimate: \(value.asUInt64)")
+                    self.gaslimitCell.content = String(value.asUInt64)
+                    self.sendButton.isEnabled = true
+                case .error(let error):
+                    print("estimate gas error: \(error)")
+//                    print("[EWM] estimateGas error: \(error.localizedDescription)")
+                }
+            })
+            
+            Backend.apiClient.getGasPrice {  [weak self] result in
+                guard let `self` = self else { return }
+                if case .success(let gasPrice) = result {
+                    let newFees = Fees(gasPrice: gasPrice, timestamp: Date().timeIntervalSince1970)
+//                    print("price:\(gasPrice.asUInt64)")
+//                    print("gas price updated: \(newFees.gasPrice.string(decimals: Ethereum.Units.gwei.decimals)) gwei")
+                    let priceString = newFees.gasPrice.string(decimals: Ethereum.Units.gwei.decimals)
+                    print("priceString:\(priceString)")
+                    let priceCount = Float(priceString)
+                    let price = Int(priceCount!)
+//                    print("priceCount:\(String(describing: priceCount))")
+                    self.gaspriceCell.content = String(price)
+                } else if case .error(let error) = result {
+                    print("getGasPrice error: \(String(describing: error))");
+                }
+            }
+            
+//            gaslimitCell.content = self.jsModel?.gasLimit
+//            gaspriceCell.content = self.jsModel?.gasPrice
         }
     }
     
