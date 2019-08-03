@@ -19,6 +19,11 @@ enum SendResult {
     case insufficientGas(String) // for ERC20 token transfers
 }
 
+enum GasResult {
+    case gasLimit(String)
+    case estimateError(String)
+}
+
 enum SenderValidationResult {
     case ok
     case failed
@@ -72,8 +77,8 @@ extension Sender {
 
 protocol GasEstimator {
     func hasFeeForAddress(_ address: String, amount: Amount) -> Bool
-    func estimateGas(toAddress: String, amount: Amount)
-    func estimateGas(toAddress: String, amount: Amount,model:JsModel)
+    func estimateGas(toAddress: String, amount: Amount, handler: @escaping(GasResult) -> Void)
+    func estimateGas(toAddress: String, amount: Amount, model:JsModel,handler: @escaping(GasResult) -> Void)
 }
 
 // MARK: - Base Class
@@ -465,7 +470,7 @@ class EthSenderBase<CurrencyType: CurrencyDef> : SenderBase<CurrencyType, EthWal
         return estimate?.address == address && estimate?.amount.rawValue == amount.rawValue
     }
     
-    func estimateGas(toAddress: String, amount: Amount) {
+    func estimateGas(toAddress: String, amount: Amount, handler: @escaping (GasResult) -> Void) {
         estimate = nil
         guard let fromAddress = self.walletManager.address else { return }
         let params = transactionParams(fromAddress: fromAddress, toAddress: toAddress, forAmount: amount)
@@ -473,14 +478,16 @@ class EthSenderBase<CurrencyType: CurrencyDef> : SenderBase<CurrencyType, EthWal
             switch result {
             case .success(let value):
                 self.estimate = GasEstimate(address: toAddress, amount: amount, estimate: value)
+                handler(.gasLimit(String(value.asUInt64)))
             case .error(let error):
                 print("estimate gas error: \(error)")
                 self.estimate = nil
+                handler(.estimateError("estimate gas error: \(error)"))
             }
         })
     }
     
-    func estimateGas(toAddress: String, amount: Amount ,model:JsModel) {
+    func estimateGas(toAddress: String, amount: Amount, model: JsModel, handler: @escaping (GasResult) -> Void) {
         estimate = nil
         guard let fromAddress = self.walletManager.address else { return }
         let params = transactionParams(fromAddress: fromAddress, toAddress: toAddress, forAmount: amount ,model:model)
@@ -488,12 +495,49 @@ class EthSenderBase<CurrencyType: CurrencyDef> : SenderBase<CurrencyType, EthWal
             switch result {
             case .success(let value):
                 self.estimate = GasEstimate(address: toAddress, amount: amount, estimate: value)
+                print("  ↳first gas estimate: \(value.asUInt64)")
+                handler(.gasLimit(String(value.asUInt64)))
             case .error(let error):
                 print("estimate gas error: \(error)")
                 self.estimate = nil
+                handler(.estimateError("estimate gas error: \(error)"))
             }
         })
     }
+    
+    
+//    func estimateGas(toAddress: String, amount: Amount) {
+//        estimate = nil
+//        guard let fromAddress = self.walletManager.address else { return }
+//        let params = transactionParams(fromAddress: fromAddress, toAddress: toAddress, forAmount: amount)
+//        Backend.apiClient.estimateGas(transaction: params, handler: { result in
+//            switch result {
+//            case .success(let value):
+//                self.estimate = GasEstimate(address: toAddress, amount: amount, estimate: value)
+//            case .error(let error):
+//                print("estimate gas error: \(error)")
+//                self.estimate = nil
+//            }
+//        })
+//    }
+    
+    
+//    func estimateGas(toAddress: String, amount: Amount ,model:JsModel) -> String {
+//        estimate = nil
+//        guard let fromAddress = self.walletManager.address else { return ""}
+//        let params = transactionParams(fromAddress: fromAddress, toAddress: toAddress, forAmount: amount ,model:model)
+//        Backend.apiClient.estimateGas(transaction: params, handler: { result in
+//            switch result {
+//            case .success(let value):
+//                self.estimate = GasEstimate(address: toAddress, amount: amount, estimate: value)
+//                return ""
+//            case .error(let error):
+//                print("estimate gas error: \(error)")
+//                self.estimate = nil
+//                return error
+//            }
+//        })
+//    }
     
     func transactionParams(fromAddress: String, toAddress: String, forAmount: Amount) -> TransactionParams {
         var params = TransactionParams(from: fromAddress, to: toAddress)

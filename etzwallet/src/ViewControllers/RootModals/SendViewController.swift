@@ -173,6 +173,8 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
     private var feeSelection: FeeLevel? = nil
     private var balance: UInt256 = 0
     private var power: Double = 0
+    private var alertString : String?
+    private var limitString : String?
     private var amount: Amount? {
         didSet {
             attemptEstimateGas()
@@ -325,15 +327,57 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
         }
     }
     
+    private func getGasPrice() {
+        Backend.apiClient.getGasPrice {  [weak self] result in
+            guard let `self` = self else { return }
+            self.sendButton.isEnabled = true
+            if case .success(let gasPrice) = result {
+                let newFees = Fees(gasPrice: gasPrice, timestamp: Date().timeIntervalSince1970)
+                let priceString = newFees.gasPrice.string(decimals: Ethereum.Units.gwei.decimals)
+                print("priceString:\(priceString)")
+                let priceCount = Float(priceString)
+                let price = Int(priceCount!)
+                self.gaspriceCell.content = String(price)
+            } else if case .error(let error) = result {
+                print("getGasPrice error: \(String(describing: error))");
+                /** 如果这里没有拿到 price ，就直接取后台的 price*/
+                self.gaspriceCell.content = self.jsModel?.gasPrice
+            }
+        }
+    }
+    
     private func attemptEstimateGas() {
         guard let gasEstimator = self.sender as? GasEstimator else { return }
         guard let address = addressCell.address else { return }
         guard let amount = amount else { return }
         guard !gasEstimator.hasFeeForAddress(address, amount: amount) else { return }
         if ((self.jsModel) != nil) {
-            gasEstimator.estimateGas(toAddress: address, amount: amount,model:self.jsModel!)
+            gasEstimator.estimateGas(toAddress: address, amount: amount, model: jsModel!) { [weak self] result in
+                guard let `self` = self else { return }
+                switch result {
+                case .gasLimit(let limit):
+                    self.limitString = limit
+                    self.gaslimitCell.content = limit
+                    break
+                case .estimateError(let errorString):
+                    self.alertString = errorString
+                    // 如果没拿到 limit 值，这里就取后台传的值
+                    self.gaslimitCell.content = self.jsModel?.gasLimit
+                    break
+                }
+            }
         } else {
-            gasEstimator.estimateGas(toAddress: address, amount: amount)
+            gasEstimator.estimateGas(toAddress: address, amount: amount) { [weak self] result in
+                guard let `self` = self else { return }
+                switch result {
+                case .gasLimit(let limit):
+                    self.limitString = limit
+                    break
+                case .estimateError(let errorString):
+                    self.alertString = errorString
+                    break
+                }
+            }
         }
     }
 
@@ -573,7 +617,7 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
         
         if let gasEstimator = sender as? GasEstimator {
             guard gasEstimator.hasFeeForAddress(address, amount: amount) else {
-                showAlert(title: S.Alert.error, message: S.Send.noFeesError, buttonLabel: S.Button.ok)
+                showAlert(title: S.Alert.error, message: self.alertString! /*S.Send.noFeesError*/, buttonLabel: S.Button.ok)
                 return
             }
         }
@@ -827,50 +871,12 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
             amountView.tradingDataString(dataString: value.stringValue)
             dataCell.content = self.jsModel?.datas
             
-            
-            func transactionParams(fromAddress: String, toAddress: String, forAmount: Amount) -> TransactionParams {
-                var params = TransactionParams(from: fromAddress, to: toAddress)
-                params.value = forAmount.amount
-                return params
+            if (self.limitString != nil) {
+                self.gaslimitCell.content = self.limitString
+            } else {
+                self.addEstimateGasListener()
             }
-            guard let address = address, address.count > 0 else {
-                return
-            }
-            guard let amount = amount else { return }
-            let params = transactionParams(fromAddress: address, toAddress:self.jsModel!.contractAddress , forAmount: amount)
-            self.sendButton.isEnabled = false
-            Backend.apiClient.estimateGas(transaction: params, handler: { [weak self] result in
-                guard let `self` = self else { return }
-                switch result {
-                case .success(let value):
-                    print("  ↳ gas estimate: \(value.asUInt64)")
-                    self.gaslimitCell.content = String(value.asUInt64)
-                    self.sendButton.isEnabled = true
-                case .error(let error):
-                    print("estimate gas error: \(error)")
-//                    print("[EWM] estimateGas error: \(error.localizedDescription)")
-                }
-            })
-            
-            Backend.apiClient.getGasPrice {  [weak self] result in
-                guard let `self` = self else { return }
-                if case .success(let gasPrice) = result {
-                    let newFees = Fees(gasPrice: gasPrice, timestamp: Date().timeIntervalSince1970)
-//                    print("price:\(gasPrice.asUInt64)")
-//                    print("gas price updated: \(newFees.gasPrice.string(decimals: Ethereum.Units.gwei.decimals)) gwei")
-                    let priceString = newFees.gasPrice.string(decimals: Ethereum.Units.gwei.decimals)
-                    print("priceString:\(priceString)")
-                    let priceCount = Float(priceString)
-                    let price = Int(priceCount!)
-//                    print("priceCount:\(String(describing: priceCount))")
-                    self.gaspriceCell.content = String(price)
-                } else if case .error(let error) = result {
-                    print("getGasPrice error: \(String(describing: error))");
-                }
-            }
-            
-//            gaslimitCell.content = self.jsModel?.gasLimit
-//            gaspriceCell.content = self.jsModel?.gasPrice
+            self.getGasPrice()
         }
     }
     
