@@ -189,6 +189,8 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
     }
     // MARK: - Lifecycle
     override func viewDidLoad() {
+        self.alertString = ""
+        self.limitString = ""
         view.backgroundColor = .white
         view.addSubview(addressCell)
         view.addSubview(adVanceds)
@@ -617,7 +619,7 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
         
         if let gasEstimator = sender as? GasEstimator {
             guard gasEstimator.hasFeeForAddress(address, amount: amount) else {
-                showAlert(title: S.Alert.error, message: self.alertString! /*S.Send.noFeesError*/, buttonLabel: S.Button.ok)
+                showAlert(title: S.Alert.error, message: self.alertString ?? S.Send.noFeesError /*S.Send.noFeesError*/, buttonLabel: S.Button.ok)
                 return
             }
         }
