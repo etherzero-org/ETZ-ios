@@ -442,10 +442,34 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
     
     // MARK: - UISearchBarDelegate
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        self.searchBar.resignFirstResponder()
-        let web_url = URL.init(string: self.searchBar.text!)
-        let request = URLRequest(url: web_url!)
-        self.webView.loadRequest(request as URLRequest)
+        if (verifyUrl(str: self.searchBar.text!)) {
+            self.searchBar.resignFirstResponder()
+            let web_url = URL.init(string: self.searchBar.text!)
+            let request = URLRequest(url: web_url!)
+            self.webView.loadRequest(request as URLRequest)
+            
+        }
+    }
+    
+    func verifyUrl(str: String) -> Bool {
+        // 创建一个正则表达式对象
+        do {
+            let dataDetector = try NSDataDetector(types:
+                NSTextCheckingTypes(NSTextCheckingResult.CheckingType.link.rawValue))
+            // 匹配字符串，返回结果集
+            let res = dataDetector .matches(in: str,
+                                            options: NSRegularExpression.MatchingOptions(rawValue: 0),
+                                            range: NSMakeRange(0, str.count))
+            // 判断结果(完全匹配)
+            if res.count == 1  && res[0].range.location == 0
+                && res[0].range.length == str.count {
+                return true
+            }
+        }
+        catch {
+            print(error)
+        }
+        return false
     }
     
     func searchBarShouldEndEditing(_ searchBar: UISearchBar) -> Bool {
