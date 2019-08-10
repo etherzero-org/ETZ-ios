@@ -516,7 +516,7 @@ class EthereumLightNode: EthereumPointer {
     // MARK: Wallets
     //
     internal func findWallet(identifier: EthereumWalletId) -> EthereumWallet? {
-        return walletsById[identifier]
+        return readSync { return self.walletsById[identifier] }
     }
     
     private var walletsByTicker: [String: EthereumWallet] = [:]
@@ -536,10 +536,16 @@ class EthereumLightNode: EthereumPointer {
         }
         
         let wallet = EthereumWallet(node: self, wid: identifier, currency: currency)
-        walletsById[identifier] = wallet
-        walletsByTicker[currency.code] = wallet
+//        walletsById[identifier] = wallet
+//        walletsByTicker[currency.code] = wallet
+//
+//        print("[BRETH] create wallet \(currency.code)")
         
-        print("[BRETH] create wallet \(currency.code)")
+        self.writeAsync {
+            self.walletsById[identifier] = wallet
+            self.walletsByTicker[currency.code] = wallet
+            print("[BRETH] created wallet \(currency.code)")
+        }
         
         return wallet
     }
@@ -551,6 +557,11 @@ class EthereumLightNode: EthereumPointer {
     /// Sets default gas price on all wallets
     func updateDefaultGasPrice(_ gasPrice: UInt256) {
         walletsById.values.forEach { $0.setDefaultGasPrice(gasPrice.asUInt64) }
+        
+//        writeAsync {
+//            let wallets = self.readSync { return self.walletsById.values }
+//            wallets.forEach { $0.setDefaultGasPrice(gasPrice.asUInt64) }
+//        }
     }
     
     //
@@ -569,6 +580,28 @@ class EthereumLightNode: EthereumPointer {
     //
     internal func findTransaction (currency: CurrencyDef, identifier: EthereumTransactionId) -> EthereumTransaction {
         return EthereumTransaction (node: self, currency: currency, identifier: identifier)
+    }
+    
+    /// Serial queue for Core operations
+    private let serialQueue = DispatchQueue(label: "com.etz.ewm.serial")
+    /// Concurrent queue for EWM data operations
+    private let concurrentQueue = DispatchQueue(label: "com.etz.ewm.concurrent", attributes: .concurrent)
+    
+    /// Execute on concurrent EWM data queue (synchronous/concurrent) and return a value
+    /// - Use for thread-safe read of EWM properties
+    func readSync<T>(thunk: @escaping () -> T) -> T {
+        return concurrentQueue.sync {
+            return thunk()
+        }
+    }
+    
+    /// Execute on EWM concurrent data queue (asynchronous/barrier)
+    /// - Use for thread-safe write of EWM properties
+    /// - Avoid calling serialAsync or readSync inside a write operation
+    func writeAsync(thunk: @escaping () -> Void) {
+        concurrentQueue.async(flags: .barrier) {
+            thunk()
+        }
     }
     
     //
@@ -625,12 +658,16 @@ class EthereumLightNode: EthereumPointer {
     private var coreClient : BREthereumClient?
     
     func connect () {
-        guard let client = coreClient else { return }
-        ethereumConnect (self.core, client);
+        writeAsync {
+            guard let client = self.coreClient else { return }
+            ethereumConnect (self.core, client);
+        }
     }
     
     func disconnect () {
-        ethereumDisconnect (self.core)
+        writeAsync {
+            ethereumDisconnect (self.core)
+        }
     }
     
     ///
