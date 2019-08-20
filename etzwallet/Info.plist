@@ -13,6 +13,8 @@
 			<array/>
 			<key>CFBundleTypeName</key>
 			<string>Bitcoin Payment Request</string>
+			<key>LSHandlerRank</key>
+			<string>Default</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>bitcoin.paymentrequest</string>
@@ -23,6 +25,8 @@
 			<array/>
 			<key>CFBundleTypeName</key>
 			<string>Bitcoin Payment</string>
+			<key>LSHandlerRank</key>
+			<string>Default</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>bitcoin.payment</string>
@@ -33,6 +37,8 @@
 			<array/>
 			<key>CFBundleTypeName</key>
 			<string>Bitcoin Payment ACK</string>
+			<key>LSHandlerRank</key>
+			<string>Default</string>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>bitcoin.paymentack</string>
@@ -101,6 +107,8 @@
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<false/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
@@ -144,6 +152,8 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>UISupportsDocumentBrowser</key>
+	<false/>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
 	<key>UTImportedTypeDeclarations</key>
