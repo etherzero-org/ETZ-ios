@@ -209,14 +209,7 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
         
         self.navigationItem.title = ""
     }
-    
-    func updateNavigationBar() {
-        if #available(iOS 11.0, *) {
-            //            self.navigationController?.navigationBar.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
-            //            self.navigationController?.navigationBar.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
-            //            self.navigationController?.navigationBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
-        }
-    }
+
     
     private func createRequestFialdView(){
         self.bgView = UIImageView()
@@ -245,16 +238,17 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
     private func addSubscriptions() {
         Store.subscribe(self, selector: { $0.isLoginRequired != $1.isLoginRequired }, callback: { self.isLoginRequired = $0.isLoginRequired })
         Store.subscribe(self, name: .showStatusBar, callback: { _ in
-            self.updateNavigationBar()
         })
         Store.subscribe(self, name: .hideStatusBar, callback: { _ in
         })
     }
     
     func setupWebView() {
-        self.webView.frame = self.view.bounds
+        if (self.webView == nil) {
+            self.loadWebViewRequest()
+        }
         self.view.addSubview(self.webView)
-        
+        self.addConstraints()
         progressProxy = WebViewProgress()
         webView.delegate = progressProxy
         progressProxy.webViewProxyDelegate = self
@@ -267,6 +261,22 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
         progressView.autoresizingMask = [.flexibleWidth, .flexibleTopMargin]
         self.navigationController!.navigationBar.addSubview(progressView)
         progressView.isHidden = true
+    }
+    
+    func addConstraints() {
+        if #available(iOS 11.0, *) {
+            self.webView.constrain([
+                self.webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                self.webView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 0.0),
+                self.webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                self.webView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: 0.0)])
+        } else {
+            self.webView.constrain([
+                self.webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                self.webView.topAnchor.constraint(equalTo: topLayoutGuide.bottomAnchor, constant: 0.0),
+                self.webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                self.webView.bottomAnchor.constraint(equalTo: bottomLayoutGuide.topAnchor, constant: 0.0)])
+        }
     }
     
     func webViewDidStartLoad(_ webView: UIWebView) {
@@ -328,16 +338,6 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
             }
         }
         
-        //        if appDeleagte.allowRotation == true {
-        //            self.setNewOrientation(fullScreen: false)
-        //            self.navigationController?.navigationBar.isHidden = false
-        //            if (self.backButton != nil) {
-        //                self.tabBarController?.tabBar.isHidden = false
-        //                self.backButton.isHidden = true
-        //                self.closeButton.isHidden = true
-        //            }
-        //        }
-        
         self.model?.jsContext?.evaluateScript(curUrl)
         self.model?.jsContext?.exceptionHandler = { (context, exception) in
             print("exception：", exception as Any)
@@ -345,12 +345,6 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
     }
     
     private func showShareView() {
-//        let messagePresenter = MessageUIPresenter()
-//        messagePresenter.presenter = self
-//
-//        messagePresenter.presentShareSheet(text: "https://www.baidu.com", image:self.qrCodeImage!)
-//        messagePresenter.presentShareSheet(text: "", image: self.qrCodeImage!)
-        
         let textShare = "以太零钱包EasyETZ下载"
         let imageShare = self.qrCodeImage!
         let urlShare = URL(string: "https://easyetz.io/download.html?Type=IOS&id=2")
@@ -358,7 +352,6 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
         let toVC = UIActivityViewController(activityItems: activityItems, applicationActivities: [CustomUIActicity()])
         present(toVC, animated: true, completion: nil)
         toVC.completionWithItemsHandler = {(_ activityType: UIActivityType?, _ completed: Bool, _ returnedItems: [Any]?, _ activityError: Error?) -> Void in
-//            self.showToastMessage("分享成功")
             print(completed ? "分享成功" : "分享失败")
             }
     }
@@ -381,22 +374,14 @@ class ETZDiscoverViewController: UIViewController, UIWebViewDelegate,Subscriber,
     //横竖屏
     func setNewOrientation(fullScreen: Bool) {
         if fullScreen { //横屏
-            if #available(iOS 11.0, *) {
-                self.webView.scrollView.contentInsetAdjustmentBehavior = .never
-            }
             appDeleagte.allowRotation = true
             let value = UIInterfaceOrientation.landscapeRight.rawValue
             UIDevice.current.setValue(value, forKey: "orientation")
         }else { //竖屏
-            if #available(iOS 11.0, *) {
-                self.webView.scrollView.contentInsetAdjustmentBehavior = .automatic
-            }
             appDeleagte.allowRotation = false
             let value = UIInterfaceOrientation.portrait.rawValue
             UIDevice.current.setValue(value, forKey: "orientation")
         }
-        self.webView.frame = self.view.bounds
-        self.webView.setNeedsLayout()
     }
     
     func shouldAutorotate() -> Bool {
