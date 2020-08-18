@@ -455,94 +455,6 @@ class ModalPresenter : Subscriber, Trackable {
         settingsNav.viewControllers = [settings]
         top.present(settingsNav, animated: true, completion: nil)
     }
-    
-    func presentSwitchWallet() {
-        guard topViewController != nil else { return }
-        let walletManager = primaryWalletManager
-        let nc = ModalNavigationController()
-        nc.setClearNavbar()
-        nc.setWhiteStyle()
-        nc.delegate = self.wipeNavigationDelegate
-        let start = StartWipeWalletViewController { [weak self] in
-            let recover = EnterPhraseViewController(walletManager: walletManager, reason: .validateForWipingWallet( { [weak self] in
-                self?.wipeWallet()
-            }))
-            nc.pushViewController(recover, animated: true)
-        }
-        start.addCloseNavigationItem(tintColor: .white)
-        start.navigationItem.title = S.WipeWallet.title
-        nc.viewControllers = [start]
-        self.topViewController?.present(nc, animated: true, completion: nil)
-    }
-    
-    func presentPinView() {
-        let walletManager = primaryWalletManager
-        let updatePin = UpdatePinViewController(walletManager: walletManager, type: .update)
-        let currentViewController = UIViewController.current()
-        currentViewController?.navigationController?.pushViewController(updatePin, animated: true)
-    }
-    
-    func presentCurrency() {
-        let walletManager = primaryWalletManager
-        let currentViewController = UIViewController.current()
-        currentViewController?.navigationController!.pushViewController(DefaultCurrencyViewController(walletManager: walletManager), animated: true)
-    }
-    
-    func resetWallet() {
-        Store.trigger(name: .resetDisplayCurrencies)
-    }
-    
-    func presentAboutView() {
-        let currentViewController = UIViewController.current()
-        currentViewController?.navigationController!.pushViewController(AboutViewController(), animated: true)
-    }
-    
-    func presentAdvancedView() {
-        let walletManager = primaryWalletManager
-        let currentViewController = UIViewController.current()
-        var sections = [SettingsSections.network]
-        var advancedSettings = [
-            SettingsSections.network: [
-                // btc node 
-                Setting(title: S.NodeSelector.title, callback: {
-                    let nodeSelector = NodeSelectorViewController(walletManager: walletManager)
-                    currentViewController?.navigationController?.navigationBar.isTranslucent = false
-                    currentViewController?.navigationController!.pushViewController(nodeSelector, animated: true)
-                }),
-                // etz node
-                Setting(title: S.NodeSelector.etzTitle, callback: {
-                    let etzNodeSelector = ETZNodeSelectorViewController(walletManager: walletManager)
-                    currentViewController?.navigationController?.navigationBar.isTranslucent = false
-                    currentViewController?.navigationController!.pushViewController(etzNodeSelector, animated: true)
-                }),
-                // custom nodes
-                Setting(title: S.NodeSelector.customTitle, callback: {
-                    let etzNodeSelector = ETZCustomNodeSelectorViewController(walletManager: walletManager)
-                    currentViewController?.navigationController?.navigationBar.isTranslucent = false
-                    currentViewController?.navigationController!.pushViewController(etzNodeSelector, animated: true)
-                }),
-                // Share Anonymous Data
-                Setting(title: S.Settings.shareData, callback: {
-                    currentViewController?.navigationController?.navigationBar.isTranslucent = false
-                    currentViewController?.navigationController!.pushViewController(ShareDataViewController(), animated: true)
-                }),
-            ],
-            ]
-        
-        if E.isTestFlight {
-            advancedSettings[SettingsSections.other] = [
-                Setting(title: S.Settings.sendLogs, callback: { [weak self] in
-                    self?.showEmailLogsModal()
-                })
-            ]
-            sections.append(SettingsSections.other)
-        }
-        
-        let advancedSettingsVC = SettingsViewController(sections: sections, rows: advancedSettings, optionalTitle: S.Settings.advancedTitle)
-        currentViewController?.navigationController!.pushViewController(advancedSettingsVC, animated: true)
-    }
-    
-    
 
     private func presentScan(parent: UIViewController, currency: CurrencyDef) -> PresentScan {
         return { [weak parent] scanCompletion in
@@ -1022,20 +934,5 @@ class SecurityCenterNavigationDelegate : NSObject, UINavigationControllerDelegat
         } else {
             navigationController.setDefaultStyle()
         }
-    }
-}
-
-extension UIViewController {
-    class func current(base: UIViewController? = UIApplication.shared.keyWindow?.rootViewController) -> UIViewController? {
-        if let nav = base as? UINavigationController {
-            return current(base: nav.visibleViewController)
-        }
-        if let tab = base as? UITabBarController {
-            return current(base: tab.selectedViewController)
-        }
-        if let presented = base?.presentedViewController {
-            return current(base: presented)
-        }
-        return base
     }
 }

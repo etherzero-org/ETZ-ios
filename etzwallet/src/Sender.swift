@@ -19,11 +19,6 @@ enum SendResult {
     case insufficientGas(String) // for ERC20 token transfers
 }
 
-enum GasResult {
-    case gasLimit(String)
-    case estimateError(String)
-}
-
 enum SenderValidationResult {
     case ok
     case failed
@@ -61,7 +56,7 @@ protocol Sender: class {
     
     func validate(paymentRequest: PaymentProtocolRequest, ignoreUsedAddress: Bool, ignoreIdentityNotCertified: Bool) -> SenderValidationResult
     
-    func createTransaction(address: String, amount: UInt256, comment: String?,data:String?,gaslimit:String?,gasprice:String?) -> SenderValidationResult
+    func createTransaction(address: String, amount: UInt256, comment: String?,data:String?) -> SenderValidationResult
     func createTransaction(forPaymentProtocol: PaymentProtocolRequest) -> SenderValidationResult
     
     func sendTransaction(allowBiometrics: Bool,
@@ -75,12 +70,6 @@ extension Sender {
     var canUseBiometrics: Bool { return false }
 }
 
-protocol GasEstimator {
-    func hasFeeForAddress(_ address: String, amount: Amount) -> Bool
-    func estimateGas(toAddress: String, amount: Amount, handler: @escaping(GasResult) -> Void)
-    func estimateGas(toAddress: String, amount: Amount, model:JsModel,handler: @escaping(GasResult) -> Void)
-}
-
 // MARK: - Base Class
 
 class SenderBase<CurrencyType: CurrencyDef, WalletType: WalletManager> {
@@ -90,8 +79,6 @@ class SenderBase<CurrencyType: CurrencyDef, WalletType: WalletManager> {
     fileprivate let kvStore: BRReplicatedKVStore
     fileprivate var comment: String?
     fileprivate var data: String?
-    fileprivate var gaslimit: String?
-    fileprivate var gasprice: String?
     fileprivate var readyToSend: Bool = false
     
     // MARK: Init
@@ -140,7 +127,7 @@ class BitcoinSender: SenderBase<Bitcoin, BTCWalletManager>, Sender {
         return UInt256(fee)
     }
     
-    func createTransaction(address: String, amount: UInt256, comment: String?,data:String?,gaslimit:String?,gasprice:String?) -> SenderValidationResult {
+    func createTransaction(address: String, amount: UInt256, comment: String?,data:String?) -> SenderValidationResult {
         let btcAddress = currency.matches(Currencies.bch) ? address.bitcoinAddr : address
         let result = validate(address: btcAddress, amount: amount)
         guard case .ok = result else { return result }
@@ -416,7 +403,7 @@ class BitcoinSender: SenderBase<Bitcoin, BTCWalletManager>, Sender {
 // MARK: -
 
 /// Base class for sending Ethereum-network transactions
-class EthSenderBase<CurrencyType: CurrencyDef> : SenderBase<CurrencyType, EthWalletManager>, GasEstimator {
+class EthSenderBase<CurrencyType: CurrencyDef> : SenderBase<CurrencyType, EthWalletManager> {
     
     fileprivate var address: String?
     fileprivate var amount: UInt256?
@@ -427,7 +414,7 @@ class EthSenderBase<CurrencyType: CurrencyDef> : SenderBase<CurrencyType, EthWal
         walletManager.gasPrice = fees.gasPrice
     }
     
-    func createTransaction(address: String, amount: UInt256, comment: String?,data:String?,gaslimit:String?,gasprice:String?) -> SenderValidationResult {
+    func createTransaction(address: String, amount: UInt256, comment: String?,data:String?) -> SenderValidationResult {
         let result = validate(address: address, amount: amount, data: data)
         guard case .ok = result else { return result }
         
@@ -435,8 +422,6 @@ class EthSenderBase<CurrencyType: CurrencyDef> : SenderBase<CurrencyType, EthWal
         self.address = address
         self.comment = comment
         self.data = data
-        self.gaslimit = gaslimit
-        self.gasprice = gasprice
         readyToSend = true
         
         return result
@@ -455,104 +440,6 @@ class EthSenderBase<CurrencyType: CurrencyDef> : SenderBase<CurrencyType, EthWal
         // must override
         return .failed
     }
-    
-    // MARK: GasEstimator
-    
-    fileprivate struct GasEstimate {
-        let address: String
-        let amount: Amount
-        let estimate: UInt256
-    }
-    
-    fileprivate var estimate: GasEstimate?
-    
-    func hasFeeForAddress(_ address: String, amount: Amount) -> Bool {
-        return estimate?.address == address && estimate?.amount.rawValue == amount.rawValue
-    }
-    
-    func estimateGas(toAddress: String, amount: Amount, handler: @escaping (GasResult) -> Void) {
-        estimate = nil
-        guard let fromAddress = self.walletManager.address else { return }
-        let params = transactionParams(fromAddress: fromAddress, toAddress: toAddress, forAmount: amount)
-        Backend.apiClient.estimateGas(transaction: params, handler: { result in
-            switch result {
-            case .success(let value):
-                self.estimate = GasEstimate(address: toAddress, amount: amount, estimate: value)
-                handler(.gasLimit(String(value.asUInt64)))
-            case .error(let error):
-                print("estimate gas error: \(error)")
-                self.estimate = nil
-                handler(.estimateError("estimate gas error: \(error)"))
-            }
-        })
-    }
-    
-    func estimateGas(toAddress: String, amount: Amount, model: JsModel, handler: @escaping (GasResult) -> Void) {
-        estimate = nil
-        guard let fromAddress = self.walletManager.address else { return }
-        let params = transactionParams(fromAddress: fromAddress, toAddress: toAddress, forAmount: amount ,model:model)
-        Backend.apiClient.estimateGas(transaction: params, handler: { result in
-            switch result {
-            case .success(let value):
-                self.estimate = GasEstimate(address: toAddress, amount: amount, estimate: value)
-                print("  ↳first gas estimate: \(value.asUInt64)")
-                handler(.gasLimit(String(value.asUInt64)))
-            case .error(let error):
-                print("estimate gas error: \(error)")
-                self.estimate = nil
-                handler(.estimateError("estimate gas error: \(error)"))
-            }
-        })
-    }
-    
-    
-//    func estimateGas(toAddress: String, amount: Amount) {
-//        estimate = nil
-//        guard let fromAddress = self.walletManager.address else { return }
-//        let params = transactionParams(fromAddress: fromAddress, toAddress: toAddress, forAmount: amount)
-//        Backend.apiClient.estimateGas(transaction: params, handler: { result in
-//            switch result {
-//            case .success(let value):
-//                self.estimate = GasEstimate(address: toAddress, amount: amount, estimate: value)
-//            case .error(let error):
-//                print("estimate gas error: \(error)")
-//                self.estimate = nil
-//            }
-//        })
-//    }
-    
-    
-//    func estimateGas(toAddress: String, amount: Amount ,model:JsModel) -> String {
-//        estimate = nil
-//        guard let fromAddress = self.walletManager.address else { return ""}
-//        let params = transactionParams(fromAddress: fromAddress, toAddress: toAddress, forAmount: amount ,model:model)
-//        Backend.apiClient.estimateGas(transaction: params, handler: { result in
-//            switch result {
-//            case .success(let value):
-//                self.estimate = GasEstimate(address: toAddress, amount: amount, estimate: value)
-//                return ""
-//            case .error(let error):
-//                print("estimate gas error: \(error)")
-//                self.estimate = nil
-//                return error
-//            }
-//        })
-//    }
-    
-    func transactionParams(fromAddress: String, toAddress: String, forAmount: Amount) -> TransactionParams {
-        var params = TransactionParams(from: fromAddress, to: toAddress)
-        params.value = forAmount.amount
-        return params
-    }
-    
-    func transactionParams(fromAddress: String, toAddress: String, forAmount: Amount ,model:JsModel) -> TransactionParams {
-        var params = TransactionParams(from: fromAddress, to: toAddress)
-        params.value = forAmount.amount
-        if (!model.datas.isEmpty) {
-            params.data = model.datas
-        }
-        return params
-    }
 }
 
 class EthereumSender: EthSenderBase<Ethereum>, Sender {
@@ -567,14 +454,12 @@ class EthereumSender: EthSenderBase<Ethereum>, Sender {
         guard readyToSend,
             let address = address,
             let amount = amount,
-            let data = data,
-            let gaslimit = gaslimit,
-            let gasprice = gasprice else {
+            let data = data else {
                 return completion(.creationError("not ready"))
         }
         
         pinVerifier { pin in
-            self.walletManager.sendTransaction(currency: self.currency, toAddress: address, amount: amount, data: data,gaslimit: gaslimit,gasprice: gasprice) { result in
+            self.walletManager.sendTransaction(currency: self.currency, toAddress: address, amount: amount, data: data) { result in
                 switch result {
                 case .success(let pendingTx, nil, let rawTx):
                     self.setMetaData(tx: pendingTx)
@@ -629,14 +514,12 @@ class ERC20Sender: EthSenderBase<ERC20Token>, Sender {
         guard readyToSend,
             let address = address,
             let amount = amount,
-            let data = data,
-            let gaslimit = gaslimit,
-            let gasprice = gasprice else {
+            let data = data else {
                 return completion(.creationError("not ready"))
         }
 
         pinVerifier { pin in
-            self.walletManager.sendTransaction(currency: self.currency, toAddress: address, amount: amount, data: data,gaslimit: gaslimit,gasprice: gasprice) { result in
+            self.walletManager.sendTransaction(currency: self.currency, toAddress: address, amount: amount, data: data) { result in
                 switch result {
                 case .success(let pendingEthTx, let pendingTokenTx?, let rawTx):
                     self.setMetaData(ethTx: pendingEthTx, tokenTx: pendingTokenTx)

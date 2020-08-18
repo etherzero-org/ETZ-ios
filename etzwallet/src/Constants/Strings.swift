@@ -14,7 +14,6 @@ enum S {
         static let bits = "ƀ"
         static let eth = "Ξ"
         static let etz = "z"
-        static let eash = "s"
         static var btc: String {
             if  #available(iOS 10, *) {
                 return "₿"
@@ -58,8 +57,6 @@ enum S {
         static let title = NSLocalizedString("Send.title", value:"Send", comment: "Send modal title")
         static let toLabel = NSLocalizedString("Send.toLabel", value:"To", comment: "Send money to label")
         static let amountLabel = NSLocalizedString("Send.amountLabel", value:"Amount", comment: "Send money amount label")
-        static let gasLimitLabel = NSLocalizedString("Send.gasLimitLabel", value:"GasLimit", comment: "Description for sending GasLimit label")
-        static let gasPriceLabel = NSLocalizedString("Send.gasPriceLabel", value:"GasPrice", comment: "Description for sending GasPrice label")
         static let dataValueLabel = NSLocalizedString("Send.dataValueLabel", value:"Data(Options)", comment: "Description for sending data label")
         static let descriptionLabel = NSLocalizedString("Send.descriptionLabel", value:"Memo", comment: "Description for sending money label")
         static let sendLabel = NSLocalizedString("Send.sendLabel", value:"Send", comment: "Send button label")
@@ -85,8 +82,6 @@ enum S {
         static let noAddress = NSLocalizedString("Send.noAddress", value: "Please enter the recipient's address.", comment: "Empty address alert message")
         static let noAmount = NSLocalizedString("Send.noAmount", value: "Please enter an amount to send.", comment: "Emtpy amount alert message")
         static let errorData = NSLocalizedString("Send.errorData", value: "Please enter the correct Data format.", comment: "Error Data alert message")
-        static let errorGasLimit = NSLocalizedString("Send.errorGasLimit", value: "Please enter the correct gaslimit format.", comment: "Error gaslimit alert message")
-        static let errorGasPrice = NSLocalizedString("Send.errorGasPrice", value: "Please enter the correct gasprice format.", comment: "Error gasprice alert message")
         static let isRescanning = NSLocalizedString("Send.isRescanning", value: "Sending is disabled during a full rescan.", comment: "Is rescanning error message")
         static let remoteRequestError = NSLocalizedString("Send.remoteRequestError", value: "Could not load payment request", comment: "Could not load remote request error message")
         static let loadingRequest = NSLocalizedString("Send.loadingRequest", value: "Loading Request", comment: "Loading request activity view message")
@@ -111,8 +106,6 @@ enum S {
     enum Account {
         static let loadingMessage = NSLocalizedString("Account.loadingMessage", value:"Loading Wallet", comment: "Loading Wallet Message")
         static let balance = NSLocalizedString("Account.balance", value:"Balance", comment: "Account header balance label")
-        static let maxPower = NSLocalizedString("Account.maxPower", value:"Max Power", comment: "Account header Max Power label")
-        static let availablePower = NSLocalizedString("Account.availablePower", value:"Available Power", comment: "Account header Available Power label")
     }
 
     enum JailbreakWarnings {
@@ -159,7 +152,6 @@ enum S {
         static let receivingVia = NSLocalizedString("TransactionDetails.receivingVia", value:"receiving via %1$@", comment: "receiving via <address>")
         static let receivingFrom = NSLocalizedString("TransactionDetails.receivingFrom", value:"receiving from %1$@", comment: "receiving from <address>")
         static let tokenTransfer = NSLocalizedString("Transaction.tokenTransfer", value:"Fee for token transfer: %1$@", comment: "Fee for token transfer: ETZ")
-        static let advancedSet = NSLocalizedString("Transaction.advancedSet", value:"Advanced options", comment: "Advanced options for etherzero")
     }
 
     enum TransactionDetails {
@@ -424,7 +416,7 @@ enum S {
     enum StartViewController {
         static let createButton = NSLocalizedString("StartViewController.createButton", value:"Create New Wallet", comment: "button label")
         static let recoverButton = NSLocalizedString("StartViewController.recoverButton", value:"Recover Wallet", comment: "button label")
-        static let message = NSLocalizedString("StartViewController.message", value: "The easy and secure way to use ETZ.", comment: "Start view message")
+        static let message = NSLocalizedString("StartViewController.message", value: "The easy and secure way to use bitcoin.", comment: "Start view message")
     }
 
     enum AccessibilityLabels {
@@ -583,7 +575,7 @@ enum S {
         static let economy = NSLocalizedString("FeeSelector.economy", value: "Economy", comment: "Economy fee")
         static let economyTime = NSLocalizedString("FeeSelector.economyTime", value: "1-24 hours", comment: "E.g. [This transaction is predicted to complete in] 1-24 hours")
         static let regularTime = NSLocalizedString("FeeSelector.regularTime", value: "10-60 minutes", comment: "E.g. [This transaction is predicted to complete in] 10-60 minutes")
-        static let ethTime = NSLocalizedString("FeeSelector.ethTime", value: "2-5 seconds", comment: "E.g. [This transaction is predicted to complete in] 2-5 seconds")
+        static let ethTime = NSLocalizedString("FeeSelector.ethTime", value: "2-5 minutes", comment: "E.g. [This transaction is predicted to complete in] 2-5 minutes")
     }
 
     enum Confirmation {
@@ -600,8 +592,6 @@ enum S {
         static let manualButton = NSLocalizedString("NodeSelector.manualButton", value: "Switch to Manual Mode", comment: "Switch to manual mode button label")
         static let automaticButton = NSLocalizedString("NodeSelector.automaticButton", value: "Switch to Automatic Mode", comment: "Switch to automatic mode button label")
         static let title = NSLocalizedString("NodeSelector.title", value: "Bitcoin Nodes", comment: "Node Selector view title")
-        static let etzTitle = NSLocalizedString("NodeSelector.etzTitle", value: "Etherzero node", comment: "ETZ Node Selector view title")
-        static let customTitle = NSLocalizedString("NodeSelector.customTitle", value: "Custom node", comment: "Custom Node Selector view title")
         static let nodeLabel = NSLocalizedString("NodeSelector.nodeLabel", value: "Current Primary Node", comment: "Node address label")
         static let statusLabel = NSLocalizedString("NodeSelector.statusLabel", value: "Node Connection Status", comment: "Node status label")
         static let connected = NSLocalizedString("NodeSelector.connected", value: "Connected", comment: "Node is connected label")
@@ -623,17 +613,5 @@ enum S {
         static let remove = NSLocalizedString("TokenList.remove", value: "Remove", comment: "Remove currency button label")
         static let hide = NSLocalizedString("TokenList.hide", value: "Hide", comment: "Hide currency button label")
         static let manageTitle = NSLocalizedString("TokenList.manageTitle", value: "Manage Wallets", comment: "Manage Wallets view title")
-    }
-    
-    enum Tabbar {
-        static let wallet = NSLocalizedString("Tabbar.wallet", value: "Wallet", comment: "wallet view controller")
-        static let discover = NSLocalizedString("Tabbar.discover", value: "Discover", comment: "discover view controller")
-        static let mine = NSLocalizedString("Tabbar.mine", value: "Me", comment: "mine view controller")
-    }
-    
-    enum Region {
-        static let HongKong = NSLocalizedString("Setting.HongKong", value: "HongKong", comment: "Region Hong Kong")
-        static let Singapore = NSLocalizedString("Setting.Singapore", value: "Singapore", comment: "Region Singapore")
-        static let USA = NSLocalizedString("Setting.USA", value: "USA", comment: "Region American")
     }
 }

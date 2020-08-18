@@ -23,7 +23,6 @@ typealias BRCoreEthereumLightNode = OpaquePointer
 /// Swift wrapper for BREthereumWalletEvent
 enum EthereumWalletEvent {
     case created
-    case powerUpdated
     case balanceUpdated
     case gasLimitUpdated
     case gasPriceUpdated
@@ -32,7 +31,6 @@ enum EthereumWalletEvent {
     init(_ event: BREthereumWalletEvent) {
         switch event {
         case WALLET_EVENT_CREATED:                      self = .created
-        case WALLET_EVENT_POWER_UPDATED:                self = .powerUpdated
         case WALLET_EVENT_BALANCE_UPDATED:              self = .balanceUpdated
         case WALLET_EVENT_DEFAULT_GAS_LIMIT_UPDATED:    self = .gasLimitUpdated
         case WALLET_EVENT_DEFAULT_GAS_PRICE_UPDATED:    self = .gasPriceUpdated
@@ -206,11 +204,6 @@ struct EthereumWallet : EthereumReference {
             : amount.u.tokenQuantity.valueAsInteger
     }
     
-    var power : Double {
-        let powernum : BREthereumPower = ethereumWalletGetPower(node.core, identifier)
-        return powernum.amountOfPower
-    }
-    
     //
     // MARK: Constructor
     //
@@ -225,7 +218,7 @@ struct EthereumWallet : EthereumReference {
     //
     // MARK: Transaction
     //
-    func createTransaction (currency: CurrencyDef, recvAddress: String, amount: UInt256, data: String,gaslimit: String,gasprice: String) -> EthereumTransaction {
+    func createTransaction (currency: CurrencyDef, recvAddress: String, amount: UInt256, data:String) -> EthereumTransaction {
         var coreAmount: BREthereumAmount
         if let token = currency as? ERC20Token {
             coreAmount = amountCreateToken(createTokenQuantity(token.core, amount))
@@ -237,9 +230,7 @@ struct EthereumWallet : EthereumReference {
                                                    identifier,
                                                    recvAddress,
                                                    coreAmount,
-                                                   data,
-                                                   gaslimit,
-                                                   gasprice)
+                                                   data)
         return EthereumTransaction (node: node, currency: currency, identifier: tid)
        
     }
@@ -280,10 +271,6 @@ struct EthereumWallet : EthereumReference {
     /// Trigger update of wallet's balance
     func updateBalance() {
         lightNodeUpdateWalletBalance(self.node!.core, identifier)
-    }
-    
-    func updatePower() {
-        lightNodeUpdateWalletPower(self.node!.core, identifier)
     }
     
     /// Trigger update of wallet's transactions
@@ -415,8 +402,6 @@ protocol EthereumClient : class {
     
     func getBalance (wallet: EthereumWallet, address: String, completion: @escaping AmountHandler) -> Void
     
-    func getPower (wallet: EthereumWallet, address: String, completion: @escaping AmountHandler) -> Void
-    
     func submitTransaction (wallet: EthereumWallet,
                             tid: EthereumTransactionId,
                             rawTransaction: String,
@@ -516,7 +501,7 @@ class EthereumLightNode: EthereumPointer {
     // MARK: Wallets
     //
     internal func findWallet(identifier: EthereumWalletId) -> EthereumWallet? {
-        return readSync { return self.walletsById[identifier] }
+        return walletsById[identifier]
     }
     
     private var walletsByTicker: [String: EthereumWallet] = [:]
@@ -536,16 +521,10 @@ class EthereumLightNode: EthereumPointer {
         }
         
         let wallet = EthereumWallet(node: self, wid: identifier, currency: currency)
-//        walletsById[identifier] = wallet
-//        walletsByTicker[currency.code] = wallet
-//
-//        print("[BRETH] create wallet \(currency.code)")
+        walletsById[identifier] = wallet
+        walletsByTicker[currency.code] = wallet
         
-        self.writeAsync {
-            self.walletsById[identifier] = wallet
-            self.walletsByTicker[currency.code] = wallet
-            print("[BRETH] created wallet \(currency.code)")
-        }
+        print("[BRETH] create wallet \(currency.code)")
         
         return wallet
     }
@@ -557,11 +536,6 @@ class EthereumLightNode: EthereumPointer {
     /// Sets default gas price on all wallets
     func updateDefaultGasPrice(_ gasPrice: UInt256) {
         walletsById.values.forEach { $0.setDefaultGasPrice(gasPrice.asUInt64) }
-        
-//        writeAsync {
-//            let wallets = self.readSync { return self.walletsById.values }
-//            wallets.forEach { $0.setDefaultGasPrice(gasPrice.asUInt64) }
-//        }
     }
     
     //
@@ -580,28 +554,6 @@ class EthereumLightNode: EthereumPointer {
     //
     internal func findTransaction (currency: CurrencyDef, identifier: EthereumTransactionId) -> EthereumTransaction {
         return EthereumTransaction (node: self, currency: currency, identifier: identifier)
-    }
-    
-    /// Serial queue for Core operations
-    private let serialQueue = DispatchQueue(label: "com.etz.ewm.serial")
-    /// Concurrent queue for EWM data operations
-    private let concurrentQueue = DispatchQueue(label: "com.etz.ewm.concurrent", attributes: .concurrent)
-    
-    /// Execute on concurrent EWM data queue (synchronous/concurrent) and return a value
-    /// - Use for thread-safe read of EWM properties
-    func readSync<T>(thunk: @escaping () -> T) -> T {
-        return concurrentQueue.sync {
-            return thunk()
-        }
-    }
-    
-    /// Execute on EWM concurrent data queue (asynchronous/barrier)
-    /// - Use for thread-safe write of EWM properties
-    /// - Avoid calling serialAsync or readSync inside a write operation
-    func writeAsync(thunk: @escaping () -> Void) {
-        concurrentQueue.async(flags: .barrier) {
-            thunk()
-        }
     }
     
     //
@@ -658,16 +610,12 @@ class EthereumLightNode: EthereumPointer {
     private var coreClient : BREthereumClient?
     
     func connect () {
-        writeAsync {
-            guard let client = self.coreClient else { return }
-            ethereumConnect (self.core, client);
-        }
+        guard let client = coreClient else { return }
+        ethereumConnect (self.core, client);
     }
     
     func disconnect () {
-        writeAsync {
-            ethereumDisconnect (self.core)
-        }
+        ethereumDisconnect (self.core)
     }
     
     ///
@@ -686,15 +634,6 @@ class EthereumLightNode: EthereumPointer {
                     let wallet = this.findWallet(identifier: wid) else { return }
                 this.client?.getBalance(wallet: wallet, address: asUTF8String(address!), completion: { balance in
                     lightNodeAnnounceBalance (this.core, wid, balance, rid)
-                })
-                
-        },
-            //  JsonRpcGetPower funcGetPower,
-            { (this, core, wid, address, rid) in
-                guard let this = this.map ({ Unmanaged<EthereumLightNode>.fromOpaque($0).takeUnretainedValue() }),
-                    let wallet = this.findWallet(identifier: wid) else { return }
-                this.client?.getPower(wallet: wallet, address: asUTF8String(address!), completion: { power in
-                    lightNodeAnnouncePower (this.core, wid, power, rid)
                 })
                 
         },
@@ -775,17 +714,17 @@ class EthereumLightNode: EthereumPointer {
                                             defer { cTopics.forEach { free(UnsafeMutablePointer(mutating: $0)) } }
                                             lightNodeAnnounceLog(core,
                                                                  rid,
-                                                                 $0.txHash,
+                                                                 $0.transactionHash,
                                                                  $0.address,
                                                                  Int32($0.topics.count),
                                                                  &cTopics,
                                                                  $0.data,
                                                                  $0.gasPrice,
-                                                                 String($0.gasUsed),
-                                                                 String($0.logIndex),
-                                                                 String($0.blockNumber),
-                                                                 /*$0.transactionIndex */ "",
-                                                                 String($0.timestamp))
+                                                                 $0.gasUsed,
+                                                                 $0.logIndex,
+                                                                 $0.blockNumber,
+                                                                 $0.transactionIndex,
+                                                                 $0.timeStamp)
                                         }
                 })
         },

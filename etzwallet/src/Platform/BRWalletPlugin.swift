@@ -369,7 +369,7 @@ class BRWalletPlugin: BRHTTPRouterPlugin, BRWebSocketClient, Trackable {
                 amount = amount - fee
             }
             
-            let result = sender.createTransaction(address: toAddress, amount: amount, comment: comment,data:nil,gaslimit:nil,gasprice:nil)
+            let result = sender.createTransaction(address: toAddress, amount: amount, comment: comment,data:nil)
             guard case .ok = result else {
                 asyncResp.provide(400, json: ["error": "tx-error"])
                 return asyncResp

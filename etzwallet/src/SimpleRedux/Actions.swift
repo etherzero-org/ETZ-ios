@@ -110,11 +110,6 @@ struct WalletChange: Trackable {
             guard let walletState = $0[self.currency] else { return $0 }
             return $0.mutate(walletState: walletState.mutate(balance: balance)) })
     }
-    func setPower(_ power: Double) -> WalletAction {
-        return WalletAction(reduce: {
-            guard let walletState = $0[self.currency] else { return $0 }
-            return $0.mutate(walletState: walletState.mutate(power: power)) })
-    }
     func setTransactions(_ transactions: [Transaction]) -> WalletAction {
         return WalletAction(reduce: {
             guard let state = $0[self.currency] else { return $0 }

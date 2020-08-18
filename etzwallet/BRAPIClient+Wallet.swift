@@ -15,11 +15,6 @@ enum RatesResult {
     case error(String)
 }
 
-enum VersionResult {
-    case success(VersionResponse)
-    case error(String)
-}
-
 extension BRAPIClient {
 
     func me() {
@@ -144,24 +139,6 @@ extension BRAPIClient {
         }).resume()
     }
     
-    /** get App version*/
-    func getAppVersion( _ handler: @escaping (VersionResult) -> Void) {
-        let request = URLRequest(url: URL(string: "http://easyetz.io/airdropapi/api/v1/versionCheckiOS")!)
-        dataTaskWithRequest(request, handler: { data, response, error in
-            if error == nil, let data = data {
-                do {
-                    let tickers = try JSONDecoder().decode(VersionResponse.self, from: data)
-                    print("app 版本详情\(tickers)")
-                    handler(.success(tickers))
-                } catch let e {
-                    handler(.error(e.localizedDescription))
-                }
-            } else {
-                handler(.error(error?.localizedDescription ?? "unknown error"))
-            }
-        }).resume()
-    }
-    
     func savePushNotificationToken(_ token: Data) {
         var req = URLRequest(url: otherurl("/me/push-devices"))
         req.httpMethod = "POST"
@@ -237,19 +214,6 @@ struct Ticker: Codable {
         case usdRate = "price_usd"
         case btcRate = "price_btc"
     }
-}
-
-struct Details: Decodable {
-    var build: String
-    let content: String
-    let url: String
-    let version: String
-}
-
-struct VersionResponse: Decodable {
-    let message: String
-    let status: String
-    var result: Details
 }
 
 struct Quotes : Codable{

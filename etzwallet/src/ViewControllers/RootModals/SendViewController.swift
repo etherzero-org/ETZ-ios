@@ -9,7 +9,6 @@
 import UIKit
 import LocalAuthentication
 import BRCore
-import SwiftyJSON
 
 typealias PresentScan = ((@escaping ScanCompletion) -> Void)
 
@@ -106,15 +105,6 @@ class GYRegex: NSObject {
         return matcher.match(str)
     }
     
-    /**
-     *正则 验证是否只有数字
-     */
-    class func validateNumber(_ str:String) -> Bool{
-        let characterPattern:String = "^[0-9]*$"
-        let matcher = MyRegex(characterPattern)
-        return matcher.match(str)
-    }
-    
 }
 
 class SendViewController : UIViewController, Subscriber, ModalPresentable, Trackable {
@@ -123,7 +113,6 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
     var presentScan: PresentScan?
     var presentVerifyPin: ((String, @escaping ((String) -> Void))->Void)?
     var onPublishSuccess: (()->Void)?
-    var didChangeFirstResponder: ((Bool) -> Void)?
     var parentView: UIView? //ModalPresentable
     
     var isPresentedFromLock = false
@@ -139,7 +128,6 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
         super.init(nibName: nil, bundle: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: .UIKeyboardWillShow, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(notification:)), name: .UIKeyboardWillHide, object: nil)
-        NotificationCenter.default.addObserver(self, selector:#selector(noti(noti:)), name:NSNotification.Name(rawValue:"isPostJSModel"), object:nil)
     }
 
     //MARK - Private
@@ -150,20 +138,14 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
 
     private let amountView: AmountViewController
     private let addressCell: AddressCell
-    private let adVanceCon = UIView()
     private let dataCell = DataSendCell(placeholder: S.Send.dataValueLabel)
-    private let gaspriceCell = GasPriceCell(placeholder: S.Send.gasPriceLabel,label:"gwei")
-    private let gaslimitCell = DataSendCell(placeholder: S.Send.gasLimitLabel)
     private let memoCell = DescriptionSendCell(placeholder: S.Send.descriptionLabel)
     private let sendButton = ShadowButton(title: S.Send.sendLabel, type: .primary)
-    private let adVanceds = AdvancedBtn(title: S.Transaction.advancedSet)
-    private var adVancedHeight: NSLayoutConstraint?
     private let currencyBorder = UIView(color: .secondaryShadow)
     private var currencySwitcherHeightConstraint: NSLayoutConstraint?
     private var pinPadHeightConstraint: NSLayoutConstraint?
     private let confirmTransitioningDelegate = PinTransitioningDelegate()
     
-    private var jsModel:JsModel?
     private let sender: Sender
     private let currency: CurrencyDef
     private let initialRequest: PaymentRequest?
@@ -172,14 +154,7 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
     private var didIgnoreIdentityNotCertified = false
     private var feeSelection: FeeLevel? = nil
     private var balance: UInt256 = 0
-    private var power: Double = 0
-    private var alertString : String?
-    private var limitString : String?
-    private var amount: Amount? {
-        didSet {
-            attemptEstimateGas()
-        }
-    }
+    private var amount: Amount?
     private var address: String? {
         if let protoRequest = validatedProtoRequest {
             return currency.matches(Currencies.bch) ? protoRequest.address.bCashAddr : protoRequest.address
@@ -189,22 +164,10 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
     }
     // MARK: - Lifecycle
     override func viewDidLoad() {
-        self.alertString = ""
-        self.limitString = ""
         view.backgroundColor = .white
         view.addSubview(addressCell)
-        view.addSubview(adVanceds)
-        NotificationCenter.default.post(name:NSNotification.Name("isLaunchSendView"), object:self, userInfo: ["isLaunchSendView":true as Any])
         if currency.code == "ETZ"{  //如果是Etherzero的时候会展示Data输入框
-            view.addSubview(adVanceCon)
-            adVanceCon.addSubview(gaspriceCell)
-            adVanceCon.addSubview(gaslimitCell)
-            adVanceCon.addSubview(dataCell)
-            adVanceCon.isHidden = true
-            adVanceds.isHidden = false
-        }else{
-            adVanceCon.isHidden = true
-            adVanceds.isHidden = true
+           view.addSubview(dataCell)
         }
         view.addSubview(memoCell)
         view.addSubview(sendButton)
@@ -217,85 +180,43 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
                 amountView.view.topAnchor.constraint(equalTo: addressCell.bottomAnchor),
                 amountView.view.trailingAnchor.constraint(equalTo: view.trailingAnchor) ])
         })
-        
-        memoCell.constrain([
-            memoCell.widthAnchor.constraint(equalTo: amountView.view.widthAnchor),
-            memoCell.topAnchor.constraint(equalTo: amountView.view.bottomAnchor),
-            memoCell.leadingAnchor.constraint(equalTo: amountView.view.leadingAnchor),
-            memoCell.heightAnchor.constraint(equalTo: memoCell.textView.heightAnchor, constant: C.padding[4]) ])
-        
-        memoCell.accessoryView.constrain([
-            memoCell.accessoryView.constraint(.width, constant: 0.0) ])
-        
-        if currency.code == "ETZ" {
-            adVancedHeight = adVanceCon.heightAnchor.constraint(equalToConstant: 0.0)
-            adVanceCon.constrain([
-                adVanceCon.leadingAnchor.constraint(equalTo: memoCell.leadingAnchor),
-                adVanceCon.topAnchor.constraint(equalTo: memoCell.bottomAnchor),
-                adVanceCon.trailingAnchor.constraint(equalTo: memoCell.trailingAnchor),
-                adVanceCon.bottomAnchor.constraint(equalTo: adVanceds.topAnchor),
-                adVancedHeight
-                ])
-            
-            gaspriceCell.constrain([
-                gaspriceCell.constraint(.top, toView: adVanceCon),
-                gaspriceCell.widthAnchor.constraint(equalTo: adVanceCon.widthAnchor),
-                gaspriceCell.topAnchor.constraint(equalTo: adVanceCon.bottomAnchor),
-                gaspriceCell.leadingAnchor.constraint(equalTo: adVanceCon.leadingAnchor),
-                gaspriceCell.heightAnchor.constraint(equalTo: gaspriceCell.textView.heightAnchor, constant: C.padding[4])
-                ])
-            
-            gaslimitCell.constrain([
-                gaslimitCell.widthAnchor.constraint(equalTo: gaspriceCell.widthAnchor),
-                gaslimitCell.topAnchor.constraint(equalTo: gaspriceCell.bottomAnchor),
-                gaslimitCell.leadingAnchor.constraint(equalTo: gaspriceCell.leadingAnchor),
-                gaslimitCell.heightAnchor.constraint(equalTo: gaslimitCell.textView.heightAnchor, constant: C.padding[4])
-                ])
-            
-            dataCell.constrain([
-                dataCell.constraint(.bottom, toView: adVanceCon),
-                dataCell.widthAnchor.constraint(equalTo: gaslimitCell.widthAnchor),
-                dataCell.topAnchor.constraint(equalTo: gaslimitCell.bottomAnchor),
-                dataCell.leadingAnchor.constraint(equalTo: gaslimitCell.leadingAnchor),
-                dataCell.heightAnchor.constraint(equalTo: dataCell.textView.heightAnchor, constant: C.padding[4])
-                ])
+        if currency.code == "ETZ"{
+        dataCell.constrain([
+            dataCell.widthAnchor.constraint(equalTo: amountView.view.widthAnchor),
+            dataCell.topAnchor.constraint(equalTo: amountView.view.bottomAnchor),
+            dataCell.leadingAnchor.constraint(equalTo: amountView.view.leadingAnchor),
+            dataCell.heightAnchor.constraint(equalTo: dataCell.textView.heightAnchor, constant: C.padding[4]) ])
 
-            adVanceds.constrain([
-                adVanceds.constraint(.right, toView: adVanceds),
-                adVanceds.widthAnchor.constraint(equalTo: dataCell.widthAnchor),
-                adVanceds.topAnchor.constraint(equalTo: dataCell.bottomAnchor),
-                adVanceds.leadingAnchor.constraint(equalTo: dataCell.leadingAnchor),
-                adVanceds.heightAnchor.constraint(equalTo: dataCell.textView.heightAnchor, constant: C.padding[2])
-                ])
-            
-            sendButton.constrain([
-                sendButton.constraint(.leading, toView: view, constant: C.padding[2]),
-                sendButton.constraint(.trailing, toView: view, constant: -C.padding[2]),
-                sendButton.constraint(toBottom: adVanceds, constant: verticalButtonPadding),
-                sendButton.constraint(.height, constant: C.Sizes.buttonHeight),
-                sendButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: E.isIPhoneX ? -C.padding[5] : -C.padding[2]) ])
+        memoCell.constrain([
+            memoCell.widthAnchor.constraint(equalTo: dataCell.widthAnchor),
+            memoCell.topAnchor.constraint(equalTo: dataCell.bottomAnchor),
+            memoCell.leadingAnchor.constraint(equalTo: dataCell.leadingAnchor),
+            memoCell.heightAnchor.constraint(equalTo: memoCell.textView.heightAnchor, constant: C.padding[4]) ])
+
+        memoCell.accessoryView.constrain([
+                memoCell.accessoryView.constraint(.width, constant: 0.0) ])
         }else{
+            memoCell.constrain([
+                memoCell.widthAnchor.constraint(equalTo: amountView.view.widthAnchor),
+                memoCell.topAnchor.constraint(equalTo: amountView.view.bottomAnchor),
+                memoCell.leadingAnchor.constraint(equalTo: amountView.view.leadingAnchor),
+                memoCell.heightAnchor.constraint(equalTo: memoCell.textView.heightAnchor, constant: C.padding[4]) ])
             
-            sendButton.constrain([
-                sendButton.constraint(.leading, toView: view, constant: C.padding[2]),
-                sendButton.constraint(.trailing, toView: view, constant: -C.padding[2]),
-                sendButton.constraint(toBottom: memoCell, constant: verticalButtonPadding),
-                sendButton.constraint(.height, constant: C.Sizes.buttonHeight),
-                sendButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: E.isIPhoneX ? -C.padding[5] : -C.padding[2]) ])
+            memoCell.accessoryView.constrain([
+                memoCell.accessoryView.constraint(.width, constant: 0.0) ])
         }
-        
-        
+
+        sendButton.constrain([
+            sendButton.constraint(.leading, toView: view, constant: C.padding[2]),
+            sendButton.constraint(.trailing, toView: view, constant: -C.padding[2]),
+            sendButton.constraint(toBottom: memoCell, constant: verticalButtonPadding),
+            sendButton.constraint(.height, constant: C.Sizes.buttonHeight),
+            sendButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: E.isIPhoneX ? -C.padding[5] : -C.padding[2]) ])
         addButtonActions()
         Store.subscribe(self, selector: { $0[self.currency]?.balance != $1[self.currency]?.balance },
                         callback: { [unowned self] in
                             if let balance = $0[self.currency]?.balance {
                                 self.balance = balance
-                            }
-        })
-        Store.subscribe(self, selector: { $0[self.currency]?.power != $1[self.currency]?.power },
-                        callback: { [unowned self] in
-                            if let power = $0[self.currency]?.power {
-                                self.power = power
                             }
         })
         Store.subscribe(self, selector: { $0[self.currency]?.fees != $1[self.currency]?.fees }, callback: { [unowned self] in
@@ -307,10 +228,6 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
                 self.amountView.canEditFee = false
             }
         })
-        
-        if currency.matches(Currencies.eth) || currency is ERC20Token {
-            addEstimateGasListener()
-        }
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -319,77 +236,13 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
             handleRequest(initialRequest)
         }
     }
-    
-    private func addEstimateGasListener() {
-        addressCell.textDidChange = { [weak self] text in
-            guard let `self` = self else { return }
-            guard let text = text else { return }
-            guard self.currency.isValidAddress(text) else { return }
-            self.attemptEstimateGas()
-        }
-    }
-    
-    private func getGasPrice() {
-        Backend.apiClient.getGasPrice {  [weak self] result in
-            guard let `self` = self else { return }
-            self.sendButton.isEnabled = true
-            if case .success(let gasPrice) = result {
-                let newFees = Fees(gasPrice: gasPrice, timestamp: Date().timeIntervalSince1970)
-                let priceString = newFees.gasPrice.string(decimals: Ethereum.Units.gwei.decimals)
-                print("priceString:\(priceString)")
-                let priceCount = Float(priceString)
-                let price = Int(priceCount!)
-                self.gaspriceCell.content = String(price)
-            } else if case .error(let error) = result {
-                print("getGasPrice error: \(String(describing: error))");
-                /** 如果这里没有拿到 price ，就直接取后台的 price*/
-                self.gaspriceCell.content = self.jsModel?.gasPrice
-            }
-        }
-    }
-    
-    private func attemptEstimateGas() {
-        guard let gasEstimator = self.sender as? GasEstimator else { return }
-        guard let address = addressCell.address else { return }
-        guard let amount = amount else { return }
-        guard !gasEstimator.hasFeeForAddress(address, amount: amount) else { return }
-        if ((self.jsModel) != nil) {
-            gasEstimator.estimateGas(toAddress: address, amount: amount, model: jsModel!) { [weak self] result in
-                guard let `self` = self else { return }
-                switch result {
-                case .gasLimit(let limit):
-                    self.limitString = limit
-                    self.gaslimitCell.content = limit
-                    break
-                case .estimateError(let errorString):
-                    self.alertString = errorString
-                    // 如果没拿到 limit 值，这里就取后台传的值
-                    self.gaslimitCell.content = self.jsModel?.gasLimit
-                    break
-                }
-            }
-        } else {
-            gasEstimator.estimateGas(toAddress: address, amount: amount) { [weak self] result in
-                guard let `self` = self else { return }
-                switch result {
-                case .gasLimit(let limit):
-                    self.limitString = limit
-                    break
-                case .estimateError(let errorString):
-                    self.alertString = errorString
-                    break
-                }
-            }
-        }
-    }
 
     // MARK: - Actions
     
-    private func addButtonActions() { /*** 这里输入相应的值*/
+    private func addButtonActions() {
         addressCell.paste.addTarget(self, action: #selector(SendViewController.pasteTapped), for: .touchUpInside)
         addressCell.scan.addTarget(self, action: #selector(SendViewController.scanTapped), for: .touchUpInside)
         sendButton.addTarget(self, action: #selector(sendTapped), for: .touchUpInside)
-        adVanceds.label.addTarget(self, action: #selector(advancedTapped), for: .touchUpInside)
         dataCell.didReturn = { textView in
             textView.resignFirstResponder()
         }
@@ -480,7 +333,6 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
         self.validatedProtoRequest = nil
         handleRequest(request)
     }
-    
 
     @objc private func scanTapped() {
         dataCell.textView.resignFirstResponder()
@@ -504,21 +356,8 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
             return false
         }
         
-        //验证Data的值是否合法
         if GYRegex.validateEnglishNumCharacter(dataCell.textView.text) == false && dataCell.textView.text != ""{
             showAlert(title: S.Alert.error, message: S.Send.errorData, buttonLabel: S.Button.ok)
-            return false
-        }
-        
-        //验证gaslimit的值是否合法
-        if GYRegex.validateNumber(gaslimitCell.textView.text) == false && gaslimitCell.textView.text != ""{
-            showAlert(title: S.Alert.error, message: S.Send.errorGasLimit, buttonLabel: S.Button.ok)
-            return false
-        }
-        
-        //验证gasprice的值是否合法
-        if GYRegex.validateNumber(gaspriceCell.textView.text) == false && gaspriceCell.textView.text != ""{
-            showAlert(title: S.Alert.error, message: S.Send.errorGasPrice, buttonLabel: S.Button.ok)
             return false
         }
         
@@ -532,35 +371,11 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
             data = "0x\(data)"
         }
         
-        var gasL:String = ""
-        if gaslimitCell.textView.text == "" {
-            gasL = ""
-        }else{
-            gasL = gaslimitCell.textView.text
-        }
-        
-        var gasP:String = ""
-        if gaspriceCell.textView.text != "" {
-            let gasPint = Int(gaspriceCell.textView.text)!
-            let base = 10
-            let power = 9
-            var answer = 1
-            for _ in 1...power {
-                answer *= base
-            }
-            
-            gasP = String(gasPint*answer)
-        }else{
-            gasP = ""
-        }
-        
 
         let validationResult = sender.createTransaction(address: address,
                                                         amount: amount.rawValue,
                                                         comment: memoCell.textView.text,
-                                                        data: data,
-                                                        gaslimit: gasL,
-                                                        gasprice: gasP)
+                                                        data: data)
         switch validationResult {
         case .noFees:
             showAlert(title: S.Alert.error, message: S.Send.noFeesError, buttonLabel: S.Button.ok)
@@ -598,15 +413,6 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
         
         return false
     }
-    
-    //点击高级选项触发的动画
-    @objc private func advancedTapped() {
-        adVanceCon.isHidden = !adVanceCon.isHidden
-        UIView.spring(C.animationDuration, animations: {
-            self.togglePinPad()
-            self.parent?.view.layoutIfNeeded()
-        }, completion: { completed in })
-    }
 
     @objc private func sendTapped() {
         if addressCell.textField.isFirstResponder {
@@ -616,13 +422,6 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
         guard validateSendForm(),
             let amount = amount,
             let address = address else { return }
-        
-        if let gasEstimator = sender as? GasEstimator {
-            guard gasEstimator.hasFeeForAddress(address, amount: amount) else {
-                showAlert(title: S.Alert.error, message: self.alertString ?? S.Send.noFeesError /*S.Send.noFeesError*/, buttonLabel: S.Button.ok)
-                return
-            }
-        }
         
         let fee = UInt256(0)
         let feeCurrency = (currency is ERC20Token) ? Currencies.eth : currency
@@ -680,14 +479,6 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
                 }
             })
         }
-    }
-    
-    //高级选项展开收缩动画
-    private func togglePinPad() {
-        let isCollapsed: Bool = adVancedHeight?.constant == 0.0
-        adVancedHeight?.constant = isCollapsed ? 55*4 : 0.0
-        print("adVancedHeight:\(String(describing: adVancedHeight?.constant))")
-        didChangeFirstResponder?(isCollapsed)
     }
 
     private func handleRequestWithWarning(_ request: PaymentRequest) {
@@ -796,7 +587,7 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
 
         if requestAmount == 0 {
             if let amount = amount {
-                guard case .ok = sender.createTransaction(address: address, amount: amount.rawValue, comment: nil,data:nil,gaslimit:nil,gasprice:nil) else {
+                guard case .ok = sender.createTransaction(address: address, amount: amount.rawValue, comment: nil,data:nil) else {
                     return showAlert(title: S.Alert.error, message: S.Send.createTransactionError, buttonLabel: S.Button.ok)
                 }
             }
@@ -852,41 +643,6 @@ class SendViewController : UIViewController, Subscriber, ModalPresentable, Track
 
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-    
-    @objc func noti(noti:Notification){
-        /** 这里传进来的是一个 model*/
-        let dict:[String:JSON] = noti.userInfo as! [String : JSON]
-        let json = dict["jsModel"]!
-        let jsModel = JsModel(jsonData: json)
-        self.jsModel = jsModel
-        print("jsmodel\(String(describing: jsModel))")
-        /** 这里把键盘收起来*/
-        UIApplication.shared.keyWindow?.endEditing(true)
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        if (self.jsModel != nil) {
-            addressCell.setContent(self.jsModel?.contractAddress)
-            let value = self.etzValueCalculate((self.jsModel?.etzValue)!)
-            amountView.tradingDataString(dataString: value.stringValue)
-            dataCell.content = self.jsModel?.datas
-            
-            if (self.limitString != nil) {
-                self.gaslimitCell.content = self.limitString
-            } else {
-                self.addEstimateGasListener()
-            }
-            self.getGasPrice()
-        }
-    }
-    
-    func etzValueCalculate(_ str:String) -> NSDecimalNumber {
-        let value1:NSDecimalNumber = NSDecimalNumber.init(string: str)
-        let value2:NSDecimalNumber = NSDecimalNumber.init(string: String(10e17))
-        let value = value1.dividing(by:value2)
-        return value
     }
 }
 

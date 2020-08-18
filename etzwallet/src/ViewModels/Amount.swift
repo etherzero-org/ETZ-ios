@@ -55,23 +55,6 @@ struct Amount {
         self.negative = negative
     }
     
-    init(powerString: String,
-         currency: CurrencyDef,
-         locale: Locale = Locale.current,
-         unit: CurrencyUnit? = nil,
-         rate: Rate? = nil,
-         minimumFractionDigits: Int? = nil,
-         maximumFractionDigits: Int = Amount.normalPrecisionDigits,
-         negative: Bool = false) {
-        let decimals = unit?.decimals ?? currency.commonUnit.decimals
-        self.amount = UInt256(string: powerString.usDecimalString(fromLocale: locale), decimals: decimals)
-        self.currency = currency
-        self.rate = rate
-        self.minimumFractionDigits = minimumFractionDigits
-        self.maximumFractionDigits = maximumFractionDigits
-        self.negative = negative
-    }
-    
     init?(fiatString: String,
           currency: CurrencyDef,
           rate: Rate,
@@ -181,13 +164,6 @@ struct Amount {
             let value = commonUnitValue else { return 0.0 }
         let tokenAmount = value * (negative ? -1.0 : 1.0)
         return tokenAmount * Decimal(rate.rate)
-    }
-    
-    // MARK: Power
-    
-    var powerValue: Decimal {
-        guard let value = commonUnitValue else { return 0.0 }
-        return value
     }
     
     var fiatDescription: String {

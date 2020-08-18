@@ -171,14 +171,6 @@ extension UIColor {
     static var separator: UIColor {
         return UIColor(red: 236.0/255.0, green: 236.0/255.0, blue: 236.0/255.0, alpha: 1.0)
     }
-    
-    static var navigationTint: UIColor {
-        return UIColor.fromHex("29ABE2")
-    }
-    
-    static var navigationBackground: UIColor {
-        return UIColor.fromHex("251935")
-    }
 }
 
 extension UIColor {

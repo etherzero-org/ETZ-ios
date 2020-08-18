@@ -74,13 +74,11 @@ struct PaymentRequest {
         }
         
         // core internally uses bitcoin address format but PaymentRequest will only accept the currency-specific address format
-        // Android's string is not an address
-        let tokenString:String = string.components(separatedBy: "?").first!
-        if currency.isValidAddress(tokenString) {
+        if currency.isValidAddress(string) {
             if currency.matches(Currencies.bch) {
-                toAddress = tokenString.bitcoinAddr
+                toAddress = string.bitcoinAddr
             } else {
-                toAddress = tokenString
+                toAddress = string
             }
             type = .local
             return

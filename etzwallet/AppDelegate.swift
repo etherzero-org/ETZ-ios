@@ -25,10 +25,9 @@
 
 import UIKit
 import LocalAuthentication
-import Bugly
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
-    var devOrientationBeforeIntoBkg = UIDeviceOrientation.unknown
+
     private var window: UIWindow? {
         return applicationController.window
     }
@@ -36,22 +35,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         redirectStdOut()
-        self.devOrientationBeforeIntoBkg = UIDevice.current.orientation
         UIView.swizzleSetFrame()
         applicationController.launch(application: application, options: launchOptions)
-        DispatchQueue.walletQueue.async {
-            Bugly.start(withAppId: "f504f6b23f")
-        }
         return true
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
         UIApplication.shared.applicationIconBadgeNumber = 0
         applicationController.didBecomeActive()
-        if (self.devOrientationBeforeIntoBkg != UIDeviceOrientation.unknown) {
-            let prevOrientation:UIInterfaceOrientation = UIInterfaceOrientation(rawValue: self.devOrientationBeforeIntoBkg.rawValue)!
-            UIDevice.rotateToIfNeed(newDirection: prevOrientation)
-        }
     }
 
     func applicationWillEnterForeground(_ application: UIApplication) {
@@ -59,7 +50,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationDidEnterBackground(_ application: UIApplication) {
-        self.devOrientationBeforeIntoBkg = UIDevice.current.orientation
         applicationController.didEnterBackground()
     }
 
@@ -97,36 +87,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         C.logFilePath.withUnsafeFileSystemRepresentation {
             _ = freopen($0, "w+", stdout)
         }
-    }
-    
-    var allowRotation = false
-    func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
-        if self.allowRotation {
-            return UIInterfaceOrientationMask.landscapeRight
-        }
-        return UIInterfaceOrientationMask.portrait
-    }
-}
-
-extension UIDevice {
-    static func rotateTo(newDirection:UIInterfaceOrientation) {
-        self.current.setValue(newDirection.rawValue, forKey: "orientation")
-    }
-    
-    static func rotateToIfNeed(newDirection:UIInterfaceOrientation) {
-        if !self.isOrientation(toCmpOrientation: newDirection) {
-            self.rotateTo(newDirection: newDirection)
-        }
-    }
-    
-    static func isOrientation(toCmpOrientation:UIInterfaceOrientation) -> Bool {
-        
-        //Note:
-        // self.current.orientation is UIDeviceOrientation
-        // toCmpOrientation is UIInterfaceOrientation
-        // but first 5 type: unknown/portrait/portraitUpsideDown/landscapeLeft/landscapeRight
-        // of enum value is equal
-        return self.current.orientation.rawValue == toCmpOrientation.rawValue
     }
 }
 

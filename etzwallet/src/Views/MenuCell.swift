@@ -22,35 +22,10 @@ class MenuCell : UITableViewCell {
         setup()
     }
     
-    func set(item: MenuItem) {
-        label.text = item.title
-        iconView.image = item.icon
-        accessoryType = .disclosureIndicator
-    }
-    
     func set(title: String, icon: UIImage) {
         label.text = title
         iconView.image = icon.withRenderingMode(.alwaysTemplate)
     }
-//
-//    func set(item: MenuItem) {
-//        textLabel?.text = item.title
-//        textLabel?.font = .customBody(size: 16.0)
-//        textLabel?.textColor = .white
-//
-//        imageView?.image = item.icon
-//        imageView?.tintColor = .navigationTint
-//
-//        if let accessoryText = item.accessoryText?() {
-//            let label = UILabel(font: .customMedium(size: 16.0), color: .transparentWhiteText)
-//            label.text = accessoryText
-//            label.sizeToFit()
-//            accessoryView = label
-//        } else {
-//            accessoryView = nil
-//            accessoryType = .none
-//        }
-//    }
     
     private func setup() {
         addSubviews()

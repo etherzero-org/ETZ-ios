@@ -19,14 +19,12 @@ class AboutViewController : UIViewController {
     private let twitter = AboutCell(text: S.About.twitter)
 //    private let reddit = AboutCell(text: S.About.reddit)
     private let privacy = UIButton(type: .system)
-    private let upgrade = UIButton(type: .system)
     private let footer = UILabel(font: .customBody(size: 13.0), color: .secondaryGrayText)
     override func viewDidLoad() {
         addSubviews()
         addConstraints()
         setData()
         setActions()
-        showAppUpgrade()
     }
 
     private func addSubviews() {
@@ -38,7 +36,6 @@ class AboutViewController : UIViewController {
         view.addSubview(twitter)
 //        view.addSubview(reddit)
         view.addSubview(privacy)
-        view.addSubview(upgrade)
         view.addSubview(footer)
     }
 
@@ -74,10 +71,6 @@ class AboutViewController : UIViewController {
         footer.constrain([
             footer.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             footer.topAnchor.constraint(equalTo: privacy.bottomAnchor) ])
-        
-        upgrade.constrain([
-            upgrade.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            upgrade.topAnchor.constraint(equalTo: footer.bottomAnchor, constant: C.padding[1])])
     }
 
     private func setData() {
@@ -85,8 +78,6 @@ class AboutViewController : UIViewController {
         titleLabel.text = S.About.title
         privacy.setTitle(S.About.privacy, for: .normal)
         privacy.titleLabel?.font = UIFont.customBody(size: 13.0)
-        upgrade.setTitle("升级到最新APP", for: .normal)
-        upgrade.titleLabel?.font = UIFont.customBody(size: 13.0)
         footer.textAlignment = .center
         if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String, let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String {
             footer.text = String(format: S.About.footer, "\(version) (\(build))")
@@ -105,20 +96,6 @@ class AboutViewController : UIViewController {
 //        }
         privacy.tap = strongify(self) { myself in
             myself.presentURL(string: "https://etherzero.org/")
-        }
-        upgrade.tap = {
-            /** so if user tap here , show upgrade alert*/
-            UserDefaults.doNotShowUpgrade = false
-            let updateUrl:URL = URL.init(string: Upgrade.appUpgradeUrl())!
-            UIApplication.shared.openURL(updateUrl)
-        }
-    }
-    
-    private func showAppUpgrade() {
-        if Upgrade.appCanUpgrade() {
-            self.upgrade.isHidden = false
-        } else {
-            self.upgrade.isHidden = true
         }
     }
 

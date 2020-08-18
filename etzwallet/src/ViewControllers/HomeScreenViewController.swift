@@ -59,10 +59,6 @@ class HomeScreenViewController : UIViewController, Subscriber, Trackable {
         updateTotalAssets()
     }
     
-    override var preferredStatusBarStyle: UIStatusBarStyle {
-        return .default
-    }
-    
     // MARK: Setup
 
     private func addSubviews() {
@@ -71,7 +67,6 @@ class HomeScreenViewController : UIViewController, Subscriber, Trackable {
         subHeaderView.addSubview(total)
         subHeaderView.addSubview(logo)
         view.addSubview(prompt)
-        self.navigationController?.navigationBar.tintColor = .clear
     }
 
     private func addConstraints() {
@@ -134,7 +129,7 @@ class HomeScreenViewController : UIViewController, Subscriber, Trackable {
         totalHeader.textAlignment = .left
         total.textAlignment = .left
         total.text = "0"
-//        title = ""
+        title = ""
         
         updateTotalAssets()
     }

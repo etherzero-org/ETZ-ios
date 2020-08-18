@@ -238,10 +238,6 @@ class ApplicationController : Subscriber, Trackable {
         guard let rootViewController = window.rootViewController as? RootNavigationController else { return }
         walletCoordinator = WalletCoordinator(walletManagers: walletManagers)
         primaryWalletManager.apiClient?.sendLaunchEvent()
-//        primaryWalletManager.apiClient?.getTokensList(handler: { [weak self] result in
-//            guard self != nil else { return }
-//            PlistSaveManager.saveDataToFile(value: result, fileName: "codes")
-//        })
         setupEthInitialState()
         addTokenCountChangeListener()
         Store.perform(action: PinLength.set(primaryWalletManager.pinLength))
@@ -341,103 +337,42 @@ class ApplicationController : Subscriber, Trackable {
     }
 
     private func setupRootViewController() {
-        
-        let nac = RootNavigationController()
-        let tabBar = ETZTabBarViewController()
-        nac.pushViewController(tabBar, animated: false)
-
         let home = HomeScreenViewController(primaryWalletManager: walletManagers[Currencies.btc.code] as? BTCWalletManager)
+        let nc = RootNavigationController()
+        nc.pushViewController(home, animated: false)
+        
         home.didSelectCurrency = { currency in
             guard let walletManager = self.walletManagers[currency.code] else { return }
             let accountViewController = AccountViewController(currency: currency, walletManager: walletManager)
-            home.navigationController?.pushViewController(accountViewController, animated: true)
+            nc.pushViewController(accountViewController, animated: true)
         }
-
+        
         home.didTapSupport = {
             self.modalPresenter?.presentFaq()
         }
-
+        
         home.didTapSecurity = {
             self.modalPresenter?.presentSecurityCenter()
         }
-
+        
         home.didTapSettings = {
             self.modalPresenter?.presentSettings()
         }
 
-        // -> 管理钱包 -> 添加钱包
         home.didTapAddWallet = { [weak self] in
             guard let kvStore = self?.primaryWalletManager?.apiClient?.kv else { return }
             let vc = EditWalletsViewController(type: .manage, kvStore: kvStore)
-            home.navigationController?.pushViewController(vc, animated: true)
+            nc.pushViewController(vc, animated: true)
         }
 
         //State restoration
         if let currency = Store.state.currencies.first(where: { $0.code == UserDefaults.selectedCurrencyCode }),
             let walletManager = self.walletManagers[currency.code] {
             let accountViewController = AccountViewController(currency: currency, walletManager: walletManager)
-            home.navigationController?.pushViewController(accountViewController, animated: true)
+            nc.pushViewController(accountViewController, animated: true)
         }
-        
-        let currencySettings: [Setting]  = [
-            Setting(title: S.Settings.resetCurrencies, callback: {
-                self.modalPresenter?.resetWallet()
-            })
-        ]
-        let sections: [MineSections] = [.wallet, .preferences, .currencies, .other]
-        let rows = [
-            MineSections.wallet: [
-                Setting(title: S.Settings.wipe, callback: {
-                    self.modalPresenter?.presentSwitchWallet()
-                })
-            ],
-            MineSections.preferences: [
-                Setting(title: S.UpdatePin.updateTitle, callback: strongify(self) { myself in
-                    myself.modalPresenter!.presentPinView()
-                }),
-                Setting(title: S.Settings.currency, accessoryText: {
-                    let code = Store.state.defaultCurrencyCode
-                    let components: [String : String] = [NSLocale.Key.currencyCode.rawValue : code]
-                    let identifier = Locale.identifier(fromComponents: components)
-                    return Locale(identifier: identifier).currencyCode ?? ""
-                }, callback: {
-                    self.modalPresenter!.presentCurrency()
-                }),
-            ],
-            MineSections.currencies: currencySettings,
-            MineSections.other: [
-//                Setting(title: S.Settings.shareData, callback: {
-//
-//                }),
-                Setting(title: S.Settings.about, callback: {
-                    self.modalPresenter?.presentAboutView()
-                }),
-                Setting(title: S.Settings.advanced, callback: {
-                    self.modalPresenter?.presentAdvancedView()
-                }),
-                Setting(title: S.SecurityCenter.title, callback: {
-                    self.modalPresenter?.presentSecurityCenter()
-                })
-            ]
-            ] as [MineSections : Any]
-        
 
-        let mine = ETZMineViewController(sections: sections, rows: rows as! [MineSections : [Setting]])
-        let disCover = ETZDiscoverViewController()
-        DispatchQueue.global().sync {
-            disCover.loadWebViewRequest()
-        }
-        let viewControllersArray : [UIViewController]  = [home,disCover,mine]
-        let titlesArray = [(S.Tabbar.wallet, "wallet"), (S.Tabbar.discover, "discover"), (S.Tabbar.mine, "mine")]
-        for (index, vc) in viewControllersArray.enumerated() {
-            vc.title = titlesArray[index].0
-            vc.tabBarItem.title = titlesArray[index].0
-            vc.tabBarItem.image = UIImage(named: "tabBar_\(titlesArray[index].1)_icon")
-            vc.tabBarItem.selectedImage = UIImage(named: "tabBar_\(titlesArray[index].1)_click_icon")
-            let nav = UINavigationController(rootViewController: vc)
-            tabBar.addChildViewController(nav)
-        }
-        window.rootViewController = nac
+        window.rootViewController = nc
     }
 
     private func startDataFetchers() {

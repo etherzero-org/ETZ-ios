@@ -31,10 +31,6 @@ private let mostRecentSelectedCurrencyCodeKey = "mostRecentSelectedCurrencyCodeK
 private let hasSetSelectedCurrencyKey = "hasSetSelectedCurrencyKey"
 private let hasBchConnectedKey = "hasBchConnectedKey"
 private let rescanStateKeyPrefix = "lastRescan" // append uppercased currency code for key
-private let debugBackendHostKey = "debugBackendHostKey"
-private let debugWebBundleNameKey = "debugWebBundleNameKey"
-private let NoLongerPromptKey = "NoLongerPromptKey"
-private let AppVersionDetailsKey = "AppVersionDetailsKey"
 
 extension UserDefaults {
 
@@ -261,55 +257,5 @@ extension UserDefaults {
     static var hasBchConnected: Bool {
         get { return defaults.bool(forKey: hasBchConnectedKey) }
         set { defaults.set(newValue, forKey: hasBchConnectedKey) }
-    }
-    
-    static var debugBackendHost: String? {
-        get {
-            return defaults.string(forKey: debugBackendHostKey)
-        }
-        
-        set {
-            defaults.set(newValue, forKey: debugBackendHostKey)
-        }
-    }
-    
-    static var debugWebBundleName: String? {
-        get {
-            return defaults.string(forKey: debugWebBundleNameKey)
-        }
-        
-        set {
-            defaults.set(newValue, forKey: debugWebBundleNameKey)
-        }
-    }
-    
-    
-}
-
-/** upgrade model achrive*/
-extension UserDefaults {
-    
-    /** app upgrade */
-    static var doNotShowUpgrade: Bool {
-        get { return defaults.bool(forKey: NoLongerPromptKey) }
-        set { defaults.set(newValue, forKey: NoLongerPromptKey) }
-    }
-    
-    public func setVersionModel(value: [String : Any]) {
-        self.set(value, forKey: AppVersionDetailsKey)
-        self.synchronize()
-    }
-    
-    public func getVersionModelForKey() -> NSData {
-        guard let keyValues =  UserDefaults.standard.object(forKey: AppVersionDetailsKey) as?[String : Any] else {
-            return NSData()
-        }
-        do {
-            let jsonData = try JSONSerialization.data(withJSONObject: keyValues, options: [])
-            return jsonData as NSData
-        } catch {
-            print(error)
-        }
-        return NSData()
     }
 }

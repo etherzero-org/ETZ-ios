@@ -20,14 +20,12 @@ class AddressCell : UIView {
         return contentLabel.text
     }
 
-    var textDidChange: ((String?) -> Void)?
     var didBeginEditing: (() -> Void)?
     var didReceivePaymentRequest: ((PaymentRequest) -> Void)?
 
     func setContent(_ content: String?) {
         contentLabel.text = content
         textField.text = content
-        textDidChange?(content)
     }
 
     var isEditable = false {
@@ -95,7 +93,6 @@ class AddressCell : UIView {
 
     private func setInitialData() {
         label.text = S.Send.toLabel
-//        textField.text = "0x1ec79157f606d942ac19ce21231c1572aef8bb5d"
         textField.font = contentLabel.font
         textField.textColor = contentLabel.textColor
         textField.isHidden = true
@@ -121,10 +118,6 @@ class AddressCell : UIView {
         textField.becomeFirstResponder()
         contentLabel.isHidden = true
         textField.isHidden = false
-    }
-    
-    @objc private func textFieldDidChange() {
-        textDidChange?(textField.text)
     }
 
     required init?(coder aDecoder: NSCoder) {

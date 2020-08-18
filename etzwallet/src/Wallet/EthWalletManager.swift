@@ -10,12 +10,10 @@ import Foundation
 import BRCore
 import BRCore.Ethereum
 
-typealias handleHash = (String)-> ()
 class EthWalletManager : WalletManager {
     
     // MARK:
-    var hashString :String?
-    var handleHash : handleHash?
+
     private static let defaultGasPrice = etherCreateNumber(1, GWEI).valueInWEI
     private static let maxGasPrice = etherCreateNumber(100, GWEI).valueInWEI
     
@@ -26,7 +24,7 @@ class EthWalletManager : WalletManager {
     }
     
     // MARK: WalletManager
-    
+
     let currency: CurrencyDef = Currencies.eth
     var kvStore: BRReplicatedKVStore?
     var apiClient: BRAPIClient? {
@@ -61,7 +59,7 @@ class EthWalletManager : WalletManager {
     
     private var node: EthereumLightNode!
     private let syncState = RequestSyncState(timeout: 2) // 2s until sync indicator shown
-    
+
     // MARK: -
     
     init?() {
@@ -74,9 +72,6 @@ class EthWalletManager : WalletManager {
         _ = node.wallet(Currencies.eth) // create eth wallet
         let address = node.address
         self.address = address
-        //        if let hashstr = handleHash {
-        //            self.handleHash = hashstr
-        //        }
         Store.perform(action: WalletChange(self.currency).set(self.currency.state!.mutate(receiveAddress: address)))
         if let walletID = getWalletID() {
             self.walletID = walletID
@@ -91,7 +86,7 @@ class EthWalletManager : WalletManager {
     
     /// Creates, signs and submits an ETH transaction or ERC20 token transfer
     /// Caller must authenticate
-    func sendTransaction(currency: CurrencyDef, toAddress: String, amount: UInt256, data: String,gaslimit: String,gasprice: String, callback: @escaping (SendTransactionResult) -> Void) {
+    func sendTransaction(currency: CurrencyDef, toAddress: String, amount: UInt256, data: String, callback: @escaping (SendTransactionResult) -> Void) {
         guard let accountAddress = address, let apiClient = apiClient else { return assertionFailure() }
         
         guard ethPrivKey != nil, var privKey = BRKey(privKey: ethPrivKey!) else { return }
@@ -99,8 +94,8 @@ class EthWalletManager : WalletManager {
         defer { privKey.clean() }
         
         let wallet = node.wallet(currency)
-        let tx = wallet.createTransaction(currency: currency, recvAddress: toAddress, amount: amount, data: data,gaslimit:gaslimit,gasprice:gasprice)
-        
+        let tx = wallet.createTransaction(currency: currency, recvAddress: toAddress, amount: amount, data: data)
+
         wallet.sign(transaction: tx, privateKey: privKey)
         
         let txRawHex = wallet.rawTransactionHexEncoded(tx)
@@ -111,11 +106,7 @@ class EthWalletManager : WalletManager {
                 wallet.announceSubmitTransaction(tx, hash: txHash)
                 assert(tx.hash == txHash)
                 self.updateTransactions(currency)
-                self.hashString = txHash
-                NotificationCenter.default.post(name:NSNotification.Name("isPostHash"), object:self, userInfo: ["hash":txHash])
-                if (self.handleHash != nil) {
-                    self.handleHash?(txHash)
-                }
+                
                 let pendingEthTx = EthTransaction(tx: tx,
                                                   accountAddress: accountAddress,
                                                   kvStore: self.kvStore,
@@ -136,11 +127,11 @@ class EthWalletManager : WalletManager {
             }
         })
     }
-    
+
     func canUseBiometrics(forTx: BRTxRef) -> Bool {
         return false
     }
-    
+
     func isOwnAddress(_ address: String) -> Bool {
         return address.lowercased() == self.address?.lowercased()
     }
@@ -193,22 +184,14 @@ class EthWalletManager : WalletManager {
 extension EthWalletManager: EthereumClient {
     func getGasPrice(wallet: EthereumWallet, completion: @escaping (String) -> Void) {
         // unused - gas price is set by the FeeUpdater
-//        assertionFailure()
-        guard let _ = address, let apiClient = apiClient else { return assertionFailure() }
-        apiClient.getGasPrice { (result) in
-            print("gasprice***********\(result)")   
-        }
+        assertionFailure()
     }
     
     func getGasEstimate(wallet: EthereumWallet, tid: EthereumTransactionId, to: String, amount: String, data: String, completion: @escaping (String) -> Void) {
         //guard let apiClient = apiClient else { return assertionFailure() }
-//        let currency = wallet.currency
-//        print("getGasEstimate \(currency.code)")
+        let currency = wallet.currency
+        print("getGasEstimate \(currency.code)")
         //TODO
-        guard let accountAddress = address, let apiClient = apiClient else { return assertionFailure() }
-//        apiClient.estimateGas(transaction: TransactionParams) { (result) in
-//            print("gaslimit************\(result)")
-//        }
     }
     
     func getBalance(wallet: EthereumWallet, address: String, completion: @escaping (String) -> Void) {
@@ -241,24 +224,6 @@ extension EthWalletManager: EthereumClient {
                 }
             }
         }
-    }
-    
-    //获取EtzPower值
-    func getPower(wallet: EthereumWallet, address: String, completion: @escaping (String) -> Void){
-        guard let apiClient = apiClient else { return assertionFailure() }
-        let currency = wallet.currency
-        guard syncState.willBeginRequest(.getPower, currencies: [currency]) else { return print("getPower \(currency.code) skipped") }
-        apiClient.getEtzPower(address: address) { result in
-            switch result {
-            case .success(let value):
-                completion(value)
-                self.syncState.didEndRequest(.getPower, currencies: [currency], success: true)
-            case .error(let error):
-                print("getPower error: \(error.localizedDescription)")
-                self.syncState.didEndRequest(.getPower, currencies: [currency], success: false)
-            }
-        }
-        
     }
     
     func submitTransaction(wallet: EthereumWallet, tid: EthereumTransactionId, rawTransaction: String, completion: @escaping (String) -> Void) {
@@ -294,20 +259,18 @@ extension EthWalletManager: EthereumClient {
         }
         guard syncState.willBeginRequest(.getTransactions, currencies: tokens) else { return print("getLogs skipped") }
         
-        self.tokens.forEach { token in
-            apiClient.getTokenTransferLogs(address: address, contractAddress: token.address) { [weak self] result in
-                guard let `self` = self else { return }
-                switch result {
-                case .success(let jsonObjects):
-                    completion(jsonObjects) // imports logs json data into core
-                    for token in self.tokens {
-                        self.updateTransactions(token)
-                    }
-                    self.syncState.didEndRequest(.getTransactions, currencies: tokens, success: true)
-                case .error(let error):
-                    print("getLogs error: \(error.localizedDescription)")
-                    self.syncState.didEndRequest(.getTransactions, currencies: tokens, success: false)
+        apiClient.getTokenTransferLogs(address: address, contractAddress: contract) { [weak self] result in
+            guard let `self` = self else { return }
+            switch result {
+            case .success(let jsonObjects):
+                completion(jsonObjects) // imports logs json data into core
+                for token in self.tokens {
+                    self.updateTransactions(token)
                 }
+                self.syncState.didEndRequest(.getTransactions, currencies: tokens, success: true)
+            case .error(let error):
+                print("getLogs error: \(error.localizedDescription)")
+                self.syncState.didEndRequest(.getTransactions, currencies: tokens, success: false)
             }
         }
     }
@@ -348,8 +311,6 @@ extension EthWalletManager: EthereumListener {
         switch (event) {
         case .balanceUpdated:
             Store.perform(action: WalletChange(wallet.currency).setBalance(wallet.balance))
-        case .powerUpdated:
-            Store.perform(action: WalletChange(wallet.currency).setPower(wallet.power))
             
         default:
             break
@@ -379,7 +340,6 @@ extension EthWalletManager {
         enum Request {
             case getBalance
             case getTransactions
-            case getPower
         }
         
         init(timeout: TimeInterval) {
@@ -387,7 +347,6 @@ extension EthWalletManager {
             
             inProgress[.getBalance] = []
             inProgress[.getTransactions] = []
-            inProgress[.getPower] = []
         }
         
         func stop() {

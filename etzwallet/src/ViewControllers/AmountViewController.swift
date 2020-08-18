@@ -29,7 +29,6 @@ class AmountViewController : UIViewController, Trackable {
         self.feeSelector = FeeSelector()
         self.pinPad = PinPadViewController(style: .white, keyboardType: .decimalPad, maxDigits: currency.state?.maxDigits ?? currency.commonUnit.decimals)
         self.canEditFee = (currency is Bitcoin)
-        self.valueString = ""
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -51,11 +50,6 @@ class AmountViewController : UIViewController, Trackable {
         }
     }
     
-    func tradingDataString(dataString:String) {
-        self.valueString = dataString
-        self.handlePinPadUpdate(output: dataString)
-    }
-    
     var canEditFee: Bool
     
     func forceUpdateAmount(amount: Amount) {
@@ -73,7 +67,6 @@ class AmountViewController : UIViewController, Trackable {
     private let isRequesting: Bool
     var minimumFractionDigits = 0
     private var hasTrailingDecimal = false
-    private var valueString:String?
     private var pinPadHeight: NSLayoutConstraint?
     private var feeSelectorHeight: NSLayoutConstraint?
     private var feeSelectorTop: NSLayoutConstraint?
@@ -188,7 +181,7 @@ class AmountViewController : UIViewController, Trackable {
     private func setInitialData() {
         cursor.isHidden = true
         cursor.startBlinking()
-        amountLabel.text = self.valueString
+        amountLabel.text = ""
         placeholder.text = S.Send.amountLabel
         bottomBorder.isHidden = true
         if Store.state.isBtcSwapped {
@@ -381,8 +374,8 @@ class AmountViewController : UIViewController, Trackable {
     }
 }
 
-//extension Fees : Equatable {}
-//
-//func ==(lhs: Fees, rhs: Fees) -> Bool {
-//    return lhs.regular == rhs.regular && lhs.economy == rhs.economy
-//}
+extension Fees : Equatable {}
+
+func ==(lhs: Fees, rhs: Fees) -> Bool {
+    return lhs.regular == rhs.regular && lhs.economy == rhs.economy
+}

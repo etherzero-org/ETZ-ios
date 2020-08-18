@@ -12,15 +12,12 @@ class UpdatingLabel : UILabel {
 
     var formatter: NumberFormatter {
         didSet {
-            setFormattedText(forValue: value,forCurrency: currency)
+            setFormattedText(forValue: value)
         }
     }
-    
-    var currency: String
 
-    init(formatter: NumberFormatter,currency: String) {
+    init(formatter: NumberFormatter) {
         self.formatter = formatter
-        self.currency = currency
         super.init(frame: .zero)
         text = self.formatter.string(from: 0 as NSNumber)
     }
@@ -28,21 +25,17 @@ class UpdatingLabel : UILabel {
     var completion: (() -> Void)?
     private var value: Decimal = 0.0
 
-    func setValue(_ value: Decimal,_ currency: String) {
+    func setValue(_ value: Decimal) {
         self.value = value
-        self.currency = currency
-        setFormattedText(forValue: value,forCurrency: currency)
+        setFormattedText(forValue: value)
     }
 
-    func setValueAnimated(_ endingValue: Decimal,_ currency: String, completion: @escaping () -> Void) {
+    func setValueAnimated(_ endingValue: Decimal, completion: @escaping () -> Void) {
         self.completion = completion
-        guard var currentText = text else { return }
-        let characterSet = CharacterSet(charactersIn: " \(currency)")
-        currentText = currentText.trimmingCharacters(in: characterSet)
+        guard let currentText = text else { return }
         guard let startingValue = formatter.number(from: currentText)?.decimalValue else { return }
         self.startingValue = startingValue
         self.endingValue = endingValue
-        self.currency = currency
 
         timer?.invalidate()
         lastUpdate = CACurrentMediaTime()
@@ -73,18 +66,18 @@ class UpdatingLabel : UILabel {
         if progress >= duration {
             timer?.invalidate()
             timer = nil
-            setFormattedText(forValue: endingValue,forCurrency: currency)
+            setFormattedText(forValue: endingValue)
             completion?()
         } else {
             let percentProgress = progress/duration
             let easedVal = 1.0-pow((1.0-percentProgress), easingRate)
-            setFormattedText(forValue: startingValue + (Decimal(easedVal) * (endingValue - startingValue)),forCurrency: currency)
+            setFormattedText(forValue: startingValue + (Decimal(easedVal) * (endingValue - startingValue)))
         }
     }
 
-    private func setFormattedText(forValue: Decimal,forCurrency: String) {
+    private func setFormattedText(forValue: Decimal) {
         value = forValue
-        text = "\(formatter.string(from: value as NSDecimalNumber)!) \(forCurrency)"
+        text = formatter.string(from: value as NSDecimalNumber)
         sizeToFit()
     }
 

@@ -57,7 +57,7 @@ public protocol BRAPIAdaptor {
     func dataTaskWithRequest(
         _ request: URLRequest, authenticated: Bool, retryCount: Int,
         handler: @escaping URLSessionTaskHandler
-        ) -> URLSessionDataTask
+    ) -> URLSessionDataTask
     
     func url(_ path: String, args: Dictionary<String, String>?) -> URL
 }
@@ -70,19 +70,16 @@ open class BRAPIClient : NSObject, URLSessionDelegate, URLSessionTaskDelegate, B
     
     // proto is the transport protocol to use for talking to the API (either http or https)
     var proto = "https"
-    var protohttp = "http"
     
     // host is the server(s) on which the API is hosted
     #if Testflight || Debug
-    var host = "etzrpc.org:443"
+    var host = "rpc.etherzero.org:443"
     var host1 = "stage2.breadwallet.com"
-    var testhost = "easyetz.io"
-    var tokenshost = "etzscan.com"
+    var testhost = "openetz.org"
     #else
-    var host = "etzrpc.org:443"
+    var host = "rpc.etherzero.org:443"
     var host1 = "api.breadwallet.com"
-    var testhost = "easyetz.io"
-    var tokenshost = "etzscan.com"
+    var testhost = "openetz.org"
     #endif
     
     // isFetchingAuth is set to true when a request is currently trying to renew authentication (the token)
@@ -92,16 +89,16 @@ open class BRAPIClient : NSObject, URLSessionDelegate, URLSessionTaskDelegate, B
     
     // used when requests are waiting for authentication to be fetched
     private var authFetchGroup = DispatchGroup()
-    
+
     // the NSURLSession on which all NSURLSessionTasks are executed
     lazy private var session: URLSession = URLSession(configuration: .default, delegate: self, delegateQueue: self.queue)
-    
+
     // the queue on which the NSURLSession operates
     private var queue = OperationQueue()
     
     // convenience getter for the API endpoint
     private var baseUrl: String {
-        return "\(proto)://\(UserDefaults.standard.object(forKey: "baseUrl") ?? String.self)"
+        return "\(proto)://\(host)"
     }
     
     private var otherUrl: String {
@@ -112,15 +109,8 @@ open class BRAPIClient : NSObject, URLSessionDelegate, URLSessionTaskDelegate, B
         return "\(proto)://\(testhost)"
     }
     
-    private var tokensUrl:String {
-        return "\(proto)://\(tokenshost)"
-    }
-    
     init(authenticator: WalletAuthenticator) {
         self.authenticator = authenticator
-        if !(UserDefaults.standard.object(forKey: "baseUrl") != nil) {
-            UserDefaults.standard.set("etzrpc.org:443", forKey: "baseUrl")
-        }
     }
     
     // prints whatever you give it if logEnabled is true
@@ -139,10 +129,10 @@ open class BRAPIClient : NSObject, URLSessionDelegate, URLSessionTaskDelegate, B
         if authenticator.noWallet { return nil }
         guard let keyStr = authenticator.apiAuthKey else { return nil }
         var key = BRKey()
-        key.compressed = 1
+        key.compressed = 1 
         if BRKeySetPrivKey(&key, keyStr) == 0 {
             #if DEBUG
-            fatalError("Unable to decode private key")
+                fatalError("Unable to decode private key")
             #endif
         }
         return key
@@ -194,22 +184,7 @@ open class BRAPIClient : NSObject, URLSessionDelegate, URLSessionTaskDelegate, B
             return joinPath(path)
         }
     }
-    
-    // Constructs a full NSURL for a given path and url parameters
-    public func tokensurl(_ path: String, args: Dictionary<String, String>? =  nil) -> URL {
-        func joinPath(_ k: String...) -> URL {
-            return URL(string: ([tokensUrl] + k).joined(separator: ""))!
-        }
-        
-        if let args = args {
-            return joinPath(path + "?" + args.map({
-                "\($0.0.urlEscapedString)=\($0.1.urlEscapedString)"
-            }).joined(separator: "&"))
-        } else {
-            return joinPath(path)
-        }
-    }
-    
+
     private func signRequest(_ request: URLRequest) -> URLRequest {
         var mutableRequest = request
         let dateHeader = mutableRequest.allHTTPHeaderFields?.get(lowercasedKey: "date")
@@ -237,10 +212,8 @@ open class BRAPIClient : NSObject, URLSessionDelegate, URLSessionTaskDelegate, B
         return actualRequest
     }
     
-    public func dataTaskWithRequest(_ request: URLRequest,
-                                    authenticated: Bool = false,
-                                    retryCount: Int = 0,
-                                    handler: @escaping URLSessionTaskHandler) -> URLSessionDataTask {
+    public func dataTaskWithRequest(_ request: URLRequest, authenticated: Bool = false,
+                             retryCount: Int = 0, handler: @escaping URLSessionTaskHandler) -> URLSessionDataTask {
         let start = Date()
         var logLine = ""
         if let meth = request.httpMethod, let u = request.url {
@@ -268,28 +241,28 @@ open class BRAPIClient : NSObject, URLSessionDelegate, URLSessionTaskDelegate, B
                     
                     if authenticated && httpResp.isBreadChallenge {
                         self.log("\(logLine) got authentication challenge from API - will attempt to get token")
-                        self.getToken { err in
-                            if err != nil && retryCount < 1 { // retry once
-                                self.log("\(logLine) error retrieving token: \(String(describing: err)) - will retry")
-                                DispatchQueue.main.asyncAfter(deadline: DispatchTime(uptimeNanoseconds: 1)) {
-                                    self.dataTaskWithRequest(
-                                        request, authenticated: authenticated,
-                                        retryCount: retryCount + 1, handler: handler
-                                        ).resume()
-                                }
-                            } else if err != nil && retryCount > 0 { // fail if we already retried
-                                self.log("\(logLine) error retrieving token: \(String(describing: err)) - will no longer retry")
-                                handler(nil, nil, err)
-                            } else if retryCount < 1 { // no error, so attempt the request again
-                                self.log("\(logLine) retrieved token, so retrying the original request")
-                                self.dataTaskWithRequest(
-                                    request, authenticated: authenticated,
-                                    retryCount: retryCount + 1, handler: handler).resume()
-                            } else {
-                                self.log("\(logLine) retried token multiple times, will not retry again")
-                                handler(data, httpResp, err)
-                            }
-                        }
+//                        self.getToken { err in
+//                            if err != nil && retryCount < 1 { // retry once
+//                                self.log("\(logLine) error retrieving token: \(String(describing: err)) - will retry")
+//                                DispatchQueue.main.asyncAfter(deadline: DispatchTime(uptimeNanoseconds: 1)) {
+//                                    self.dataTaskWithRequest(
+//                                        request, authenticated: authenticated,
+//                                        retryCount: retryCount + 1, handler: handler
+//                                    ).resume()
+//                                }
+//                            } else if err != nil && retryCount > 0 { // fail if we already retried
+//                                self.log("\(logLine) error retrieving token: \(String(describing: err)) - will no longer retry")
+//                                handler(nil, nil, err)
+//                            } else if retryCount < 1 { // no error, so attempt the request again
+//                                self.log("\(logLine) retrieved token, so retrying the original request")
+//                                self.dataTaskWithRequest(
+//                                    request, authenticated: authenticated,
+//                                    retryCount: retryCount + 1, handler: handler).resume()
+//                            } else {
+//                                self.log("\(logLine) retried token multiple times, will not retry again")
+//                                handler(data, httpResp, err)
+//                            }
+//                        }
                     } else {
                         handler(data, httpResp, err as NSError?)
                     }
@@ -375,13 +348,13 @@ open class BRAPIClient : NSObject, URLSessionDelegate, URLSessionTaskDelegate, B
     }
     
     // MARK: URLSession Delegate
-    
+
     public func urlSession(_ session: URLSession, task: URLSessionTask, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         if challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust {
             if (challenge.protectionSpace.host == host && challenge.protectionSpace.serverTrust != nil) {
                 log("URLSession challenge accepted!")
                 completionHandler(.useCredential,
-                                  URLCredential(trust: challenge.protectionSpace.serverTrust!))
+                    URLCredential(trust: challenge.protectionSpace.serverTrust!))
             } else {
                 log("URLSession challenge rejected")
                 completionHandler(.rejectProtectionSpace, nil)

@@ -107,7 +107,6 @@ class TransactionsTableViewController : UITableViewController, Subscriber, Track
         })
         
         Store.subscribe(self, selector: {
-            // 这个回调中拿到交易数据
             guard let oldTransactions = $0[self.currency]?.transactions else { return false }
             guard let newTransactions = $1[self.currency]?.transactions else { return false }
             return oldTransactions != newTransactions },
@@ -118,17 +117,9 @@ class TransactionsTableViewController : UITableViewController, Subscriber, Track
     }
 
     private func setContentInset() {
-        if currency.code == "ETZ"{
-            let insets = UIEdgeInsets(top: accountETZHeaderHeight - 64.0 - (E.isIPhoneX ? 28.0 : 0.0), left: 0, bottom: accountFooterHeight + C.padding[2], right: 0)
-            tableView.contentInset = insets
-            tableView.scrollIndicatorInsets = insets
-        }else{
-            let insets = UIEdgeInsets(top: accountHeaderHeight - 64.0 - (E.isIPhoneX ? 28.0 : 0.0), left: 0, bottom: accountFooterHeight + C.padding[2], right: 0)
-            tableView.contentInset = insets
-            tableView.scrollIndicatorInsets = insets
-        }
-
-        
+        let insets = UIEdgeInsets(top: accountHeaderHeight - 64.0 - (E.isIPhoneX ? 28.0 : 0.0), left: 0, bottom: accountFooterHeight + C.padding[2], right: 0)
+        tableView.contentInset = insets
+        tableView.scrollIndicatorInsets = insets
     }
 
     private func reload(txHash: String) {

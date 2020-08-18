@@ -101,8 +101,7 @@ public enum JSONRPCError: Error {
 // MARK:
 
 public struct APIResponse<ResultType: Codable>: Decodable {
-    /** 接口返回的数据不一致*/
-//    public let status: String
+    public let status: String
     public let message: String
     public let result: ResultType
     

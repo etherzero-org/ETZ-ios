@@ -18,11 +18,7 @@ class AccountHeaderView : UIView, GradientDrawable, Subscriber {
     
     private let currencyName = UILabel(font: .customBody(size: 18.0))
     private let exchangeRateLabel = UILabel(font: .customBody(size: 14.0))
-    private let availablePowerLabel = UILabel(font: .customBody(size: 14.0))
-    private let maxPowerLabel = UILabel(font: .customBody(size: 14.0))
     private let balanceLabel = UILabel(font: .customBody(size: 14.0))
-    private let maxpowerBalance: PowerLabel
-    private let availablepowerBalance: PowerLabel
     private let primaryBalance: UpdatingLabel
     private let secondaryBalance: UpdatingLabel
     private let conversionSymbol = UIImageView(image: #imageLiteral(resourceName: "conversion"))
@@ -77,14 +73,6 @@ class AccountHeaderView : UIView, GradientDrawable, Subscriber {
         }
     }
     
-    private var power: Double = 0 {
-        didSet {
-            DispatchQueue.main.async {
-                self.setBalances()
-            }
-        }
-    }
-    
     private var isBtcSwapped: Bool {
         didSet {
             DispatchQueue.main.async {
@@ -101,15 +89,11 @@ class AccountHeaderView : UIView, GradientDrawable, Subscriber {
         if let rate = currency.state?.currentRate {
             let placeholderAmount = Amount(amount: 0, currency: currency, rate: rate)
             self.exchangeRate = rate
-            self.secondaryBalance = UpdatingLabel(formatter: placeholderAmount.localFormat,currency: "")
-            self.primaryBalance = UpdatingLabel(formatter: placeholderAmount.tokenFormat,currency: "")
-            self.maxpowerBalance = PowerLabel(formatter: NumberFormatter(), currency: "Max")
-            self.availablepowerBalance = PowerLabel(formatter: NumberFormatter(), currency: "")
+            self.secondaryBalance = UpdatingLabel(formatter: placeholderAmount.localFormat)
+            self.primaryBalance = UpdatingLabel(formatter: placeholderAmount.tokenFormat)
         } else {
-            self.secondaryBalance = UpdatingLabel(formatter: NumberFormatter(),currency: "")
-            self.primaryBalance = UpdatingLabel(formatter: NumberFormatter(),currency: "")
-            self.maxpowerBalance = PowerLabel(formatter: NumberFormatter(), currency: "Max")
-            self.availablepowerBalance = PowerLabel(formatter: NumberFormatter(), currency: "")
+            self.secondaryBalance = UpdatingLabel(formatter: NumberFormatter())
+            self.primaryBalance = UpdatingLabel(formatter: NumberFormatter())
         }
         super.init(frame: CGRect())
         
@@ -134,15 +118,6 @@ class AccountHeaderView : UIView, GradientDrawable, Subscriber {
         exchangeRateLabel.textColor = .transparentWhiteText
         exchangeRateLabel.textAlignment = .center
         
-        if currency.code == "ETZ" {
-            maxPowerLabel.textColor = .transparentWhiteText
-            maxPowerLabel.text = S.Account.maxPower
-            availablePowerLabel.textColor = .transparentWhiteText
-            availablePowerLabel.text = S.Account.availablePower
-            maxPowerLabel.textAlignment = .right
-            availablePowerLabel.textAlignment = .right
-        }
-        
         balanceLabel.textColor = .transparentWhiteText
         balanceLabel.text = S.Account.balance
         conversionSymbol.tintColor = .whiteTint
@@ -162,12 +137,6 @@ class AccountHeaderView : UIView, GradientDrawable, Subscriber {
     private func addSubviews() {
         addSubview(currencyName)
         addSubview(exchangeRateLabel)
-        if currency.code == "ETZ" {
-            addSubview(maxPowerLabel)
-            addSubview(availablePowerLabel)
-            addSubview(maxpowerBalance)
-            addSubview(availablepowerBalance)
-        }
         addSubview(balanceLabel)
         addSubview(primaryBalance)
         addSubview(secondaryBalance)
@@ -186,46 +155,11 @@ class AccountHeaderView : UIView, GradientDrawable, Subscriber {
         
         exchangeRateLabel.pinTo(viewAbove: currencyName)
         
-        if currency.code == "ETZ" {
-            maxPowerLabel.constrain([
-                maxPowerLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: C.padding[6]),
-                maxPowerLabel.bottomAnchor.constraint(equalTo: maxpowerBalance.topAnchor, constant: 0.0)
-                ])
-            
-            maxpowerBalance.constrain([
-                maxpowerBalance.leadingAnchor.constraint(equalTo: maxPowerLabel.leadingAnchor),
-                maxpowerBalance.bottomAnchor.constraint(equalTo: balanceLabel.topAnchor, constant: -C.padding[2]),
-                maxpowerBalance.trailingAnchor.constraint(equalTo: availablepowerBalance.leadingAnchor),
-                maxpowerBalance.widthAnchor.constraint(equalToConstant: 5.0)
-                ])
-            
-            maxpowerBalance.textAlignment = .left
-            
-            availablePowerLabel.constrain([
-                availablePowerLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -C.padding[6]),
-                availablePowerLabel.bottomAnchor.constraint(equalTo: availablepowerBalance.topAnchor, constant: 0.0)
-                ])
-            
-            availablepowerBalance.constrain([
-                availablepowerBalance.trailingAnchor.constraint(equalTo: availablePowerLabel.trailingAnchor),
-                availablepowerBalance.bottomAnchor.constraint(equalTo: balanceLabel.topAnchor, constant: -C.padding[2]),
-                availablepowerBalance.widthAnchor.constraint(equalTo: maxpowerBalance.widthAnchor, constant: C.padding[2])
-                ])
-            
-            availablepowerBalance.textAlignment = .right
-            
-            balanceLabel.constrain([
-                balanceLabel.topAnchor.constraint(equalTo: availablepowerBalance.bottomAnchor, constant: -C.padding[2]),
-                balanceLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -C.padding[2]),
-                balanceLabel.bottomAnchor.constraint(equalTo: primaryBalance.topAnchor, constant: 0.0)
-                ])
-        }else{
-            balanceLabel.constrain([
-                balanceLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -C.padding[2]),
-                balanceLabel.bottomAnchor.constraint(equalTo: primaryBalance.topAnchor, constant: 0.0)
-                ])
-        }
-   
+        balanceLabel.constrain([
+            balanceLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -C.padding[2]),
+            balanceLabel.bottomAnchor.constraint(equalTo: primaryBalance.topAnchor, constant: 0.0)
+            ])
+        
         primaryBalance.constrain([
             primaryBalance.firstBaselineAnchor.constraint(equalTo: bottomAnchor, constant: -C.padding[2])
             ])
@@ -291,8 +225,6 @@ class AccountHeaderView : UIView, GradientDrawable, Subscriber {
                                     let placeholderAmount = Amount(amount: 0, currency: self.currency, rate: rate)
                                     self.secondaryBalance.formatter = placeholderAmount.localFormat
                                     self.primaryBalance.formatter = placeholderAmount.tokenFormat
-                                    self.maxpowerBalance.formatter = NumberFormatter()
-                                    self.availablepowerBalance.formatter = NumberFormatter()
                                 }
                                 self.exchangeRate = $0[self.currency]?.currentRate
         })
@@ -304,8 +236,6 @@ class AccountHeaderView : UIView, GradientDrawable, Subscriber {
                                     let placeholderAmount = Amount(amount: 0, currency: self.currency, rate: rate)
                                     self.secondaryBalance.formatter = placeholderAmount.localFormat
                                     self.primaryBalance.formatter = placeholderAmount.tokenFormat
-                                    self.maxpowerBalance.formatter = NumberFormatter()
-                                    self.availablepowerBalance.formatter = NumberFormatter()
                                     self.setBalances()
                                 }
         })
@@ -314,13 +244,6 @@ class AccountHeaderView : UIView, GradientDrawable, Subscriber {
                         callback: { state in
                             if let balance = state[self.currency]?.balance {
                                 self.balance = balance
-                            } })
-        
-        Store.subscribe(self,
-                        selector: { $0[self.currency]?.power != $1[self.currency]?.power },
-                        callback: { state in
-                            if let power = state[self.currency]?.power {
-                                self.power = power
                             } })
         
         Store.subscribe(self, selector: { $0[self.currency]?.syncState != $1[self.currency]?.syncState },
@@ -346,37 +269,22 @@ class AccountHeaderView : UIView, GradientDrawable, Subscriber {
                             }
         })
     }
-    
-    //计算最大Power值
-    func getMaxPower(blan: Decimal) -> String {
-        let bl:Double = (blan as NSNumber).doubleValue
-        let y:Double = -1 / (bl*50)*10000
-        let x = exp(y)
-        let res:String = String((x * 10000000 + 200000)*18*pow(10,9)/pow(10,18))
-        return res
-    }
 
     func setBalances() {
         guard let rate = exchangeRate else { return }
         var code:String = ""
-        code = currency.code
+        if currency.code == "ETH"{
+            code = "ETZ"
+        }else{
+            code = currency.code
+        }
         exchangeRateLabel.text = String(format: S.AccountHeader.exchangeRate, rate.localString, code)
         
         let amount = Amount(amount: balance, currency: currency, rate: rate)
-        let powerstr:String = String(power)
-        let maxpower:String = getMaxPower(blan: amount.powerValue)
-        let powers = Amount(powerString: powerstr, currency: currency, rate: rate)
-        let maxpowers = Amount(powerString: maxpower, currency: currency, rate: rate)
-        maxpowerBalance.lineBreakMode = .byTruncatingTail
-        availablepowerBalance.lineBreakMode = .byTruncatingTail
         
         if !hasInitialized {
-            primaryBalance.setValue(amount.tokenValue,currency.code)
-            secondaryBalance.setValue(amount.fiatValue,"")
-//            primaryBalance.setValue(amount.tokenValue,currency.code)
-//            secondaryBalance.setValue(amount.fiatValue,"")
-            maxpowerBalance.setValue(maxpowers.powerValue,"")
-            availablepowerBalance.setValue(powers.powerValue,"")
+            primaryBalance.setValue(amount.tokenValue)
+            secondaryBalance.setValue(amount.fiatValue)
             swapLabels()
             hasInitialized = true
         } else {
@@ -388,16 +296,10 @@ class AccountHeaderView : UIView, GradientDrawable, Subscriber {
                 secondaryBalance.isHidden = false
             }
             
-            primaryBalance.setValueAnimated(amount.tokenValue,currency.code, completion: { [weak self] in
+            primaryBalance.setValueAnimated(amount.tokenValue, completion: { [weak self] in
                 self?.swapLabels()
             })
-            secondaryBalance.setValueAnimated(amount.fiatValue,"", completion: { [weak self] in
-                self?.swapLabels()
-            })
-            maxpowerBalance.setValueAnimated(maxpowers.powerValue,"", completion: { [weak self] in
-                self?.swapLabels()
-            })
-            availablepowerBalance.setValueAnimated(powers.powerValue,"", completion: { [weak self] in
+            secondaryBalance.setValueAnimated(amount.fiatValue, completion: { [weak self] in
                 self?.swapLabels()
             })
         }

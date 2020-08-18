@@ -111,7 +111,6 @@ class ModalViewController : UIViewController, Subscriber {
             if let delegate = self?.transitioningDelegate as? ModalTransitionDelegate {
                 delegate.reset()
             }
-            self!.pushNULLHash()
             self?.dismiss(animated: true, completion: {})
         }
     }
@@ -137,14 +136,9 @@ class ModalViewController : UIViewController, Subscriber {
     }
 
     @objc private func didTap() {
-        self.pushNULLHash()
         guard let modalTransitionDelegate = transitioningDelegate as? ModalTransitionDelegate else { return }
         modalTransitionDelegate.reset()
         dismiss(animated: true, completion: nil)
-    }
-    
-    private func pushNULLHash() {
-        NotificationCenter.default.post(name:NSNotification.Name("isPostHash"), object:self, userInfo: ["hash":""])
     }
 
     private func addTopCorners() {

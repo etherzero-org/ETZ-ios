@@ -61,9 +61,8 @@ extension State {
                         pinLength: 6,
                         walletID: nil,
                         wallets: [Currencies.eth.code: WalletState.initial(Currencies.eth, displayOrder: -1),
-                                  Currencies.btc.code: WalletState.initial(Currencies.btc, displayOrder: -1),
-                                  Currencies.eash.code: WalletState.initial(Currencies.eash, displayOrder: -1),
-//                                  Currencies.brd.code: WalletState.initial(Currencies.brd, displayOrder: -1),
+                                  Currencies.btc.code: WalletState.initial(Currencies.btc, displayOrder: -1),                               
+                                  Currencies.brd.code: WalletState.initial(Currencies.brd, displayOrder: -1),
             ])
     }
     
@@ -127,7 +126,6 @@ struct WalletState {
     let syncProgress: Double
     let syncState: SyncState
     let balance: UInt256?
-    let power: Double?
     let transactions: [Transaction]
     let lastBlockTimestamp: UInt32
     let name: String
@@ -148,7 +146,6 @@ struct WalletState {
                            syncProgress: 0.0,
                            syncState: .success,
                            balance: nil,
-                           power: nil,
                            transactions: [],
                            lastBlockTimestamp: 0,
                            name: S.AccountHeader.defaultWalletName,
@@ -167,7 +164,6 @@ struct WalletState {
                     syncProgress: Double? = nil,
                     syncState: SyncState? = nil,
                     balance: UInt256? = nil,
-                    power: Double? = nil,
                     transactions: [Transaction]? = nil,
                     lastBlockTimestamp: UInt32? = nil,
                     name: String? = nil,
@@ -186,7 +182,6 @@ struct WalletState {
                            syncProgress: syncProgress ?? self.syncProgress,
                            syncState: syncState ?? self.syncState,
                            balance: balance ?? self.balance,
-                           power: power ?? self.power,
                            transactions: transactions ?? self.transactions,
                            lastBlockTimestamp: lastBlockTimestamp ?? self.lastBlockTimestamp,
                            name: name ?? self.name,
@@ -209,7 +204,6 @@ func ==(lhs: WalletState, rhs: WalletState) -> Bool {
         lhs.syncProgress == rhs.syncProgress &&
         lhs.syncState == rhs.syncState &&
         lhs.balance == rhs.balance &&
-        lhs.power == rhs.power &&
         lhs.transactions == rhs.transactions &&
         lhs.name == rhs.name &&
         lhs.creationDate == rhs.creationDate &&

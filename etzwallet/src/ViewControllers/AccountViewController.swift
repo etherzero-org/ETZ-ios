@@ -11,7 +11,6 @@ import BRCore
 import MachO
 
 let accountHeaderHeight: CGFloat = 152.0
-let accountETZHeaderHeight: CGFloat = 210.0
 let accountFooterHeight: CGFloat = 67.0
 
 class AccountViewController : UIViewController, Subscriber {
@@ -118,7 +117,6 @@ class AccountViewController : UIViewController, Subscriber {
     // MARK: -
     
     private func setupNavigationBar() {
-        self.navigationController?.navigationBar.tintColor = .black
         let searchButton = UIButton(type: .system)
         searchButton.setImage(#imageLiteral(resourceName: "SearchIcon"), for: .normal)
         searchButton.frame = CGRect(x: 0.0, y: 12.0, width: 22.0, height: 22.0) // for iOS 10
@@ -127,15 +125,6 @@ class AccountViewController : UIViewController, Subscriber {
         searchButton.tintColor = .white
         searchButton.tap = showSearchHeaderView
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: searchButton)
-        
-//        let backButton = UIButton(type: .system)
-//        backButton.setTitle("返回", for: .normal)
-//        searchButton.frame = CGRect(x: 0.0, y: 12.0, width: 22.0, height: 22.0) // for iOS 10
-//        searchButton.widthAnchor.constraint(equalToConstant: 22.0).isActive = true
-//        searchButton.heightAnchor.constraint(equalToConstant: 22.0).isActive = true
-//        searchButton.tintColor = .white
-//        searchButton.tap = showSearchHeaderView
-//        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: searchButton)
         
     }
 
@@ -147,12 +136,7 @@ class AccountViewController : UIViewController, Subscriber {
     }
 
     private func addConstraints() {
-        if currency.code == "ETZ" {
-            headerContainer.constrainTopCorners(height: accountETZHeaderHeight)
-        }else{
-            headerContainer.constrainTopCorners(height: accountHeaderHeight)
-        }
-
+        headerContainer.constrainTopCorners(height: accountHeaderHeight)
         headerView.constrain(toSuperviewEdges: nil)
         searchHeaderview.constrain(toSuperviewEdges: nil)
 

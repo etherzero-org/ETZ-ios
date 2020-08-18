@@ -17,33 +17,24 @@ class KVStoreCoordinator : Subscriber {
 
     func setupStoredCurrencyList() {
         //If stored currency list metadata doesn't exist, create a new one
-        guard CurrencyListMetaData(kvStore: kvStore) != nil else {
+        guard let currencyMetaData = CurrencyListMetaData(kvStore: kvStore) else {
             let newCurrencyListMetaData = CurrencyListMetaData()
             newCurrencyListMetaData.enabledCurrencies = CurrencyListMetaData.defaultCurrencies
             set(newCurrencyListMetaData)
-            // 这个数据是通过异步获取的，这里直接拿不到 tokenData 数据，所以这里数据初始化会有问题，这行代码暂时需要注释掉
-//            setInitialDisplayWallets(metaData: newCurrencyListMetaData, tokenData: [])
-            setWallets()
+            setInitialDisplayWallets(metaData: newCurrencyListMetaData, tokenData: [])
             return
         }
-        setWallets()
-    }
-    
-    private func setWallets() {
-        guard let currencyMetaData = CurrencyListMetaData(kvStore: kvStore) else {
-            return setupStoredCurrencyList()
-        }
-        
+
         if currencyMetaData.doesRequireSave == 1 {
             currencyMetaData.doesRequireSave = 0
             set(currencyMetaData)
             try? kvStore.syncKey(tokenListMetaDataKey, completionHandler: {_ in })
         }
-        
+
         StoredTokenData.fetchTokens(callback: { tokenData in
             self.setInitialDisplayWallets(metaData: currencyMetaData, tokenData: tokenData.map { ERC20Token(tokenData: $0) })
         })
-        
+
         Store.subscribe(self, name: .resetDisplayCurrencies, callback: { _ in
             self.resetDisplayCurrencies()
         })
@@ -75,22 +66,8 @@ class KVStoreCoordinator : Subscriber {
             } else {
                 //Since a WalletState wasn't found, it must be a token address
                 let tokenAddress = $0.replacingOccurrences(of: C.erc20Prefix, with: "")
-                
-                let filteredTokens = tokenData.filter { $0.address.lowercased() == tokenAddress.lowercased() }
-                if let token = filteredTokens.first {
-                    if let oldWallet = oldWallets[token.code] {
-                        newWallets[token.code] = oldWallet.mutate(displayOrder: displayOrder)
-                    } else {
-                        newWallets[token.code] = WalletState.initial(token, displayOrder: displayOrder)
-                    }
-                    displayOrder = displayOrder + 1
-                } else {
-                    print("unknown token \(tokenAddress) in metadata will be removed")
-//                    assert(E.isTestnet, "unknown token")
-                }
-                
-                if tokenAddress.lowercased() == Currencies.eash.address.lowercased() {
-                    newWallets[Currencies.eash.code] = oldWallets[Currencies.eash.code]!.mutate(displayOrder: displayOrder)
+                if tokenAddress.lowercased() == Currencies.brd.address.lowercased() {
+                    newWallets[Currencies.brd.code] = oldWallets[Currencies.brd.code]!.mutate(displayOrder: displayOrder)
                     displayOrder = displayOrder + 1
                 } else {
                     let filteredTokens = tokenData.filter { $0.address.lowercased() == tokenAddress.lowercased() }
@@ -102,8 +79,7 @@ class KVStoreCoordinator : Subscriber {
                         }
                         displayOrder = displayOrder + 1
                     } else {
-//                        assert(E.isTestnet, "unknown token")
-                        print("unknown token \(tokenAddress) in metadata will be removed")
+                        assert(E.isTestnet, "unknown token")
                     }
                 }
             }
@@ -117,9 +93,9 @@ class KVStoreCoordinator : Subscriber {
                 }
             }
             let tokenAddress = $0.replacingOccurrences(of: C.erc20Prefix, with: "")
-            if tokenAddress.lowercased() == Currencies.eash.address.lowercased() {
-                if newWallets[Currencies.eash.code] == nil {
-                    newWallets[Currencies.eash.code] = oldWallets[Currencies.eash.code]
+            if tokenAddress.lowercased() == Currencies.brd.address.lowercased() {
+                if newWallets[Currencies.brd.code] == nil {
+                    newWallets[Currencies.brd.code] = oldWallets[Currencies.brd.code]
                 }
             }
         }

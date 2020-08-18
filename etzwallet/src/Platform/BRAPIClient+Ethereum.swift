@@ -30,21 +30,16 @@ extension BRAPIClient {
     }
     
     public func estimateGas(transaction: TransactionParams, handler: @escaping (JSONRPCResult<Quantity>) -> Void) {
-        send(rpcRequest: JSONRPCRequest(method: "eth_estimateGas", params: JSONRPCParams([transaction])), handler: handler)
+        send(rpcRequest: JSONRPCRequest(method: "eth_estimateGas", params: JSONRPCParams([transaction, "pending"])), handler: handler)
     }
     
     public func sendRawTransaction(rawTx: String, handler: @escaping (JSONRPCResult<String>) -> Void) {
         send(rpcRequest: JSONRPCRequest(method: "eth_sendRawTransaction", params: JSONRPCParams([rawTx])), handler: handler)
     }
-    
-    public func getEtzPower(address: EthAddress, handler: @escaping (APIResult<String>) -> Void){
-        let req = URLRequest(url: testurl("/etzq/api/v1/getPower?address=\(address)"))
-        send(apiRequest: req, handler: handler)
-    }
-    
+
     public func getEthTxList(address: EthAddress, handler: @escaping (APIResult<[EthTxJSON]>)->Void) {
         let req = URLRequest(url: testurl("/etzq/api/v1/getEtzTxlist?address=\(address)"))
-        //        let req = URLRequest(url: url("/ethq/\(network)/query?module=account&action=txlist&address=\(address)&sort=desc"))
+//        let req = URLRequest(url: url("/ethq/\(network)/query?module=account&action=txlist&address=\(address)&sort=desc"))
         send(apiRequest: req, handler: handler)
     }
     
@@ -52,26 +47,18 @@ extension BRAPIClient {
     
     public func getTokenBalance(address: EthAddress, token: ERC20Token, handler: @escaping (APIResult<String>) -> Void) {
         let req = URLRequest(url: testurl("/etzq/api/v1/gettokenBlance?address=\(address)&contractaddress=\(token.address)"))
-        //        let req = URLRequest(url: otherurl("/ethq/\(network)/query?module=account&action=tokenbalance&address=\(address)&contractaddress=\(token.address)"))
+//        let req = URLRequest(url: otherurl("/ethq/\(network)/query?module=account&action=tokenbalance&address=\(address)&contractaddress=\(token.address)"))
         send(apiRequest: req, handler: handler)
     }
     
     public func getTokenTransferLogs(address: EthAddress, contractAddress: String?, handler: @escaping (APIResult<[EthLogEventJSON]>) -> Void) {
         let accountAddress = address.paddedHexString
         let tokenAddressParam = (contractAddress != nil) ? "&address=\(contractAddress!)" : ""
-        //        let req = URLRequest(url: testurl("/etzq/api/v1/gettokenLogs?fromBlock=0&toBlock=latest\(tokenAddressParam)&topic0=\(ERC20Token.transferEventSignature)&topic1=\(accountAddress)"))
-        //        let req = URLRequest(url: testurl("/etzq/api/v1/gettokenLogs?fromBlock=0&toBlock=latest\(tokenAddressParam)&topic0=\(ERC20Token.transferEventSignature)&topic1=\(accountAddress)&topic1_2_opr=or&topic2=\(accountAddress)"))
-        //        let req = URLRequest(url: otherurl("/ethq/\(network)/query?module=logs&action=getLogs&fromBlock=0&toBlock=latest\(tokenAddressParam)&topic0=\(ERC20Token.transferEventSignature)&topic1=\(accountAddress)&topic1_2_opr=or&topic2=\(accountAddress)"))
-        let reqs = URLRequest(url: tokensurl("/publicAPI?module=logs&action=getLogs&\(tokenAddressParam)&&fromBlock=100&topic_oprs=0_and,1_2_or&topics=\(ERC20Token.transferEventSignature),\(accountAddress),\(accountAddress)&apikey=YourApiKeyToken"))
-        send(apiRequest: reqs, handler: handler)
+        let req = URLRequest(url: testurl("/etzq/api/v1/gettokenLogs?fromBlock=0&toBlock=latest\(tokenAddressParam)&topic0=\(ERC20Token.transferEventSignature)&topic1=\(accountAddress)&topic1_2_opr=or&topic2=\(accountAddress)"))
+//        let req = URLRequest(url: otherurl("/ethq/\(network)/query?module=logs&action=getLogs&fromBlock=0&toBlock=latest\(tokenAddressParam)&topic0=\(ERC20Token.transferEventSignature)&topic1=\(accountAddress)&topic1_2_opr=or&topic2=\(accountAddress)"))
+        send(apiRequest: req, handler: handler)
     }
-    
-    // Data from the list of substituted COINS
-    func getTokensList(handler: @escaping (NSData) -> Void) {
-        let request = URLRequest(url: URL(string: "https://www.easyetz.io/etzq/api/v1/getTokenList")!)
-        sendrep(apiRequest: request, handler: handler)
-    }
-    
+
     // MARK: -
     
     private func send<ResultType>(rpcRequest: JSONRPCRequest, handler: @escaping (JSONRPCResult<ResultType>) -> Void) {
@@ -82,7 +69,7 @@ extension BRAPIClient {
             return handler(.error(.jsonError(error: jsonError)))
         }
         
-        //        var req = URLRequest(url: url("/ethq/\(network)/proxy"))
+//        var req = URLRequest(url: url("/ethq/\(network)/proxy"))
         var req = URLRequest(url: url("/"))
         req.httpMethod = "POST"
         req.httpBody = encodedData
@@ -127,17 +114,6 @@ extension BRAPIClient {
         }).resume()
     }
     
-    private func sendrep(apiRequest: URLRequest, handler: @escaping (NSData) -> Void) {
-        dataTaskWithRequest(apiRequest, authenticated: true, retryCount: 0, handler: { data, response, error in
-            guard error == nil, let data = data else {
-                print("[API] HTTP error: \(error!)")
-                let mdata = NSData()
-                return handler(mdata)
-            }
-            handler(data as NSData)
-        }).resume()
-    }
-    
     private var network: String {
         return (E.isTestnet || E.isRunningTests) ? "ropsten" : "mainnet"
     }
@@ -169,44 +145,14 @@ public struct EthTxJSON: Codable {
 
 /// Maps to JSON model of a log event
 public struct EthLogEventJSON: Codable {
-    //    public let address: String
-    //    public let topics: [String]
-    //    public let data: String
-    //    public let blockNumber: String
-    //    public let gasPrice: String
-    //    public let gasUsed: String
-    //    public let timeStamp: String
-    //    public let transactionHash: String
-    //    public let transactionIndex: String
-    //    public let logIndex: String
-    
-    public var _id:String
     public let address: String
-    public let txHash: String
-    public var blockNumber:Int
-    public let contractAdd: String
-    public let from: String
-    public let to: String
-    public let timestamp: Int
-    public let methodName: String
-    public let eventName: String
-    public let logIndex: Int
     public let topics: [String]
     public let data: String
-    public let gasUsed: Int
+    public let blockNumber: String
     public let gasPrice: String
+    public let gasUsed: String
+    public let timeStamp: String
+    public let transactionHash: String
+    public let transactionIndex: String
+    public let logIndex: String
 }
-
-struct StoredToken : Codable {
-    let id: Int
-    let address: String
-    let symbol: String
-    let name: String
-    let description: String
-    let decimals: Int
-    let tokenABI: String
-    let logoUrl: String
-    let colorLeft: String
-    let colorRight: String
-}
-

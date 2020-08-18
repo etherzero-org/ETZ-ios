@@ -106,7 +106,7 @@ public extension String {
             }
         }
         return ret
-    }
+    }    
 }
 
 extension UserDefaults {
@@ -126,7 +126,7 @@ let VAR_INT32_HEADER: UInt64 = 0xfe
 let VAR_INT64_HEADER: UInt64 = 0xff
 
 extension NSMutableData {
-    
+
     func appendVarInt(i: UInt64) {
         if (i < VAR_INT16_HEADER) {
             var payload = UInt8(i)
@@ -171,98 +171,105 @@ public extension Data {
             return string
         }
     }
-    
+
     private func setHexString(string: String) {
         objc_setAssociatedObject(self, &AssociatedKeys.hexString, string, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
     }
-    
+
     private func getCachedHexString() -> String? {
         return objc_getAssociatedObject(self, &AssociatedKeys.hexString) as? String
     }
-    
+
     var bzCompressedData: Data? {
         get {
-            guard !self.isEmpty else {
+            if self.count == 0 {
                 return self
             }
-            
-            var compressed = Data()
+            var compressed = [UInt8]()
             var stream = bz_stream()
             var mself = self
             var success = true
             mself.withUnsafeMutableBytes { (selfBuff: UnsafeMutablePointer<Int8>) -> Void in
-                let outBuff = UnsafeMutablePointer<Int8>.allocate(capacity: Int(BZCompressionBufferSize))
-                defer { outBuff.deallocate() }
-                
                 stream.next_in = selfBuff
                 stream.avail_in = UInt32(self.count)
+                var buff = Data(capacity: Int(BZCompressionBufferSize))
+                buff.withUnsafeMutableBytes({ (outBuff: UnsafeMutablePointer<Int8>) -> Void in
+                    stream.next_out = outBuff
+                    stream.avail_out = BZCompressionBufferSize
+                    var bzret = BZ2_bzCompressInit(&stream, BZDefaultBlockSize, 0, BZDefaultWorkFactor)
+                    if bzret != BZ_OK {
+                        print("failed compression init")
+                        success = false
+                        return
+                    }
+                    repeat {
+                        bzret = BZ2_bzCompress(&stream, stream.avail_in > 0 ? BZ_RUN : BZ_FINISH)
+                        if bzret < BZ_OK {
+                            print("failed compress")
+                            success = false
+                            return
+                        }
+                        buff.withUnsafeBytes({ (bp: UnsafePointer<UInt8>) -> Void in
+                            let bpp = UnsafeBufferPointer(
+                                start: bp, count: (Int(BZCompressionBufferSize) - Int(stream.avail_out)))
+                            compressed.append(contentsOf: bpp)
+                        })
+                        stream.next_out = outBuff
+                        stream.avail_out = BZCompressionBufferSize
+                    } while bzret != BZ_STREAM_END
+                })
+            }
+            BZ2_bzCompressEnd(&stream)
+            if !success {
+                return nil
+            }
+            return Data(bytes: compressed)
+        }
+    }
+
+    init?(bzCompressedData data: Data) {
+        if data.count == 0 {
+            return nil
+        }
+        var stream = bz_stream()
+        var decompressed = [UInt8]()
+        var myDat = data
+        var success = true
+        myDat.withUnsafeMutableBytes { (datBuff: UnsafeMutablePointer<Int8>) -> Void in
+            stream.next_in = datBuff
+            stream.avail_in = UInt32(data.count)
+            var buff = Data(capacity: Int(BZCompressionBufferSize))
+            buff.withUnsafeMutableBytes { (outBuff: UnsafeMutablePointer<Int8>) -> Void in
                 stream.next_out = outBuff
                 stream.avail_out = BZCompressionBufferSize
-                
-                var bzret = BZ2_bzCompressInit(&stream, BZDefaultBlockSize, 0, BZDefaultWorkFactor)
-                guard bzret == BZ_OK else {
-                    print("failed compression init")
+                var bzret = BZ2_bzDecompressInit(&stream, 0, 0)
+                if bzret != BZ_OK {
+                    print("failed decompress init")
                     success = false
                     return
                 }
                 repeat {
-                    bzret = BZ2_bzCompress(&stream, stream.avail_in > 0 ? BZ_RUN : BZ_FINISH)
-                    guard bzret >= BZ_OK else {
-                        print("failed compress")
+                    bzret = BZ2_bzDecompress(&stream)
+                    if bzret < BZ_OK {
+                        print("failed decompress")
                         success = false
                         return
                     }
-                    let bpp = UnsafeBufferPointer(start: outBuff, count: (Int(BZCompressionBufferSize) - Int(stream.avail_out)))
-                    compressed.append(bpp)
+                    buff.withUnsafeBytes({ (bp: UnsafePointer<UInt8>) -> Void in
+                        let bpp = UnsafeBufferPointer(
+                            start: bp, count: (Int(BZCompressionBufferSize) - Int(stream.avail_out)))
+                        decompressed.append(contentsOf: bpp)
+                    })
                     stream.next_out = outBuff
                     stream.avail_out = BZCompressionBufferSize
                 } while bzret != BZ_STREAM_END
             }
-            BZ2_bzCompressEnd(&stream)
-            guard success else { return nil }
-            return compressed
-        }
-    }
-    
-    init?(bzCompressedData data: Data) {
-        guard !data.isEmpty else {
-            return nil
-        }
-        var stream = bz_stream()
-        var decompressed = Data()
-        var myDat = data
-        var success = true
-        myDat.withUnsafeMutableBytes { (datBuff: UnsafeMutablePointer<Int8>) -> Void in
-            let outBuff = UnsafeMutablePointer<Int8>.allocate(capacity: Int(BZCompressionBufferSize))
-            defer { outBuff.deallocate() }
-            
-            stream.next_in = datBuff
-            stream.avail_in = UInt32(data.count)
-            stream.next_out = outBuff
-            stream.avail_out = BZCompressionBufferSize
-            
-            var bzret = BZ2_bzDecompressInit(&stream, 0, 0)
-            guard bzret == BZ_OK else {
-                print("failed decompress init")
-                success = false
-                return
-            }
-            repeat {
-                bzret = BZ2_bzDecompress(&stream)
-                guard bzret >= BZ_OK else {
-                    print("failed decompress")
-                    success = false
-                    return
-                }
-                let bpp = UnsafeBufferPointer(start: outBuff, count: (Int(BZCompressionBufferSize) - Int(stream.avail_out)))
-                decompressed.append(bpp)
-                stream.next_out = outBuff
-                stream.avail_out = BZCompressionBufferSize
-            } while bzret != BZ_STREAM_END
         }
         BZ2_bzDecompressEnd(&stream)
-        guard success else { return nil }
-        self.init(decompressed)
+        if !success {
+            return nil
+        }
+        self.init(bytes: decompressed)
     }
     
     var base58: String {
@@ -275,7 +282,7 @@ public extension Data {
             }
         }
     }
-    
+
     var sha1: Data {
         var data = Data(count: 20)
         data.withUnsafeMutableBytes { (bytes: UnsafeMutablePointer<UInt8>) in
@@ -295,7 +302,7 @@ public extension Data {
         }
         return data
     }
-    
+
     var sha256_2: Data {
         return self.sha256.sha256
     }
@@ -341,7 +348,7 @@ public extension Data {
             return data
         })
     }
-    
+
     fileprivate func genNonce() -> [UInt8] {
         var tv = timeval()
         gettimeofday(&tv, nil)
@@ -381,7 +388,7 @@ public extension Data {
             return Data(outData)
         }
     }
-    
+
     var masterPubKey: BRMasterPubKey? {
         guard self.count >= (4 + 32 + 33) else { return nil }
         var mpk = BRMasterPubKey()
@@ -390,7 +397,7 @@ public extension Data {
         mpk.pubKey = self.subdata(in: (4 + 32)..<(4 + 32 + 33)).withUnsafeBytes { $0.pointee }
         return mpk
     }
-    
+
     init(masterPubKey mpk: BRMasterPubKey) {
         var data = [mpk.fingerPrint].withUnsafeBufferPointer { Data(buffer: $0) }
         [mpk.chainCode].withUnsafeBufferPointer { data.append($0) }
@@ -418,7 +425,7 @@ public extension Date {
     func msTimestamp() -> UInt64 {
         return UInt64((self.timeIntervalSince1970 < 0 ? 0 : self.timeIntervalSince1970) * 1000.0)
     }
-    
+
     // this is lifted from: https://github.com/Fykec/NSDate-RFC1123/blob/master/NSDate%2BRFC1123.swift
     // Copyright © 2015 Foster Yin. All rights reserved.
     fileprivate static func cachedThreadLocalObjectWithKey<T: AnyObject>(_ key: String, create: () -> T) -> T {

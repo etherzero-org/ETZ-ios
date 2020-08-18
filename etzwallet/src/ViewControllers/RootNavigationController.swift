@@ -32,7 +32,6 @@ class RootNavigationController : UINavigationController {
 
     override func viewDidLoad() {
         setLightStyle()
-        self.isNavigationBarHidden = true
         navigationBar.isTranslucent = false
         self.addChildViewController(tempLoginView, layout: {
             tempLoginView.view.constrain(toSuperviewEdges: nil)
@@ -66,11 +65,11 @@ class RootNavigationController : UINavigationController {
     }
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
-//        if topViewController is HomeScreenViewController || topViewController is EditWalletsViewController {
+        if topViewController is HomeScreenViewController || topViewController is EditWalletsViewController {
             return .default
-//        } else {
-//            return .lightContent
-//        }
+        } else {
+            return .lightContent
+        }
     }
 
     func setLightStyle() {

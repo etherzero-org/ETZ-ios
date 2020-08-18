@@ -140,10 +140,10 @@ class EnterPhraseViewController : UIViewController, UIScrollViewDelegate, Custom
             titleLabel.text = S.RecoverWallet.headerResetPin
             subheader.text = S.RecoverWallet.subheaderResetPin
             instruction.isHidden = true
-//            moreInfoButton.setTitle(S.RecoverWallet.resetPinInfo, for: .normal)
-//            moreInfoButton.tap = {
-//                Store.trigger(name: .presentFaq(ArticleIds.resetPinWithPaperKey, nil))
-//            }
+            moreInfoButton.setTitle(S.RecoverWallet.resetPinInfo, for: .normal)
+            moreInfoButton.tap = {
+                Store.trigger(name: .presentFaq(ArticleIds.resetPinWithPaperKey, nil))
+            }
 //            faq.isHidden = true
         case .validateForWipingWallet(_):
             saveEvent("enterPhrase.wipeWallet")
